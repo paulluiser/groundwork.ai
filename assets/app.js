@@ -75,7 +75,7 @@
     document.body.classList.toggle("norail", mode !== "lesson");
     var rb = $("#role-btn");
     rb.hidden = !roles.length || bare;
-    if (roles.length) { rb.innerHTML = '<span class="k">Path</span><b>' + esc(pathName(roles)) + '</b><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'; rb.setAttribute("aria-label", "Your path: " + pathLong(roles) + ". Change roles"); }
+    if (roles.length) { rb.innerHTML = '<span class="k">Path</span><b class="pn-full">' + esc(pathName(roles)) + '</b><b class="pn-short">' + esc(roleInfo(roles[0]).name + (roles.length > 1 ? " +" + (roles.length - 1) : "")) + '</b><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'; rb.setAttribute("aria-label", "Your path: " + pathLong(roles) + ". Change roles"); }
     var sb = $("#signin-btn");
     sb.hidden = !bare || location.hash === "#progress" || location.hash === "#role";
     sb.textContent = roles.length ? "Continue" : "Have a code?";
@@ -165,7 +165,7 @@
 
     h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three. Your main role adds a three-lesson track, with examples from your work.</p></div>';
     h += '<ul class="lr-grid">' + roleList.map(function (r) {
-      return '<li><a class="lr-card' + (r === GENERAL ? " gen" : "") + '" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b><small>" + esc(ROLE_SHORT[r.id]) + "</small></a></li>";
+      return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b><small>" + esc(ROLE_SHORT[r.id]) + "</small></a></li>";
     }).join("") + "</ul></section>";
 
     h += '<section class="l-steps"><div class="section-h"><h2>How it works</h2></div><ol class="steps3">';
@@ -384,8 +384,7 @@
   var homeScope = "path";
   function pathRow(id, pos, next) {
     var l = byId[id], done = progress[id], isNext = id === next;
-    var cat = l.num !== pos ? '<small class="cat">No. ' + l.num + "</small>" : "";
-    return '<li><a class="' + (done ? "done" : "") + (isNext ? " next" : "") + '" href="#' + id + '"><span class="n">' + pos + '</span><span><span class="t">' + esc(l.title) + cat + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (done ? "Completed" : isNext ? "Up next, " + l.minutes + " min" : l.minutes + " min") + "</span></a></li>";
+    return '<li><a class="' + (done ? "done" : "") + (isNext ? " next" : "") + '" href="#' + id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (done ? "Completed" : isNext ? "Up next, " + l.minutes + " min" : l.minutes + " min") + "</span></a></li>";
   }
   function renderHome() {
     var path = routeFor(roles), n = doneOf(path), gen = roles[0] === "general", main = roleInfo(roles[0]) || GENERAL;
@@ -394,13 +393,13 @@
     var h = '<div class="home">';
     if (notice) { h += '<p class="notice" role="status">' + esc(notice) + "</p>"; notice = ""; }
     h += '<section class="dash2"><p class="kicker">Your path: ' + esc(pathLong(roles)) + "</p>";
-    h += "<h1>" + (!next ? "Path complete" : n ? "You're on lesson " + pos + " of " + path.length : "Start with lesson 1") + "</h1>";
+    h += "<h1>" + (!next ? "Path complete" : n ? "You're on step " + pos + " of " + path.length : "Start your path") + "</h1>";
     h += '<div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + " done" + (left.length ? ", about " + hours(left) + " hours left" : "") + "</span></div>";
     if (next) {
       var nl = byId[next];
-      h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + pos + ", " + nl.minutes + ' min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue" : "Start") + "</span></a>";
+      h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + nl.num + ", " + nl.minutes + ' min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue" : "Start") + "</span></a>";
     } else h += '<a class="upnext" href="#team-adoption"><span class="un-k">All ' + path.length + ' lessons done</span><b>Revisit the capstone, or explore the full library</b><span class="btn pill dark">Open the capstone</span></a>';
-    h += '<p class="dash-links"><a href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></section>';
+    h += '<p class="dash-links"><a class="linkish" href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></section>';
 
     h += '<div class="home-views"><div class="seg" role="group" aria-label="Which lessons to show"><button type="button" data-homescope="path" aria-pressed="' + (homeScope === "path") + '">Your path (' + path.length + ')</button><button type="button" data-homescope="all" aria-pressed="' + (homeScope === "all") + '">Full library (' + GW.lessons.length + ")</button></div></div>";
 
@@ -457,7 +456,7 @@
       var done = progress[l.id];
       h += '<section class="ex-group' + (done ? " done" : "") + '" aria-labelledby="exg-' + l.id + '"><h2 class="ex-l" id="exg-' + l.id + '"><span class="ex-ln">Lesson ' + l.num + (done ? ' <b class="ex-done">Completed</b>' : "") + "</span>" + esc(l.title) + '</h2><ul class="ex-list">';
       list.filter(function (e) { return e.lesson === l; }).forEach(function (e) {
-        h += '<li><a class="ex-row" href="#' + l.id + '" data-scroll="ex-' + e.n + '"><b>' + e.title + "</b>" + (e.kind ? '<span class="ex-kind">' + esc(e.kind) + "</span>" : "") + "</a></li>";
+        h += '<li><a class="ex-row" href="#' + l.id + '" data-scroll="ex-' + e.n + '"><b>' + e.title + '</b><span class="ex-end">' + (e.kind ? '<span class="ex-kind">' + esc(e.kind) + "</span>" : "") + '<svg width="8" height="12" viewBox="0 0 8 12" aria-hidden="true"><path d="M2 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></li>';
       });
       h += "</ul></section>";
     });
@@ -482,7 +481,7 @@
       body += '<section class="uc-group" aria-labelledby="ucg-' + r + '"><h2 class="ex-l" id="ucg-' + r + '"><span>' + trackSpan(r) + "</span>" + esc(roleInfo(r).name) + '</h2><div class="uc-grid">';
       items.forEach(function (u) {
         var f = FIT[u.fit], l = byId[u.l];
-        body += '<article class="uc-card"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a href="#' + l.id + '">Lesson ' + l.num + ": " + esc(l.title) + "</a>" : "") + "</article>";
+        body += '<article class="uc-card"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
       });
       body += "</div></section>";
     });
@@ -542,8 +541,7 @@
     var idx = seq.indexOf(l), prev = seq[idx - 1], next = seq[idx + 1];
     var h = '<article class="lesson">';
     h += '<header class="lesson-head"><h1>' + esc(l.title) + "</h1>";
-    var posTxt = roles.length && onPath ? "Lesson " + (idx + 1) + " of " + seq.length : "Library lesson " + l.num;
-    h += '<p class="meta"><span><b>' + posTxt + "</b></span><span>" + l.minutes + " min</span>" + (roles.length && !onPath ? '<span class="path-off">Not on your path</span>' : "") + "</p>";
+    h += '<p class="meta"><span><b>Lesson ' + l.num + "</b></span><span>" + l.minutes + " min</span>" + (roles.length ? (onPath ? "<span>Step " + (idx + 1) + " of " + seq.length + " on your path</span>" : '<span class="path-off">Not on your path</span>') : "") + "</p>";
     h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
     h += '<p class="lede">' + c.lede + "</p>";
     h += '<div class="outcomes"><h4>After this lesson you can</h4><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";

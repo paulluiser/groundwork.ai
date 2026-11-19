@@ -1236,3 +1236,20 @@ html { scroll-padding-bottom: 24px; }
 .ex-ln .ex-done { margin-left: 6px; }
 .dash-links { gap: 4px 20px; }
 .build-v { margin: 8px 0 0; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* ---------- Review pass, Nov 2026 ---------- */
+.dash-links { gap: 4px 20px; }
+.dash-links .linkish { text-decoration: underline; text-underline-offset: 3px; }
+.lesson > .toc + h2 { margin-top: 40px; padding-top: 0; border-top: 0; }
+.ex-row { align-items: center; }
+.ex-end { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; color: var(--ink-3); }
+.ex-row:hover .ex-end { color: var(--ink); }
+.uc-card .uc-link { margin-top: auto; padding-top: 4px; color: var(--ink-2); text-decoration: none; line-height: 1.4; }
+.uc-card .uc-link b { color: var(--accent); font-weight: 600; }
+.uc-card .uc-link:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.role-btn .pn-short { display: none; }
+@media (max-width: 760px) {
+  .role-btn .pn-full { display: none; }
+  .role-btn .pn-short { display: block; }
+}
+#pc-clear { margin-top: 12px; }
