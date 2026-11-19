@@ -12,9 +12,9 @@
    Colour: white page, #F5F5F7 grouped surfaces, near-black #1D1D1F type and fills, cobalt for links, actions, progress and "correct".
    States are coded by shape as well as colour: solid = confirmed, outlined = check it, dashed = uncertain, black = wrong.
    Type: the platform system font (SF Pro on Apple devices) with size-specific tracking; ui-monospace for code only.
-   Deliberately a single light theme. */
+   Light and dark themes: dark follows the system setting and swaps the same tokens (see the dark theme block at the end). */
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --white: #FFFFFF;
   --tint: #F5F5F7;
   --tint-2: #E8E8ED;
@@ -1275,3 +1275,201 @@ html { scroll-padding-bottom: 24px; }
 /* Numbered steps keep the same reading measure as body text, plus room for the number */
 .lesson > ol.steps { max-width: calc(var(--measure) + 48px); }
 .gloss dd { max-width: 64ch; }
+
+/* ---------- Dark theme: follows the system setting ----------
+   The page goes black with Apple's dark grouped greys; text and the cobalt accent lighten to keep 4.5:1 or better.
+   Near-black fills (primary buttons, pressed chips, badges, step numbers) flip to near-white with dark text, as on Apple platforms.
+   Code, logs, prompts, activity headers and the closing band stay dark panels instead of turning bright. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --white: #000000;
+    --tint: #1C1C1E;
+    --tint-2: #2C2C2E;
+    --line: #38383A;
+    --sep: #2C2C2E;
+    --black: #F5F5F7;
+    --ink: #F5F5F7;
+    --ink-2: #D1D1D6;
+    --ink-3: #98989D;
+    --on-black: #1D1D1F;
+    --on-black-2: #48484A;
+    --on-black-line: #D2D2D7;
+    --on-black-soft: #3A3A3C;
+    --on-black-code: #1D1D1F;
+    --on-black-fade: rgba(0, 0, 0, .7);
+    --accent: #7D8CFF;
+    --accent-ink: #000000;
+    --accent-tint: #161A33;
+    --accent-line: #3B4AA8;
+    --accent-hover: #97A3FF;
+    --on-accent-soft: rgba(0, 0, 0, .72);
+    --black-hover: #D1D1D6;
+    --frame-line: #C7C7CC;
+    --frame-fill: #D1D1D6;
+    --frame-hover: #E5E5EA;
+    --frame-mute: #AEAEB2;
+    --mute-line: #636366;
+    --field-line: #7C7C80;
+    --code-hl: #2A3A8E;
+    --code-wash: rgba(127, 127, 127, .22);
+    --swatch-line: rgba(255, 255, 255, .3);
+    --shadow: 0 2px 8px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .6);
+    --shadow-sm: 0 0 0 .5px rgba(255, 255, 255, .14), 0 1px 3px rgba(0, 0, 0, .6);
+    --glass: rgba(22, 22, 24, .72);
+    --glass-solid: rgba(22, 22, 24, .94);
+    --hairline: rgba(255, 255, 255, .12);
+    --fill: rgba(118, 118, 128, .24);
+    --fill-2: rgba(118, 118, 128, .36);
+    --press: rgba(255, 255, 255, .08);
+    --scrim: rgba(0, 0, 0, .6);
+    --fig-1: #3A3A3C; --fig-2: #2C2C2E; --fig-3: #48484A; --fig-4: #636366;
+  }
+  /* Dark panels stay dark: re-point the fill and its text tokens inside them */
+  :root:not([data-theme="light"]) :is(pre.code, .log, .codebox, .draft.prompt, .activity-h, .l-close) {
+    --black: #1C1C1E;
+    --on-black: #F5F5F7;
+    --on-black-2: #AEAEB2;
+    --on-black-soft: #D1D1D6;
+    --on-black-code: #EDEDED;
+    --on-black-line: #38383A;
+    --on-black-fade: rgba(255, 255, 255, .78);
+  }
+  :root:not([data-theme="light"]) :is(pre.code, .log, .codebox, .draft.prompt, .l-close) { box-shadow: inset 0 0 0 1px var(--line); }
+  /* The closing band's light button keeps its light-on-dark look */
+  :root:not([data-theme="light"]) .l-close .btn.pill.light { --white: #F5F5F7; --ink: #1D1D1F; }
+}
+@media (prefers-color-scheme: dark) {
+  /* Shadows vanish on black, so raised surfaces also get a hairline ring */
+  :root:not([data-theme="light"]) { --shadow: 0 0 0 1px #38383A, 0 2px 8px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .6); }
+}
+@media (prefers-color-scheme: dark) {
+  /* Term pop-ups are a raised dark surface in dark mode, not a light card */
+  :root:not([data-theme="light"]) .popover { --black: #2C2C2E; --on-black: #F5F5F7; --on-black-2: #AEAEB2; --on-black-soft: #D1D1D6; --on-black-line: #48484A; background: #2C2C2E; color: #F5F5F7; }
+}
+
+/* ---------- Dark theme chosen with the switch (same rules as the system dark theme) ---------- */
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+
+  :root[data-theme="dark"] {
+    --white: #000000;
+    --tint: #1C1C1E;
+    --tint-2: #2C2C2E;
+    --line: #38383A;
+    --sep: #2C2C2E;
+    --black: #F5F5F7;
+    --ink: #F5F5F7;
+    --ink-2: #D1D1D6;
+    --ink-3: #98989D;
+    --on-black: #1D1D1F;
+    --on-black-2: #48484A;
+    --on-black-line: #D2D2D7;
+    --on-black-soft: #3A3A3C;
+    --on-black-code: #1D1D1F;
+    --on-black-fade: rgba(0, 0, 0, .7);
+    --accent: #7D8CFF;
+    --accent-ink: #000000;
+    --accent-tint: #161A33;
+    --accent-line: #3B4AA8;
+    --accent-hover: #97A3FF;
+    --on-accent-soft: rgba(0, 0, 0, .72);
+    --black-hover: #D1D1D6;
+    --frame-line: #C7C7CC;
+    --frame-fill: #D1D1D6;
+    --frame-hover: #E5E5EA;
+    --frame-mute: #AEAEB2;
+    --mute-line: #636366;
+    --field-line: #7C7C80;
+    --code-hl: #2A3A8E;
+    --code-wash: rgba(127, 127, 127, .22);
+    --swatch-line: rgba(255, 255, 255, .3);
+    --shadow: 0 2px 8px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .6);
+    --shadow-sm: 0 0 0 .5px rgba(255, 255, 255, .14), 0 1px 3px rgba(0, 0, 0, .6);
+    --glass: rgba(22, 22, 24, .72);
+    --glass-solid: rgba(22, 22, 24, .94);
+    --hairline: rgba(255, 255, 255, .12);
+    --fill: rgba(118, 118, 128, .24);
+    --fill-2: rgba(118, 118, 128, .36);
+    --press: rgba(255, 255, 255, .08);
+    --scrim: rgba(0, 0, 0, .6);
+    --fig-1: #3A3A3C; --fig-2: #2C2C2E; --fig-3: #48484A; --fig-4: #636366;
+  }
+  /* Dark panels stay dark: re-point the fill and its text tokens inside them */
+  :root[data-theme="dark"] :is(pre.code, .log, .codebox, .draft.prompt, .activity-h, .l-close) {
+    --black: #1C1C1E;
+    --on-black: #F5F5F7;
+    --on-black-2: #AEAEB2;
+    --on-black-soft: #D1D1D6;
+    --on-black-code: #EDEDED;
+    --on-black-line: #38383A;
+    --on-black-fade: rgba(255, 255, 255, .78);
+  }
+  :root[data-theme="dark"] :is(pre.code, .log, .codebox, .draft.prompt, .l-close) { box-shadow: inset 0 0 0 1px var(--line); }
+  /* The closing band's light button keeps its light-on-dark look */
+  :root[data-theme="dark"] .l-close .btn.pill.light { --white: #F5F5F7; --ink: #1D1D1F; }
+
+
+  /* Shadows vanish on black, so raised surfaces also get a hairline ring */
+  :root[data-theme="dark"] { --shadow: 0 0 0 1px #38383A, 0 2px 8px rgba(0, 0, 0, .5), 0 16px 40px rgba(0, 0, 0, .6); }
+
+
+  /* Term pop-ups are a raised dark surface in dark mode, not a light card */
+  :root[data-theme="dark"] .popover { --black: #2C2C2E; --on-black: #F5F5F7; --on-black-2: #AEAEB2; --on-black-soft: #D1D1D6; --on-black-line: #48484A; background: #2C2C2E; color: #F5F5F7; }
+
+
+/* ---------- Light/dark switch, top right ---------- */
+.theme-btn { flex: none; width: 40px; padding: 0; border-radius: 99px; background: var(--fill); border-color: transparent; color: var(--ink-2); }
+.theme-btn:hover { background: var(--fill-2); color: var(--ink); }
+.theme-btn .i-sun { display: none; }
+.theme-btn.is-dark .i-sun { display: block; }
+.theme-btn.is-dark .i-moon { display: none; }
+
+/* ---------- Less text on the landing page; a compact role picker that fits one screen ---------- */
+.lr-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }
+.lr-card { min-height: 0; padding: 14px 16px; border-radius: 14px; align-content: center; }
+.lr-card b { font-size: 18px; }
+
+.picker h1 { font-size: clamp(32px, 4vw, 44px); margin-bottom: 6px; }
+.picker .lede { margin-bottom: 0; font-size: 17px; }
+.pick-top { margin-bottom: 8px; }
+.pick-layout { margin-top: 20px; }
+.pick-gen { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); margin-bottom: 4px; }
+.pick-h { margin: 14px 0 8px; font-size: 17px; }
+.role-grid.pick { gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.picker .role-card { min-height: 0; gap: 2px; padding: 12px 14px; border-radius: 14px; }
+.picker .role-card b { font-size: 18px; line-height: 1.2; }
+.picker .role-card .rc-s { font-size: 13px; line-height: 1.35; color: var(--ink-3); }
+.picker .role-card em { padding-top: 4px; }
+.picker .role-card[aria-checked="true"] .rc-s { color: var(--ink-2); }
+.pick-side { top: 76px; max-height: calc(100vh - 170px); overflow-y: auto; }
+.pick-side h2 { font-size: 22px; }
+@media (min-width: 1100px) {
+  .role-grid.pick { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .role-grid.pick { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .picker .role-card { padding: 10px 12px; }
+  .picker .role-card b { font-size: 16px; }
+  .role-grid.pick .role-card .rc-s { display: none; }
+  .pick-gen { gap: 6px; }
+  .pick-side { max-height: none; overflow: visible; }
+}
+@media (max-width: 760px) {
+  .picker h1 { font-size: 30px; }
+  .picker .lede { font-size: 15px; }
+  .pick-top { margin-bottom: 0; }
+  .pick-top .back { min-height: 36px; }
+  .pick-layout { margin-top: 14px; }
+  .pick-gen { grid-template-columns: minmax(0, 1fr); }
+  .pick-gen p { display: none; }
+  .pick-gen .role-card { padding: 10px 12px; }
+  .pick-gen .role-card .rc-s { font-size: 13px; }
+  .pick-h { margin: 12px 0 6px; font-size: 15px; }
+  .picker .role-card { min-height: 52px; align-content: center; }
+  .picker .role-card b { font-size: 15px; }
+}
+/* Landing: roles as wrapping pills; three outcomes in one row */
+.lr-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.lr-card { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 18px; border-radius: 99px; }
+.lr-card b { font-size: 17px; font-weight: 600; }
+.outcome-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 8px 32px; columns: auto; }

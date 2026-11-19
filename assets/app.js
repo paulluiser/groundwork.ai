@@ -151,39 +151,35 @@
   function renderWelcome() {
     var ready = roles.length > 0;
     var go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
-    var genPath = routeFor(["general"]), bigPath = routeFor(["engineering", "qa", "security"]);
     var first = GW.lessons[0];
     var h = '<div class="landing">';
     h += '<section class="l-hero"><div class="l-copy">';
     h += "<h1>AI drafts.<br>You decide.</h1>";
-    h += '<p class="l-lede">A free course for software teams: learn where AI helps, where it fails, and how to check its work before it ships.</p>';
-    h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">Lesson 1 takes ' + first.minutes + " minutes</span>") + "</div>";
-    h += '<p class="l-meta">Your roles pick a path of ' + genPath.length + "–" + bigPath.length + " lessons, about " + hours(genPath) + "–" + hours(bigPath) + " hours, from a library of " + GW.lessons.length + ". Every lesson stays open to you." + (ready ? "" : ' <a href="#progress">I have a progress code</a>') + "</p></div>";
+    h += '<p class="l-lede">A free course for software teams on checking AI\'s work.</p>';
+    h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">' + first.minutes + "-minute first lesson</span>") + "</div>";
+    h += "</div>";
     h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card" aria-live="polite">' + heroCard(0) + "</div>";
     h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + "</span></figcaption></figure>";
     h += "</section>";
 
-    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three. Your main role adds a three-lesson track, with examples from your work.</p></div>';
+    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three.</p></div>';
     h += '<ul class="lr-grid">' + roleList.map(function (r) {
-      return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b><small>" + esc(ROLE_SHORT[r.id]) + "</small></a></li>";
+      return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b></a></li>";
     }).join("") + "</ul></section>";
 
     h += '<section class="l-steps"><div class="section-h"><h2>How it works</h2></div><ol class="steps3">';
-    h += "<li><b>Choose your roles</b><p>Up to three, or General. Your first pick sets the examples you see.</p></li>";
-    h += "<li><b>Learn by doing</b><p>Short lessons with exercises that give feedback as you go.</p></li>";
-    h += "<li><b>Pick up anywhere</b><p>No account needed. Progress saves in your browser, and a short code carries it to another device.</p></li>";
+    h += "<li><b>Choose your roles</b><p>Up to three. Your first sets the examples.</p></li>";
+    h += "<li><b>Learn by doing</b><p>Short lessons with hands-on exercises.</p></li>";
+    h += "<li><b>Pick up anywhere</b><p>No account. A code moves your progress.</p></li>";
     h += "</ol></section>";
 
     h += '<section class="l-out"><div class="section-h"><h2>By the end you can</h2></div><ul class="outcome-list">';
-    ["Explain how a model produces text, and why it can be fluent and wrong.",
-      "Decide what a model needs to see, and what it must never see.",
-      "Write requests that work like a good brief.",
-      "Spot fabrication, stale facts, reasoning slips and agreeableness.",
-      "Check in proportion to the cost of an error.",
-      "Set sensible limits on tools and agents that take actions."].forEach(function (o) { h += "<li>" + esc(o) + "</li>"; });
+    ["Explain why AI can be fluent and wrong.",
+      "Check its work in proportion to the risk.",
+      "Set safe limits on agents and tools."].forEach(function (o) { h += "<li>" + esc(o) + "</li>"; });
     h += "</ul></section>";
 
-    h += '<section class="l-close"><h2>Whatever you ship, there\'s a path for you.</h2><a class="btn pill light" href="' + go + '">' + goTxt + '</a><p>Lesson 1 takes ' + first.minutes + " minutes and needs no background.</p></section>";
+    h += '<section class="l-close"><h2>Whatever you ship, there\'s a path for you.</h2><a class="btn pill light" href="' + go + '">' + goTxt + "</a></section>";
     h += "</div>";
     $("#view").innerHTML = h;
   }
@@ -314,9 +310,9 @@
     var h = '<div class="picker">';
     h += '<p class="pick-top"><a class="back" href="' + (first ? "#welcome" : "#home") + '">Back</a></p>';
     h += "<h1>Choose your roles</h1>";
-    h += '<p class="lede">Pick up to three. Your first pick is your main role: it adds a three-lesson track and sets the examples in every core lesson. Each other role adds its first lesson.</p>';
+    h += '<p class="lede">Pick up to three. Your first pick is your main role and adds its full track.</p>';
     h += '<div class="pick-layout"><div class="pick-main" role="group" aria-label="Roles, choose up to three">';
-    h += '<div class="pick-gen">' + card(GENERAL) + '<p>No specialty, or not sure yet? Start with General. You can add roles later.</p></div>';
+    h += '<div class="pick-gen">' + card(GENERAL) + '<p>Not sure yet? Start with General.</p></div>';
     h += '<h2 class="pick-h">Or pick your roles</h2><div class="role-grid pick">' + GW.roles.map(card).join("") + "</div></div>";
     h += '<aside class="pick-side" aria-labelledby="ps-h"><h2 id="ps-h" tabindex="-1">Your path</h2><div id="pick-chosen"></div><div id="pick-path"></div></aside></div>';
     h += '<div class="pick-bar"><p id="pick-sum" aria-live="polite"></p><a class="btn small ghost pick-review" href="#ps-h">Review<span class="rv-long"> your path</span></a><button class="btn small pill dark" id="pick-go"></button></div></div>';
@@ -328,7 +324,7 @@
         var id = b.getAttribute("data-r"), i = picked.indexOf(id), n = id === "general" ? 0 : trackOf(id).length;
         b.setAttribute("aria-checked", String(i > -1));
         $(".rc-badge", b).textContent = i < 0 ? "" : gen ? "Selected" : i === 0 ? "Main" : "Added";
-        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "Track of " + plural(n, "lesson");
+        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "";
       });
       var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view), go = $("#pick-go", view);
       if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Nothing chosen yet. Pick the roles closest to your work.</p>';
@@ -809,6 +805,24 @@
   window.addEventListener("hashchange", route);
   $("#menu-btn").addEventListener("click", function () { $("#rail").classList.toggle("open"); });
   $("#search-btn").addEventListener("click", openSearch);
+  /* ---------- light/dark switch: starts from the system setting, remembers an explicit choice ---------- */
+  var darkMQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function isDark() { var t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : !!(darkMQ && darkMQ.matches); }
+  function paintTheme() {
+    var d = isDark(), b = $("#theme-btn");
+    b.classList.toggle("is-dark", d);
+    b.setAttribute("aria-label", d ? "Switch to light mode" : "Switch to dark mode");
+    b.title = d ? "Light mode" : "Dark mode";
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", d ? "#000000" : "#FFFFFF"); m.removeAttribute("media"); });
+  }
+  $("#theme-btn").addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("gw-theme", next); } catch (e) {}
+    paintTheme();
+  });
+  if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", paintTheme);
+  paintTheme();
   route();
 
 })();
