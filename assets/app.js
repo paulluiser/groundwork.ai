@@ -114,9 +114,9 @@
 
   /* ---------- shared pieces ---------- */
   function roleBlurb(r) { return r === GENERAL ? "Core lessons and the capstone, with examples that suit any role." : byId[r.id].summary; }
-  function lessonRow(l, path) {
+  function lessonRow(l, path, grouped) {
     var on = path && path.indexOf(l.id) > -1 && l.part === "c";
-    return '<li><a class="' + (progress[l.id] ? "done" : "") + '" href="#' + l.id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + (l.role ? "<small>" + esc(l.role) + "</small>" : "") + (on ? '<small class="on-path">On your path</small>' : "") + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (progress[l.id] ? "Completed" : l.minutes + " min") + "</span></a></li>";
+    return '<li><a class="' + (progress[l.id] ? "done" : "") + '" href="#' + l.id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + (l.role && !grouped ? "<small>" + esc(l.role) + "</small>" : "") + (on ? '<small class="on-path">On your path</small>' : "") + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (progress[l.id] ? "Completed" : l.minutes + " min") + "</span></a></li>";
   }
 
   /* ---------- landing ---------- */
@@ -270,7 +270,7 @@
       h += '<p class="code-sum">The code changes as you complete lessons, so copy it again before you switch.</p></div>';
       h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></section>';
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
-    h += '<section class="restore"><h2>' + (has ? "Restore a different code" : "Your code") + "</h2>";
+    h += '<section class="restore">' + (has ? "<h2>Restore a different code</h2>" : "");
     h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore</button></div>';
     h += '<p class="pc-err" id="pc-err" role="alert">' + esc(err || "") + "</p></form>";
     h += "</section>";
@@ -328,7 +328,7 @@
         var id = b.getAttribute("data-r"), i = picked.indexOf(id), n = id === "general" ? 0 : trackOf(id).length;
         b.setAttribute("aria-checked", String(i > -1));
         $(".rc-badge", b).textContent = i < 0 ? "" : gen ? "Selected" : i === 0 ? "Main" : "Added";
-        $("em", b).textContent = id === "general" ? "Core lessons and the capstone" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "Track of " + plural(n, "lesson");
+        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "Track of " + plural(n, "lesson");
       });
       var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view), go = $("#pick-go", view);
       if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Nothing chosen yet. Pick the roles closest to your work.</p>';
@@ -421,7 +421,10 @@
       h += '<section><p class="lib-note">' + courseSize + ". Every lesson stays open to you; lessons on your path are marked.</p><div class=\"parts\">";
       GW.parts.forEach(function (p) {
         var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
-        h += '<div class="part"><div class="part-h"><h3>' + esc(p.title) + "</h3><p>" + esc(p.blurb) + '</p><span class="pn-count">' + plural(ls.length, "lesson") + '</span></div><ol class="contents">' + ls.map(function (l) { return lessonRow(l, path); }).join("") + "</ol></div>";
+        var groups = [];
+        ls.forEach(function (l) { var g = groups[groups.length - 1]; if (l.role && g && g.role === l.role) g.ls.push(l); else groups.push({ role: l.role, ls: [l] }); });
+        var body = ls.some(function (l) { return l.role; }) ? groups.map(function (g) { return '<h3 class="role-sub">' + esc(g.role) + '</h3><ol class="contents">' + g.ls.map(function (l) { return lessonRow(l, path, true); }).join("") + "</ol>"; }).join("") : '<ol class="contents">' + ls.map(function (l) { return lessonRow(l, path); }).join("") + "</ol>";
+        h += '<div class="part"><div class="part-h"><h2>' + esc(p.title) + "</h2><p>" + esc(p.blurb) + '</p><span class="pn-count">' + plural(ls.length, "lesson") + '</span></div><div class="part-b">' + body + "</div></div>";
       });
       h += "</div></section>";
     }
@@ -544,8 +547,8 @@
     h += '<p class="meta"><span><b>Lesson ' + l.num + "</b></span><span>" + l.minutes + " min</span>" + (roles.length ? (onPath ? "<span>Step " + (idx + 1) + " of " + seq.length + " on your path</span>" : '<span class="path-off">Not on your path</span>') : "") + "</p>";
     h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
     h += '<p class="lede">' + c.lede + "</p>";
-    h += '<div class="outcomes"><h4>After this lesson you can</h4><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";
-    h += '<nav class="toc" aria-label="On this page"><h4>On this page</h4></nav>';
+    h += '<div class="outcomes"><h2 class="oc-h">After this lesson you can</h2><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";
+    h += '<nav class="toc" aria-label="On this page"><h2 class="toc-h">On this page</h2></nav>';
     var ex = roleExample(id), body = c.html;
     if (ex) body = body.indexOf('<section class="checks">') > -1 ? body.replace('<section class="checks">', ex + '<section class="checks">') : body + ex;
     var srcHtml = "", si = body.indexOf('<section class="sources">');

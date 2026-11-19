@@ -171,7 +171,7 @@ h4 { font-size: 20px; line-height: 1.3; }
 .lesson > * { grid-column: 1; min-width: 0; }
 .lesson > p, .lesson > ul, .lesson > ol:not(.steps), .lesson > h2, .lesson > h3, .lesson > .lede, .lesson > .meta, .lesson > h1 { max-width: var(--measure); }
 .lesson .toc { grid-column: 2; grid-row: 1 / span 80; position: sticky; top: 92px; align-self: start; font-size: 14px; max-height: calc(100vh - 120px); overflow-y: auto; }
-.toc h4 { margin: 0 0 10px; font-family: var(--font-body); font-size: var(--t-xs); font-weight: 700; color: var(--ink); }
+.toc .toc-h { margin: 0 0 10px; font-family: var(--font-body); font-size: var(--t-xs); font-weight: 700; color: var(--ink); }
 .toc a { display: block; color: var(--ink-3); text-decoration: none; padding: 6px 0 6px 14px; border-left: 1px solid var(--line); line-height: 1.35; }
 .toc a:hover { color: var(--ink); }
 .toc a.on { color: var(--ink); font-weight: 700; border-left-color: var(--black); box-shadow: inset 1px 0 0 var(--black); }
@@ -184,7 +184,7 @@ h4 { font-size: 20px; line-height: 1.3; }
 
 .lesson-head { padding-bottom: 28px; }
 .outcomes { background: var(--tint); border-radius: var(--radius); padding: 18px 22px; }
-.outcomes h4 { margin: 0 0 8px; font-family: var(--font-body); font-size: var(--t-sm); font-weight: 700; }
+.outcomes .oc-h { margin: 0 0 8px; padding: 0; border: 0; font-family: var(--font-body); font-size: var(--t-sm); font-weight: 700; }
 .outcomes ul { margin: 0; padding-left: 20px; font-size: 16.5px; line-height: 1.55; display: grid; gap: 6px; }
 
 .lesson > h2, .lesson > section > h2 { margin: 64px 0 16px; padding-top: 22px; border-top: 1px solid var(--black); }
@@ -325,12 +325,12 @@ details.reveal > div { padding: 6px 18px 16px; font-size: 16.5px; }
 .w { font-size: 16px; line-height: 1.55; }
 .w-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .w label { font-size: var(--t-sm); font-weight: 700; color: var(--ink); display: inline-block; margin-bottom: 4px; }
-.w input[type="text"], .w textarea, .w select {
+.w input[type="text"], .w input[type="search"], .w textarea, .w select {
   font: inherit; font-family: var(--font-mono); font-size: 14.5px; width: 100%; padding: 10px 12px; border-radius: var(--radius);
   border: 1px solid var(--field-line); background: var(--white); color: var(--ink);
 }
-.gloss .w input[type="text"] { font-family: var(--font-body); font-size: 16px; }
-.w input[type="text"]:focus, .w textarea:focus { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.gloss .w input[type="text"], .gloss .w input[type="search"] { font-family: var(--font-body); font-size: 16px; }
+.w input[type="text"]:focus, .w input[type="search"]:focus, .w textarea:focus { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 .w textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
 .w input[type="range"] { accent-color: var(--accent); width: min(280px, 100%); }
 .w .muted { color: var(--ink-3); font-size: var(--t-sm); }
@@ -472,7 +472,7 @@ details.reveal > div { padding: 6px 18px 16px; font-size: 16.5px; }
 .scn-progress i { flex: 1; height: 6px; border-radius: 3px; background: var(--tint-2); }
 .scn-progress i.on { background: var(--black); }
 .scn-role { font-size: var(--t-sm); font-weight: 700; color: var(--ink-3); }
-.scn h4 { font-size: 26px; margin: 2px 0 10px; }
+.scn h3, .scn h4 { font-size: 26px; margin: 2px 0 10px; }
 
 /* ---------- home ---------- */
 .home { max-width: 1080px; margin: 0 auto; }
@@ -484,7 +484,7 @@ details.reveal > div { padding: 6px 18px 16px; font-size: 16.5px; }
 /* course map as a table of contents */
 .parts { display: grid; gap: 44px; }
 .part { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; }
-.part-h h3 { margin: 0 0 6px; font-size: 27px; }
+.part-h h2 { margin: 0 0 6px; font-size: 27px; }
 .part-h p { margin: 0; color: var(--ink-2); font-size: var(--t-sm); }
 .part-h .pn-count { display: block; margin-top: 8px; font-size: var(--t-xs); color: var(--ink-3); }
 .contents { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--black); }
@@ -908,7 +908,7 @@ body.norail .rail { display: none !important; }
 .ring b { font-family: var(--font-body); font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .section-h { margin: 48px 0 14px; }
 .section-h h2 { font-size: 28px; }
-.part-h h3 { font-size: 22px; }
+.part-h h2 { font-size: 22px; }
 .contents { border-top: 0; border-radius: var(--radius-lg); background: var(--tint); overflow: hidden; }
 .contents li { border-bottom: 0; }
 .contents a { position: relative; grid-template-columns: 32px minmax(0, 1fr) auto; padding: 14px 18px; transition: background-color .15s ease, transform .12s ease-out; }
@@ -1153,7 +1153,7 @@ body.norail .rail { display: none !important; }
 /* ---------- UI review pass: lesson reader ---------- */
 .lesson-head .toc-m { margin: -8px 0 20px; }
 .outcomes { padding: 14px 18px; }
-.outcomes h4 { margin-bottom: 6px; font-size: var(--t-xs); color: var(--ink-3); }
+.outcomes .oc-h { margin-bottom: 6px; font-size: var(--t-xs); color: var(--ink-3); }
 .outcomes ul { gap: 3px; font-size: 16px; line-height: 1.45; }
 .lesson-foot { margin-top: 48px; }
 .lesson-foot + .sources { margin-top: 48px; }
@@ -1253,3 +1253,25 @@ html { scroll-padding-bottom: 24px; }
   .role-btn .pn-short { display: block; }
 }
 #pc-clear { margin-top: 12px; }
+
+/* ---------- Accessibility and clarity pass, Nov 2026 ---------- */
+/* Contrast: the summary on the highlighted "up next" row clears 4.5:1 */
+.contents a.next .s { color: var(--ink-2); }
+/* Target size (WCAG 2.5.8): standalone links get at least 32px of height */
+.dash-links .linkish, .rail-path a, .role-ex-h a, .tx-mail, .uc-card .uc-link, .gloss dd .see, .auth-back a, .pick-top .back { display: inline-flex; align-items: center; min-height: 32px; }
+.gloss dd .see { display: flex; width: max-content; max-width: 100%; margin-top: 2px; }
+.w input[type="range"] { height: 32px; }
+/* Line length: long lists and help text stay within about 70 characters */
+.sources ol, .outcomes ul, .pc-help, .saver .fine { max-width: 70ch; }
+.pc-help { font-size: 14px; }
+/* Glossary filter matches the other fields */
+.gloss .filter { max-width: 480px; }
+.gloss .w input[type="search"] { width: 100%; min-height: 48px; padding: 10px 16px; border-radius: var(--radius); font-size: 17px; }
+.gf-row { gap: 10px; }
+/* Library: lessons in the role part grouped under each role */
+.part-b > .role-sub { margin: 28px 0 10px; font-size: 18px; font-weight: 600; letter-spacing: -.012em; color: var(--ink); }
+.part-b > .role-sub:first-child { margin-top: 0; }
+.role-card em:empty { display: none; }
+/* Numbered steps keep the same reading measure as body text, plus room for the number */
+.lesson > ol.steps { max-width: calc(var(--measure) + 48px); }
+.gloss dd { max-width: 64ch; }

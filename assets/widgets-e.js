@@ -12,12 +12,12 @@
     var root = document.createElement("div"); root.className = "scn"; el.appendChild(root);
     function render() {
       if (i >= steps.length) {
-        root.innerHTML = '<div class="scn-progress">' + steps.map(function () { return '<i class="on"></i>'; }).join("") + "</div><h4>" + score + " of " + steps.length + " decisions matched the recommended approach</h4><p>" + (cfg.after || "") + '</p><button class="btn small ghost" data-act="again">Start again</button>';
+        root.innerHTML = '<div class="scn-progress">' + steps.map(function () { return '<i class="on"></i>'; }).join("") + "</div><h3>" + score + " of " + steps.length + " decisions matched the recommended approach</h3><p>" + (cfg.after || "") + '</p><button class="btn small ghost" data-act="again">Start again</button>';
         root.querySelector("[data-act]").addEventListener("click", function () { i = 0; score = 0; render(); });
         return;
       }
       var s = steps[i];
-      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Situation ' + (i + 1) + " of " + steps.length + "</div><h4>" + esc(s.title) + "</h4><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABCD"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div><div class="scn-next" hidden></div>';
+      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Situation ' + (i + 1) + " of " + steps.length + "</div><h3>" + esc(s.title) + "</h3><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABCD"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div><div class="scn-next" hidden></div>';
       var answered = false;
       root.querySelectorAll(".opt").forEach(function (b) {
         b.addEventListener("click", function () {
