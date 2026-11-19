@@ -1,6 +1,6 @@
 # Groundwork: project handoff
 
-*Last updated 19 November 2026.*
+*Last updated 19 November 2026 (all lessons and use cases written; UI review pass done).*
 
 Groundwork is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
 
@@ -9,8 +9,8 @@ Groundwork is a free, self-paced course for software teams on understanding AI a
 | Area | Status |
 |---|---|
 | Core course (lessons 1–8) and capstone (45) | Done |
-| Role tracks: 3 lessons for each of 12 roles (36 total) | 17 of 36 written. 19 still to write (see [Tasks left](#tasks-left)) |
-| Use cases tab | Code done. Content not written, so the tab hides itself |
+| Role tracks: 3 lessons for each of 12 roles (36 total) | Done. All 36 written, sources checked |
+| Use cases tab | Done. 96 use cases, 8 per role |
 | Tabs: Lessons, Exercises, Use cases, Glossary, Progress | Done |
 | Progress codes (no accounts) | Done. v2 format; old v1 codes still restore |
 | Apple-style redesign | Done. Checked at 1280px and 375px |
@@ -26,7 +26,7 @@ Serve the folder with any static file server:
 python3 -m http.server 8765
 ```
 
-Then open http://localhost:8765. The `.claude/launch.json` file runs the same command for the Claude desktop app's preview.
+Then open http://localhost:8765. The `.claude/launch.json` file runs the same server on port 8766 for the Claude desktop app's preview (8765 is often taken by another local server).
 
 ## Deploying to Vercel
 
@@ -82,20 +82,19 @@ DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front
 | # | Lesson id | # | Lesson id | # | Lesson id |
 |---|---|---|---|---|---|
 | 1–8 | core | 21 | security | 33 | project-management |
-| 9 | product | 22 | security-threat-models ✗ | 34 | pm-planning ✗ |
-| 10 | product-discovery | 23 | security-detection ✗ | 35 | pm-vendors ✗ |
+| 9 | product | 22 | security-threat-models | 34 | pm-planning |
+| 10 | product-discovery | 23 | security-detection | 35 | pm-vendors |
 | 11 | product-ai-features | 24 | data-analytics | 36 | engineering-management |
-| 12 | design | 25 | data-analysis ✗ | 37 | em-measuring ✗ |
-| 13 | design-research | 26 | data-quality ✗ | 38 | em-people ✗ |
+| 12 | design | 25 | data-analysis | 37 | em-measuring |
+| 13 | design-research | 26 | data-quality | 38 | em-people |
 | 14 | design-ai-ux | 27 | technical-writing | 39 | operations |
-| 15 | engineering | 28 | docs-for-ai ✗ | 40 | ops-iac ✗ |
-| 16 | engineering-agents | 29 | docs-maintenance ✗ | 41 | ops-llm ✗ |
-| 17 | engineering-review ✗ | 30 | delivery | 42 | customer-support |
-| 18 | qa | 31 | delivery-flow ✗ | 43 | support-knowledge ✗ |
-| 19 | qa-automation ✗ | 32 | delivery-rituals ✗ | 44 | support-assistant ✗ |
-| 20 | qa-ai-features ✗ | | | 45 | team-adoption (capstone) |
+| 15 | engineering | 28 | docs-for-ai | 40 | ops-iac |
+| 16 | engineering-agents | 29 | docs-maintenance | 41 | ops-llm |
+| 17 | engineering-review | 30 | delivery | 42 | customer-support |
+| 18 | qa | 31 | delivery-flow | 43 | support-knowledge |
+| 19 | qa-automation | 32 | delivery-rituals | 44 | support-assistant |
+| 20 | qa-ai-features | | | 45 | team-adoption (capstone) |
 
-✗ = not written yet.
 
 ### Storage and progress codes
 - **Storage:** everything lives in `localStorage`, with no accounts and no server.
@@ -145,51 +144,22 @@ Rules:
 
 ## Tasks left
 
-### 1. Write the 19 remaining role-track lessons
-The titles, summaries and minutes are already in `assets/course.js`. Each file's name and planned exercise:
+### 1–3. Lessons, use cases, checks and docs: done (19 November 2026)
+- All 19 remaining role-track lessons are written and wired into `index.html`. Every source was opened and checked.
+- `assets/use-cases.js` has 96 entries, 8 per role.
+- Browser checks passed at 1280px and 375px: single- and multi-role paths, every new exercise, the Exercises and Use cases tabs, the five-item phone tab bar, no overflow, no console errors.
+- Linters: sloplint 0 FAIL, 0 WARN; impeccable detect advisories only.
+- DESIGN.md, PRODUCT.md and `.impeccable/design.json` describe the Use cases tab, the decide exercise and the 3-lesson tracks.
 
-| File | Exercise plan |
-|---|---|
-| `10-3-engineering-review.js` | claims: an AI code-review summary (missed authorization check, invented package, weakened test). Sources: Pearce et al. 2021 (*Asleep at the Keyboard?*), Perry et al. 2022, Spracklen et al. 2024 (package hallucination) |
-| `11-2-qa-automation.js` | claims: a generated test suite's description (tests that assert nothing, flaky waits). Sources: Google Testing Blog on flaky tests (2016), Meta TestGen-LLM (Alshahwan et al. 2024), mutation testing |
-| `11-3-qa-ai-features.js` | sort: eval set, regression check or production monitoring. Sources: Hamel Husain on evals, Zheng et al. 2023 (LLM-as-judge), Ganguli et al. 2022 (red teaming) |
-| `11b-2-security-threat-models.js` | sort: match risks to the OWASP Top 10 for LLM applications (2025). Sources: OWASP GenAI, MITRE ATLAS, Greshake et al. 2023, the "lethal trifecta" |
-| `11b-3-security-detection.js` | claims: an AI incident summary. Sources: UK NCSC report on AI's near-term effect on the cyber threat (2024), MITRE ATLAS |
-| `11c-2-data-analysis.js` | claims: an AI analysis write-up (Simpson's paradox, multiple comparisons). Sources: Bickel et al. 1975, Anscombe 1973, ASA statement on p-values (2016) |
-| `11c-3-data-quality.js` | sort. Sources: dbt data tests docs, GDPR Article 4 definitions, Spider 2.0 |
-| `11d-2-docs-for-ai.js` | sort. Sources: llms.txt, Diátaxis, Anthropic's "contextual retrieval" post |
-| `11d-3-docs-maintenance.js` | claims: AI-drafted release notes. Sources: Vale, Keep a Changelog, Write the Docs on docs as code |
-| `12-2-delivery-flow.js` | claims: an AI flow-metrics analysis. Sources: DORA metrics guide, DORA 2024 report |
-| `12-3-delivery-rituals.js` | decide: recording consent, retro synthesis, safety. Sources: the Retrospective Prime Directive, Atlassian's retrospective play |
-| `12b-2-pm-planning.js` | claims: an AI-drafted schedule. Sources: Buehler et al. 1994 (planning fallacy), Flyvbjerg on megaprojects |
-| `12b-3-pm-vendors.js` | sort: are an AI vendor's answers acceptable? Sources: UK Guidelines for AI procurement, NIST AI RMF |
-| `12c-2-em-measuring.js` | claims: an "AI productivity report". Sources: METR 2025, Peng et al. 2023, DORA 2024, SPACE (Forsgren et al. 2021) |
-| `12c-3-em-people.js` | decide: interviews, onboarding, junior growth. Sources: EU AI Act Annex III, NYC Local Law 144, Reuters 2018 on Amazon's recruiting tool |
-| `13-2-ops-iac.js` | claims: a summary of generated Terraform or Kubernetes config. Sources: Terraform `plan` docs, Open Policy Agent |
-| `13-3-ops-llm.js` | decide: provider outage, cost spike, model change. Sources: Google SRE book on cascading failures, NIST AI RMF |
-| `13b-2-support-knowledge.js` | sort. Sources: KCS (Consortium for Service Innovation) |
-| `13b-3-support-assistant.js` | decide: launch, handoff, monitoring. Sources: The Markup 2024 on NYC's MyCity chatbot, Moffatt v. Air Canada, Brynjolfsson et al. 2023 |
-
-All the sources above were chosen as real, well-known works. Still open each link and confirm what it says before citing it.
-
-### 2. Write the use cases
-Add about 8 per role (around 96 in total) to `assets/use-cases.js`.
-- Mix the fit ratings.
-- Give each one a concrete check.
-- Link each to the most relevant lesson in that role's track.
-
-### 3. Verify, lint and update docs
-- **Browser checks** at 1280px and 375px:
-  - The path for one role and for several.
-  - Each new exercise.
-  - The Exercises and Use cases tabs, including the five-item phone tab bar.
-  - No horizontal overflow and no console errors.
-- **Linters:**
-  - `node <hallmark skill>/scripts/sloplint.mjs assets/style.css --genre editorial` (currently 0 FAIL, 0 WARN).
-  - `<impeccable skill>/scripts/impeccable detect --json assets/style.css assets/app.js` (currently advisories only).
-- **Docs:**
-  - Add the Use cases tab and the "decide" exercise to DESIGN.md, and regenerate `.impeccable/design.json`.
-  - Update PRODUCT.md to describe the 3-lesson tracks.
+### UI review pass: done (19 November 2026)
+All 31 findings from the UI review are resolved:
+- **Landing:** one worked example (an AI draft and its human check) with role buttons to swap it. No blur, marquees or load animations. "Lesson 1 takes 20 minutes" sits beside Start, and the closing panel is compact on phones.
+- **Role picker:** short, parallel role lines that stay visible on phones. General has its own row. The sticky bar shows the chosen roles, lesson count and a "Review your path" button.
+- **Lessons tab:** a progress bar, an Up next card, and Your path / Full library views. Path rows are grouped by stage and numbered by position.
+- **Lesson reader:** the meta line shows position and duration only. "On this page" sits under the title on smaller screens. Completion and next-lesson controls come before Sources, and the sidebar's active row is softer.
+- **Exercises:** compact rows grouped by lesson, with completion shown at the group heading. The code test shows input and result first. The sampler tally is aligned rows. The risk matrix choices follow the 2×2 layout. Next has its own row in the scenario and decide exercises.
+- **Search, glossary and progress:** search shows a best match first, then Lessons, Sections and Terms. The glossary has a count, a Clear button and a no-match message. On the progress page, Continue learning is the primary action, followed by "Copy resume link".
+- Checked at 1024px, 768px and 375px. Linters: sloplint 0 FAIL and 0 WARN, impeccable advisories only.
 
 ### 4. Deploy and retire the artifact
 - Deploy to Vercel (see above).

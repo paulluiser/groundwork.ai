@@ -91,7 +91,7 @@
       ["Judging whether a vendor's security practices are adequate", "human", "A wrong call is costly and the gaps are invisible to non-specialists. A security specialist makes and signs the judgment."],
       ["A first look at competitors in a market you don't know", "raw", "Useful for orientation, but facts, prices and market claims may be stale or invented. Verify anything you'll repeat."]
     ];
-    var box = h('<div class="matrix"><div class="mx-axis-y">Harder to spot errors →</div><div class="mx-cell" data-q="raw"><h5>' + Q.raw + '</h5></div><div class="mx-cell" data-q="human"><h5>' + Q.human + '</h5></div><div class="mx-cell" data-q="free"><h5>' + Q.free + '</h5></div><div class="mx-cell" data-q="check"><h5>' + Q.check + '</h5></div><div></div><div class="mx-axis-x">Cost if wrong →</div></div><div class="mx-task" aria-live="polite"></div>');
+    var box = h('<div class="mx-task" aria-live="polite"></div><div class="matrix"><div class="mx-axis-y">Harder to spot errors →</div><div class="mx-cell" data-q="raw"><h5>' + Q.raw + '</h5></div><div class="mx-cell" data-q="human"><h5>' + Q.human + '</h5></div><div class="mx-cell" data-q="free"><h5>' + Q.free + '</h5></div><div class="mx-cell" data-q="check"><h5>' + Q.check + '</h5></div><div></div><div class="mx-axis-x">Cost if wrong →</div></div>');
     el.appendChild(box);
     var i = 0, right = 0, task = box.querySelector(".mx-task");
     function next() {
@@ -101,7 +101,7 @@
         return;
       }
       var t = tasks[i];
-      task.innerHTML = '<span class="muted">Task ' + (i + 1) + " of " + tasks.length + "</span><b>" + esc(t[0]) + '</b><div class="w-row">' + ["free", "check", "raw", "human"].map(function (q) { return '<button class="chip" data-q="' + q + '">' + Q[q] + "</button>"; }).join("") + "</div>";
+      task.innerHTML = '<span class="muted">Task ' + (i + 1) + " of " + tasks.length + "</span><b>" + esc(t[0]) + '</b><div class="mx-choices" role="group" aria-label="Where does it go? Top row: errors are harder to spot">' + ["raw", "human", "free", "check"].map(function (q) { return '<button class="chip" data-q="' + q + '">' + Q[q] + "</button>"; }).join("") + "</div>";
       task.querySelectorAll("[data-q]").forEach(function (b) {
         b.addEventListener("click", function () {
           var ok = b.dataset.q === t[1]; if (ok) right += 1;

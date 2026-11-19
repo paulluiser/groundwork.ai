@@ -17,7 +17,7 @@
         return;
       }
       var s = steps[i];
-      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Situation ' + (i + 1) + " of " + steps.length + "</div><h4>" + esc(s.title) + "</h4><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABCD"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div>';
+      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Situation ' + (i + 1) + " of " + steps.length + "</div><h4>" + esc(s.title) + "</h4><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABCD"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div><div class="scn-next" hidden></div>';
       var answered = false;
       root.querySelectorAll(".opt").forEach(function (b) {
         b.addEventListener("click", function () {
@@ -27,9 +27,11 @@
           root.querySelectorAll(".opt").forEach(function (x) { x.classList.remove("right", "wrong"); });
           b.classList.add(ok ? "right" : "wrong");
           var fb = root.querySelector(".fb"); fb.hidden = false; fb.className = "fb " + (ok ? "right" : "wrong");
-          fb.innerHTML = "<b>" + (ok ? "Good call. " : "Think again. ") + "</b>" + esc(ok ? s.opts[k][1].replace(/^Right\.\s*/, "") : s.opts[k][1]) + (ok ? '<div style="margin-top:10px"><button class="btn small" data-act="next">' + (i + 1 < steps.length ? "Next situation" : "See the result") + "</button></div>" : " Try another option.");
-          var nx = fb.querySelector('[data-act="next"]');
-          if (nx) { nx.addEventListener("click", function () { i += 1; render(); root.scrollIntoView({ block: "nearest" }); }); nx.focus(); }
+          fb.innerHTML = "<b>" + (ok ? "Good call. " : "Think again. ") + "</b>" + esc(ok ? s.opts[k][1].replace(/^Right\.\s*/, "") : s.opts[k][1]) + (ok ? "" : " Try another option.");
+          var row = root.querySelector(".scn-next"); row.hidden = !ok;
+          row.innerHTML = ok ? '<button class="btn small" data-act="next">' + (i + 1 < steps.length ? "Next situation" : "See the result") + "</button>" : "";
+          var nx = row.querySelector('[data-act="next"]');
+          if (nx) { row.scrollIntoView({ block: "nearest", behavior: "smooth" }); nx.addEventListener("click", function () { i += 1; render(); root.scrollIntoView({ block: "nearest" }); }); nx.focus({ preventScroll: true }); }
         });
       });
     }

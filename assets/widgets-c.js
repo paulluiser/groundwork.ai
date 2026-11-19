@@ -95,12 +95,13 @@
       "}"
     ];
     var presets = ["2h", "45m", "1h30m", "90s", "1.5h", "2 hours", "1h30", "", "-5m"];
-    var box = h('<div class="codebox" aria-label="Generated code">' + code.map(function (l, i) { return '<div class="ln" data-l="' + (i + 1) + '"><i>' + (i + 1) + "</i><span>" + esc(l) + "</span></div>"; }).join("") + '</div>' +
-      '<div style="margin-top:12px"><label for="dur-in">Input</label><input type="text" id="dur-in" value="1h30m" autocomplete="off" spellcheck="false"></div>' +
+    var box = h('<div><label for="dur-in">Input</label><input type="text" id="dur-in" value="1h30m" autocomplete="off" spellcheck="false"></div>' +
       '<div class="w-row" style="margin-top:8px" role="group" aria-label="Example inputs">' + presets.map(function (p) { return '<button class="chip" data-p="' + esc(p) + '">' + (p === "" ? "(empty)" : esc(p)) + "</button>"; }).join("") + '</div>' +
       '<div class="io"><div class="cell"><b>AI version returns</b><code class="o1"></code></div><div class="cell fixed" hidden><b>Validated version returns</b><code class="o2"></code></div></div>' +
-      '<div class="result" aria-live="polite"></div><div class="w-row" style="margin-top:10px"><button class="btn small ghost" data-act="fix" aria-pressed="false">Compare with a validated version</button></div><pre class="code fixed-code" hidden></pre>');
+      '<div class="result" aria-live="polite"></div>' +
+      '<details class="code-d"><summary>The generated code (11 lines)</summary><div class="codebox" aria-label="Generated code">' + code.map(function (l, i) { return '<div class="ln" data-l="' + (i + 1) + '"><i>' + (i + 1) + "</i><span>" + esc(l) + "</span></div>"; }).join("") + '</div></details><div class="w-row" style="margin-top:10px"><button class="btn small ghost" data-act="fix" aria-pressed="false">Compare with a validated version</button></div><pre class="code fixed-code" hidden></pre>');
     el.appendChild(box);
+    box.querySelector(".code-d").open = window.matchMedia("(min-width: 761px)").matches;
     box.querySelector(".fixed-code").textContent = "function parseDuration(input) {\n  const text = input.trim();\n  const m = /^(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?$/.exec(text);\n  if (!m || text === \"\") throw new Error(`Invalid duration: \"${input}\"`);\n  const [, h = 0, min = 0, s = 0] = m;\n  return Number(h) * 3600 + Number(min) * 60 + Number(s);\n}";
     var inp = box.querySelector("input"), res = box.querySelector(".result"), found = {};
     function run() {
@@ -111,7 +112,7 @@
       box.querySelectorAll(".ln").forEach(function (l) { l.classList.remove("hl"); });
       if (ferr) {
         found[v] = 1; res.className = "result bad";
-        res.innerHTML = "<b>Silent wrong answer.</b> “" + esc(v || "(empty)") + "” isn't a valid duration, but the function returned " + a + " seconds without complaint" + (a ? ", by reading only the parts that matched." : ". A zero timeout can mean “don't wait” or “wait forever”.") + " Lines 3 and 7 never check the whole string.";
+        res.innerHTML = "<b>Silent wrong answer.</b> “" + esc(v || "(empty)") + "” isn't a valid duration, but the function returned " + a + " seconds without complaint" + (a ? ", by reading only the parts that matched." : ". A zero timeout can mean “don't wait” or “wait forever”.") + " Lines 3 and 7 of the code never check the whole string.";
         [3, 7].forEach(function (n) { box.querySelector('[data-l="' + n + '"]').classList.add("hl"); });
       } else { res.className = "result ok"; res.innerHTML = "Correct: " + a + " seconds. This input is well formed. Try something a user might mistype."; }
       var n = Object.keys(found).length;
@@ -285,7 +286,7 @@
         return;
       }
       var s = steps[i];
-      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Step ' + (i + 1) + " of " + steps.length + " · " + s.role + "</div><h4>" + esc(s.title) + "</h4><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABC"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div>';
+      root.innerHTML = '<div class="scn-progress">' + steps.map(function (x, k) { return '<i class="' + (k <= i ? "on" : "") + '"></i>'; }).join("") + '</div><div class="scn-role">Step ' + (i + 1) + " of " + steps.length + " · " + s.role + "</div><h4>" + esc(s.title) + "</h4><p>" + esc(s.sit) + '</p><div class="opts">' + s.opts.map(function (o, k) { return '<button class="opt" data-k="' + k + '"><span class="ltr">' + "ABC"[k] + "</span><span>" + esc(o[0]) + "</span></button>"; }).join("") + '</div><div class="fb" hidden aria-live="polite"></div><div class="scn-next" hidden></div>';
       var answered = false;
       root.querySelectorAll(".opt").forEach(function (b) {
         b.addEventListener("click", function () {
@@ -295,9 +296,11 @@
           root.querySelectorAll(".opt").forEach(function (x) { x.classList.remove("right", "wrong"); });
           b.classList.add(ok ? "right" : "wrong");
           var fb = root.querySelector(".fb"); fb.hidden = false; fb.className = "fb " + (ok ? "right" : "wrong");
-          fb.innerHTML = "<b>" + (ok ? "Good decision. " : "Think again. ") + "</b>" + esc(s.opts[k][1]) + (ok ? ' <a href="#' + s.lesson + '">Revisit the ' + s.role.toLowerCase() + ' lesson</a><div style="margin-top:10px"><button class="btn small" data-act="next">' + (i + 1 < steps.length ? "Next role" : "See the outcome") + "</button></div>" : " Try another option.");
-          var nx = fb.querySelector('[data-act="next"]');
-          if (nx) { nx.addEventListener("click", function () { i += 1; render(); root.scrollIntoView({ block: "nearest" }); }); nx.focus(); }
+          fb.innerHTML = "<b>" + (ok ? "Good decision. " : "Think again. ") + "</b>" + esc(s.opts[k][1]) + (ok ? ' <a href="#' + s.lesson + '">Revisit the ' + s.role.toLowerCase() + ' lesson</a>' : " Try another option.");
+          var row = root.querySelector(".scn-next"); row.hidden = !ok;
+          row.innerHTML = ok ? '<button class="btn small" data-act="next">' + (i + 1 < steps.length ? "Next role" : "See the outcome") + "</button>" : "";
+          var nx = row.querySelector('[data-act="next"]');
+          if (nx) { row.scrollIntoView({ block: "nearest", behavior: "smooth" }); nx.addEventListener("click", function () { i += 1; render(); root.scrollIntoView({ block: "nearest" }); }); nx.focus({ preventScroll: true }); }
         });
       });
     }

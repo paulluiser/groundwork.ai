@@ -21,25 +21,27 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 ## Operating Context
 
 - Intended to be public and free, hosted as a static site on Vercel. There are no accounts and no server.
-- Flow: landing page, then Start (or Continue for a returning learner), then choose roles, then the course. The course has four tabs: Lessons, Exercises, Glossary and Progress.
-- Roles and progress save in the browser (localStorage). To move to another device, the learner copies a nine-character progress code (GW-XXX-XXX-XXX) or a resume link from the Progress tab. The code holds their roles and completed lessons.
+- Flow: landing page, then Start (or Continue for a returning learner), then choose roles, then the course. The course has five tabs: Lessons, Exercises, Use cases, Glossary and Progress.
+- Roles and progress save in the browser (localStorage). To move to another device, the learner copies a 15-character progress code (GW-XXXXX-XXXXX-XXXXX; older nine-character codes still restore) or a resume link from the Progress tab. The code holds their roles and completed lessons.
 - Learners come back to it over days, so the course offers a course home with a progress ring, the "next lesson" on their path, search, and a glossary.
 
 ## Capabilities and Constraints
 
-- **Structure:** 21 lessons in four parts.
+- **Structure:** 45 lessons in four parts. Lesson numbers are fixed catalogue identifiers.
   - How it works: lessons 1–4.
   - Working with it: lessons 5–8.
-  - In your role: twelve role lessons, 9–20.
-  - Capstone: lesson 21, bringing AI into a team.
+  - In your role: a three-lesson track for each of twelve roles, lessons 9–44.
+  - Capstone: lesson 45, bringing AI into a team.
 - **Roles:**
-  - Up to three per learner. The first pick is the main role and sets the core-lesson examples.
+  - Up to three per learner. The first pick is the main role: it gets its full three-lesson track and sets the core-lesson examples.
+  - Each other role adds the first lesson of its track.
   - General is exclusive and gives the core lessons plus the capstone.
-  - A single role also adds its neighbouring role's lesson.
+  - A single role also adds the first lesson of its neighbouring role.
+- **Use cases:** about eight per role, each rated good fit, use with care or keep human, with what to check and a link to the lesson that covers it.
 - **Lesson parts:** each lesson has a lede, outcomes, worked examples, an interactive exercise, a key idea, pitfalls, a "try it this week" task, three knowledge checks and numbered sources.
 - **Build:** static HTML, CSS and JS with hash routing and no framework. It deploys as plain static files. Per-user data never leaves the browser except inside a progress code the learner copies themselves.
 - **Motion:** the landing animations are scoped so content stays visible without scripts, they respect reduced motion, and they offer a pause control.
-- **Terminology:** "path" means the learner's sequence of lessons, "main role" means the first pick, and "neighbouring role" means the lesson a single role adds.
+- **Terminology:** "path" means the learner's sequence of lessons, "main role" means the first pick, "track" means a role's three lessons, and "neighbouring role" means the role whose first lesson a single role adds.
 
 ## Brand Commitments
 

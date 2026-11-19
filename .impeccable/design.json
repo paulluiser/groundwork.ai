@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-19T02:38:33.758123+00:00",
+  "generatedAt": "2026-11-19T04:12:15.988356+00:00",
   "title": "Design System: Groundwork",
   "extensions": {
     "colorMeta": {
@@ -273,14 +273,14 @@
       {
         "name": "lift",
         "value": "0 2px 8px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.08)",
-        "purpose": "Things floating over the page: popover, search sheet, sticky bar, hero fan, drawer."
+        "purpose": "Things floating over the page: popover, search sheet, sticky picker bar, landing example card, drawer."
       }
     ],
     "motion": [
       {
         "name": "ease-out",
         "value": "cubic-bezier(.2, .8, .2, 1)",
-        "purpose": "Reveals, progress fills, the hero fan and the drawer."
+        "purpose": "Progress fills, the landing example swap and the drawer."
       },
       {
         "name": "state",
@@ -291,16 +291,6 @@
         "name": "press",
         "value": "scale(.97), 120ms ease-out",
         "purpose": "Every tappable control answers the press; off under reduced motion."
-      },
-      {
-        "name": "reveal",
-        "value": "600ms ease-out, 60-70ms stagger",
-        "purpose": "Landing words, rises and staggered lists; off under reduced motion."
-      },
-      {
-        "name": "marquee",
-        "value": "44s and 64s linear, infinite",
-        "purpose": "Landing ticker and role drift; pausable, off under reduced motion."
       }
     ],
     "breakpoints": [
@@ -398,7 +388,7 @@
   ],
   "narrative": {
     "northStar": "Clear Glass, One Pencil",
-    "overview": "Groundwork should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.\n\nThe app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.\n\nStatus never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.",
+    "overview": "Groundwork should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.\n\nThe app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Use cases, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.\n\nStatus never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.",
     "keyCharacteristics": [
       "White pages, #F5F5F7 grouped surfaces, near-black type, one cobalt accent.",
       "The platform system font (SF Pro on Apple devices), with tracking that tightens as size grows.",

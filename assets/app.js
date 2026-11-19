@@ -8,7 +8,6 @@
   GW.lessons = GW.lessons.filter(function (l) { return GW.content[l.id]; });
   var byId = {}; GW.lessons.forEach(function (l) { byId[l.id] = l; });
   var hasUseCases = !!(GW.useCases && GW.useCases.length);
-  var partTitle = {}; GW.parts.forEach(function (p) { partTitle[p.id] = p.title; });
 
   /* ---------- roles ---------- */
   var GENERAL = { id: "general", name: "General", why: "A neutral path for anyone: the core lessons and the capstone, with examples that apply to any role." };
@@ -33,7 +32,7 @@
     extra = extra.filter(function (id, i) { return extra.indexOf(id) === i; }).sort(function (a, b) { return lessonPos[a] - lessonPos[b]; });
     return coreIds.concat(extra).concat(["team-adoption"]);
   }
-  function trackSpan(r) { var t = trackOf(r); return "Lessons " + byId[t[0]].num + "–" + byId[t[t.length - 1]].num; }
+  function trackSpan(r) { var t = trackOf(r), a = byId[t[0]].num, b = byId[t[t.length - 1]].num; return a === b ? "Lesson " + a : "Lessons " + a + "–" + b; }
   function pathName(list) {
     var n = list.map(function (r) { return roleInfo(r).name; });
     if (!n.length) return "";
@@ -121,95 +120,61 @@
   }
 
   /* ---------- landing ---------- */
-  var FAN = [
-    { r: "product", line: "Most users asked for dark mode.", s: "warn", st: "No source" },
-    { r: "engineering", line: "Return <code>res.data.items</code>.", s: "ok", st: "Tests pass" },
-    { r: "security", line: "No issues found. Low risk.", s: "bad", st: "Missed a check" },
-    { r: "data-analytics", line: "October MAU: 1,284,550.", s: "bad", st: "Wrong grain" }
+  // One complete example: an AI draft and the human check, switchable by role.
+  var HERO = [
+    { r: "security", draft: "Reviewed the invoice endpoint. No issues found. Low risk.", s: "bad", st: "Missed a check", note: "It checks that you're signed in, not that the invoice is yours. Change the ID in the URL and you can read anyone's invoice." },
+    { r: "product", draft: "Most users asked for dark mode.", s: "warn", st: "No source", note: "3 of 40 interview notes mention it. Ask for the count and the notes behind a theme before you repeat it." },
+    { r: "engineering", draft: "Return <code>res.data.items</code> from the fetch.", s: "ok", st: "Tests pass", note: "Ran it against a real response, including an empty list. The claim held up, so it ships." },
+    { r: "data-analytics", draft: "October monthly active users: 1,284,550.", s: "bad", st: "Wrong grain", note: "The query counted events, not people. One row per user changes the answer completely." }
   ];
-  var TICKER = [["Ask like you're writing a brief", "ok", "Clear"], ["Check in proportion to the risk", "warn", "Measure it"], ["Run it before you trust it", "ok", "Tests pass"], ["Trace every claim to a source", "warn", "No source"], ["Keep the judgment yours", "ok", "Decided"], ["Reproduce before fixing", "warn", "Unverified"]];
-  var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
-  var still = !!load("gw-still", false);
-  function tickerHalf() { return TICKER.map(function (t) { return '<span class="tk-item">' + esc(t[0]) + '</span><span class="stamp ' + t[1] + '">' + esc(t[2]) + "</span>"; }).join(""); }
-  function driftHalf(list) {
-    return list.map(function (r) {
-      var sub = r === GENERAL ? "Lessons 1–" + coreLast + " and the capstone" : trackSpan(r.id) + ", a three-lesson track";
-      return '<span class="drift-tile"><b>' + esc(r.name) + "</b><small>" + esc(sub) + "</small></span>";
-    }).join("");
-  }
-  function splitWords(el) {
-    var n = 0;
-    (function walk(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (c) {
-        if (c.nodeType === 3) {
-          var frag = document.createDocumentFragment();
-          c.textContent.split(/(\s+)/).forEach(function (p) {
-            if (!p) return;
-            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
-            var s = document.createElement("span"); s.className = "wd"; s.style.setProperty("--w", n++); s.textContent = p; frag.appendChild(s);
-          });
-          c.parentNode.replaceChild(frag, c);
-        } else if (c.nodeType === 1 && c.tagName !== "BR") walk(c);
-      });
-    })(el);
-  }
-  // Hidden states live under .js-anim only, so the page reads fully with scripting off or reduced motion.
-  function animateLanding(root) {
-    if (reduceMotion || !("IntersectionObserver" in window)) return;
-    root.classList.add("js-anim");
-    $$("[data-words]", root).forEach(splitWords);
-    $$('[data-reveal="stagger"]', root).forEach(function (g) { Array.prototype.forEach.call(g.children, function (c, k) { c.style.setProperty("--k", k); }); });
-    var fan = $(".fan", root);
-    var io = new IntersectionObserver(function (ents) {
-      ents.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var el = en.target.__wipe || en.target;   // a clipped wipe never intersects, so its parent stands in
-        el.classList.add("in"); io.unobserve(en.target);
-        if (el === fan) setTimeout(function () { fan.classList.add("settled"); }, 1900);
-      });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
-    $$("[data-reveal], [data-words], .fan", root).forEach(function (el) {
-      if (el.getAttribute("data-reveal") === "wipe") { el.parentElement.__wipe = el; io.observe(el.parentElement); }
-      else io.observe(el);
-    });
-    // safety net: the hero never stays hidden, even if the observer doesn't fire (a background tab, an old engine)
-    setTimeout(function () { $$(".l-hero [data-reveal], .l-hero [data-words], .fan", root).forEach(function (el) { el.classList.add("in"); }); fan.classList.add("settled"); }, 2500);
-  }
-  function motionBtn() { return '<button type="button" class="motion-btn" data-motion aria-pressed="' + still + '">' + (still ? "Play motion" : "Pause motion") + "</button>"; }
-  function paintMotion() {
-    var l = $(".landing"); if (l) l.classList.toggle("still", still);
-    $$("[data-motion]").forEach(function (b) { b.setAttribute("aria-pressed", String(still)); b.textContent = still ? "Play motion" : "Pause motion"; });
+  // Short, parallel lines for what each role practises.
+  var ROLE_SHORT = {
+    product: "Discovery, specs and shipping AI features",
+    design: "Research, prototypes and AI feature design",
+    engineering: "Generated code, coding agents and review",
+    qa: "Test automation and testing AI features",
+    security: "Threat models, code review and detection",
+    "data-analytics": "Queries, analysis and data quality",
+    "technical-writing": "Docs from real sources, for people and AI",
+    delivery: "Status reports, backlogs and team rituals",
+    "project-management": "Plans, change requests and suppliers",
+    "engineering-management": "Measuring AI, hiring and growing people",
+    operations: "Incidents, infrastructure code, AI in production",
+    "customer-support": "Replies, help-centre knowledge and support bots",
+    general: "The core lessons and the capstone, for any role"
+  };
+  function plural(n, one, many) { return n + " " + (n === 1 ? one : (many || one + "s")); }
+  function heroCard(k) {
+    var c = HERO[k], info = roleInfo(c.r);
+    return '<div class="hx-draft"><span class="hx-k">AI draft (' + esc(info.name) + ')</span><p>' + c.draft + '</p></div><div class="hx-check"><span class="hx-k">Human check</span><span class="stamp ' + c.s + '">' + esc(c.st) + "</span><p>" + esc(c.note) + "</p></div>";
   }
   function renderWelcome() {
     var ready = roles.length > 0;
     var go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
-    var h = '<div class="landing' + (still ? " still" : "") + '">';
+    var genPath = routeFor(["general"]), bigPath = routeFor(["engineering", "qa", "security"]);
+    var first = GW.lessons[0];
+    var h = '<div class="landing">';
     h += '<section class="l-hero"><div class="l-copy">';
-    h += "<h1 data-words>AI drafts.<br>You decide.</h1>";
-    h += '<p class="l-lede" data-reveal="wipe">Learn where AI helps, where it fails, and how to check it.</p>';
-    h += '<div class="hero-cta" data-reveal="rise" style="--d:700ms"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<a class="btn pill soft" href="#progress">I have a progress code</a>') + "</div>";
-    h += '<p class="l-meta" data-reveal="rise" style="--d:850ms">' + GW.lessons.length + " short lessons, about " + Math.round(totalMin / 60 * 2) / 2 + " hours in all.</p></div>";
-    h += '<div class="fan" aria-label="Examples of AI drafts from different roles, each with a reviewer\'s check">' + FAN.map(function (c, i) {
-      var info = roleInfo(c.r);
-      return '<a class="fan-card" style="--i:' + i + '" href="#role" data-pick="' + c.r + '"><span class="fc-h"><b>AI draft</b><span>' + esc(info.name) + '</span></span><span class="fc-b">' + c.line + '</span><span class="stamp ' + c.s + '">' + esc(c.st) + "</span></a>";
-    }).join("") + '<span class="bubble b1" aria-hidden="true">Run it before you trust it</span><span class="bubble b2" aria-hidden="true">Reproduce before fixing</span></div>';
+    h += "<h1>AI drafts.<br>You decide.</h1>";
+    h += '<p class="l-lede">A free course for software teams: learn where AI helps, where it fails, and how to check its work before it ships.</p>';
+    h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">Lesson 1 takes ' + first.minutes + " minutes</span>") + "</div>";
+    h += '<p class="l-meta">Your roles pick a path of ' + genPath.length + "–" + bigPath.length + " lessons, about " + hours(genPath) + "–" + hours(bigPath) + " hours, from a library of " + GW.lessons.length + ". Every lesson stays open to you." + (ready ? "" : ' <a href="#progress">I have a progress code</a>') + "</p></div>";
+    h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card" aria-live="polite">' + heroCard(0) + "</div>";
+    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + "</span></figcaption></figure>";
     h += "</section>";
 
-    h += '<div class="ticker"><div class="ticker-view" aria-hidden="true"><div class="ticker-track">' + tickerHalf() + tickerHalf() + "</div></div>" + motionBtn() + "</div>";
-
-    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2 data-words>Start with your role</h2><p data-reveal="rise">Pick up to three. Your main role adds a three-lesson track, with examples from your work.</p></div>';
-    h += '<ul class="lr-grid" data-reveal="stagger">' + roleList.map(function (r) {
-      var sub = r === GENERAL ? "Core lessons only" : trackSpan(r.id);
-      return '<li><a class="lr-card' + (r === GENERAL ? " gen" : "") + '" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b><small>" + esc(sub) + "</small></a></li>";
+    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three. Your main role adds a three-lesson track, with examples from your work.</p></div>';
+    h += '<ul class="lr-grid">' + roleList.map(function (r) {
+      return '<li><a class="lr-card' + (r === GENERAL ? " gen" : "") + '" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b><small>" + esc(ROLE_SHORT[r.id]) + "</small></a></li>";
     }).join("") + "</ul></section>";
 
-    h += '<section class="l-steps"><div class="section-h"><h2 data-words>How it works</h2></div><ol class="steps3" data-reveal="stagger">';
+    h += '<section class="l-steps"><div class="section-h"><h2>How it works</h2></div><ol class="steps3">';
     h += "<li><b>Choose your roles</b><p>Up to three, or General. Your first pick sets the examples you see.</p></li>";
     h += "<li><b>Learn by doing</b><p>Short lessons with exercises that give feedback as you go.</p></li>";
     h += "<li><b>Pick up anywhere</b><p>No account needed. Progress saves in your browser, and a short code carries it to another device.</p></li>";
     h += "</ol></section>";
 
-    h += '<section class="l-out"><div class="section-h"><h2 data-words>By the end you can</h2></div><ul class="outcome-list" data-reveal="stagger">';
+    h += '<section class="l-out"><div class="section-h"><h2>By the end you can</h2></div><ul class="outcome-list">';
     ["Explain how a model produces text, and why it can be fluent and wrong.",
       "Decide what a model needs to see, and what it must never see.",
       "Write requests that work like a good brief.",
@@ -218,14 +183,17 @@
       "Set sensible limits on tools and agents that take actions."].forEach(function (o) { h += "<li>" + esc(o) + "</li>"; });
     h += "</ul></section>";
 
-    var half = Math.ceil(roleList.length / 2);
-    h += '<section class="drift"><div class="drift-row" aria-hidden="true"><div class="drift-track">' + driftHalf(roleList.slice(0, half)) + driftHalf(roleList.slice(0, half)) + "</div></div>";
-    h += '<div class="drift-mid"><h2 data-words>Whatever you ship, there\'s a path for you.</h2><p data-reveal="rise">Lesson 1 takes 20 minutes and needs no background.</p><div class="drift-cta" data-reveal="rise" style="--d:150ms"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + motionBtn() + "</div></div>";
-    h += '<div class="drift-row rev" aria-hidden="true"><div class="drift-track">' + driftHalf(roleList.slice(half)) + driftHalf(roleList.slice(half)) + "</div></div></section>";
+    h += '<section class="l-close"><h2>Whatever you ship, there\'s a path for you.</h2><a class="btn pill light" href="' + go + '">' + goTxt + '</a><p>Lesson 1 takes ' + first.minutes + " minutes and needs no background.</p></section>";
     h += "</div>";
     $("#view").innerHTML = h;
-    animateLanding($(".landing"));
   }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-hx]"); if (!b) return;
+    var fig = b.closest(".hero-ex");
+    $$("[data-hx]", fig).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    var card = $(".hx-card", fig); card.innerHTML = heroCard(+b.getAttribute("data-hx"));
+    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+  });
 
   /* ---------- progress code: roles and completed lessons, no server ----------
      v2 layout (75 bits, 15 characters): version (4) · three role slots (4 each, 0 = empty) · 51 lesson slots (1 bit each) · CRC-8 (8).
@@ -292,19 +260,19 @@
     h += "<h1>" + (has ? "Progress" : "Continue with a code") + "</h1>";
     if (has) {
       var next = path.filter(function (id) { return !progress[id]; })[0], all = GW.lessons.filter(function (l) { return progress[l.id]; }).length;
-      h += '<div class="prog-stats"><div class="ring" style="--p:' + Math.round(100 * n / path.length) + '"><b>' + n + "</b><span>of " + path.length + '</span></div><div><p class="ps-big">' + n + " of " + path.length + " lessons on your path</p><p class=\"fine\">" + all + " of " + GW.lessons.length + " across the whole course. " + (next ? 'Next up: <a href="#' + next + '">' + esc(byId[next].title) + "</a>" : "Your path is complete.") + "</p></div></div>";
-      h += "<h2>Continue on another device</h2>";
+      h += '<div class="prog-top"><div class="prog-sum"><div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + ' done</span></div><p class="fine">' + esc(pathLong(roles)) + " path. " + all + " of " + GW.lessons.length + " lessons completed across the whole library.</p></div>" + (next ? '<a class="btn pill dark" href="#' + next + '">Continue learning</a>' : '<a class="btn pill dark" href="#home">Path complete. Back to lessons</a>') + "</div>";
+      if (next) h += '<p class="prog-next">Up next: <a href="#' + next + '">' + esc(byId[next].title) + "</a>, " + byId[next].minutes + " min</p>";
       var link = resumeLink(), mail = "mailto:?subject=" + encodeURIComponent("My Groundwork progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + prettyCode(encodeProgress()));
-      h += '<p class="lede">Your progress saves in this browser as you go. To continue on another device or browser, open your resume link there, or enter the code.</p>';
-      h += '<div class="code-card"><p class="code-big" id="pc-code">' + prettyCode(encodeProgress()) + "</p>";
-      h += '<p class="code-sum">' + esc(pathLong(roles)) + ". " + n + " of " + path.length + " lessons done. The code changes as you complete lessons, so copy it again before you switch devices.</p>";
-      h += '<div class="w-row"><button type="button" class="btn pill dark" data-copy="code">Copy code</button><button type="button" class="btn pill soft" data-copy="link">Copy resume link</button><a class="btn pill soft" href="' + esc(mail) + '">Email it to yourself</a></div>';
-      h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></div>';
+      h += '<section class="transfer"><h2>Continue on another device</h2>';
+      h += '<p class="fine">Progress saves in this browser as you go. Open your resume link on the other device and you pick up where you left off.</p>';
+      h += '<div class="w-row"><button type="button" class="btn pill dark" data-copy="link">Copy resume link</button><a class="tx-mail" href="' + esc(mail) + '">Email it to yourself</a></div>';
+      h += '<div class="code-card"><span class="hx-k">Or type this code on the other device</span><div class="code-row"><p class="code-big" id="pc-code">' + prettyCode(encodeProgress()) + '</p><button type="button" class="btn small ghost" data-copy="code">Copy code</button></div>';
+      h += '<p class="code-sum">The code changes as you complete lessons, so copy it again before you switch.</p></div>';
+      h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></section>';
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
     h += '<section class="restore"><h2>' + (has ? "Restore a different code" : "Your code") + "</h2>";
-    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore</button></div>';
+    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore</button></div>';
     h += '<p class="pc-err" id="pc-err" role="alert">' + esc(err || "") + "</p></form>";
-    if (has) h += '<p class="fine">Restoring switches to the roles in the code and keeps every lesson you have completed here.</p>';
     h += "</section>";
     if (has) h += '<section class="restore"><h2>Clear this browser</h2><p class="fine">Removes your roles and progress from this browser. Copy your code first if you want them back later.</p><button type="button" class="btn ghost" id="pc-clear">Clear progress in this browser</button></section>';
     else h += '<p class="auth-back"><a href="#role">No code? Choose your roles and start</a></p>';
@@ -340,23 +308,27 @@
       if (pick === "general") picked = ["general"];
       else { picked = picked.filter(function (x) { return x !== "general"; }); if (picked.length < MAXR) picked.push(pick); }
     }
+    function card(r) {
+      return '<button type="button" class="role-card' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '"><span class="rc-top"><b>' + esc(r.name) + '</b><span class="rc-badge"></span></span><span class="rc-s">' + esc(ROLE_SHORT[r.id]) + "</span><em></em></button>";
+    }
     var h = '<div class="picker">';
     h += '<p class="pick-top"><a class="back" href="' + (first ? "#welcome" : "#home") + '">Back</a></p>';
     h += "<h1>Choose your roles</h1>";
-    h += '<p class="lede">Pick up to three. Your first pick is your main role: you get its full three-lesson track, and its examples appear in every core lesson. Other roles add their first lesson. Choose General for a neutral path.</p>';
-    h += '<div class="pick-layout"><div class="role-grid pick" role="group" aria-label="Roles, choose up to three">' + roleList.map(function (r) {
-      return '<button type="button" class="role-card' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '"><span class="rc-top"><b>' + esc(r.name) + '</b><span class="rc-badge"></span></span><span class="rc-s">' + esc(roleBlurb(r)) + "</span><em>" + (r === GENERAL ? "Core lessons and the capstone" : trackSpan(r.id)) + "</em></button>";
-    }).join("") + "</div>";
+    h += '<p class="lede">Pick up to three. Your first pick is your main role: it adds a three-lesson track and sets the examples in every core lesson. Each other role adds its first lesson.</p>';
+    h += '<div class="pick-layout"><div class="pick-main" role="group" aria-label="Roles, choose up to three">';
+    h += '<div class="pick-gen">' + card(GENERAL) + '<p>No specialty, or not sure yet? Start with General. You can add roles later.</p></div>';
+    h += '<h2 class="pick-h">Or pick your roles</h2><div class="role-grid pick">' + GW.roles.map(card).join("") + "</div></div>";
     h += '<aside class="pick-side" aria-labelledby="ps-h"><h2 id="ps-h" tabindex="-1">Your path</h2><div id="pick-chosen"></div><div id="pick-path"></div></aside></div>';
-    h += '<div class="pick-bar"><p id="pick-sum" aria-live="polite"></p><button class="btn pill dark" id="pick-go"></button></div></div>';
+    h += '<div class="pick-bar"><p id="pick-sum" aria-live="polite"></p><a class="btn small ghost pick-review" href="#ps-h">Review<span class="rv-long"> your path</span></a><button class="btn small pill dark" id="pick-go"></button></div></div>';
     var view = $("#view"); view.innerHTML = h;
 
     function paint() {
       var gen = picked[0] === "general";
       $$(".role-card", view).forEach(function (b) {
-        var id = b.getAttribute("data-r"), i = picked.indexOf(id);
+        var id = b.getAttribute("data-r"), i = picked.indexOf(id), n = id === "general" ? 0 : trackOf(id).length;
         b.setAttribute("aria-checked", String(i > -1));
         $(".rc-badge", b).textContent = i < 0 ? "" : gen ? "Selected" : i === 0 ? "Main" : "Added";
+        $("em", b).textContent = id === "general" ? "Core lessons and the capstone" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "Track of " + plural(n, "lesson");
       });
       var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view), go = $("#pick-go", view);
       if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Nothing chosen yet. Pick the roles closest to your work.</p>';
@@ -366,21 +338,23 @@
         return "<li><b>" + nm + "</b>" + (i === 0 ? "<span>Main role</span>" : '<button type="button" class="linkish" data-main="' + id + '" aria-label="Make ' + nm + ' your main role">Make main</button>') + '<button type="button" class="linkish" data-remove="' + id + '" aria-label="Remove ' + nm + '">Remove</button></li>';
       }).join("") + "</ol>";
       if (picked.length) {
-        var ids = routeFor(picked), extra = ids.slice(coreLast, -1);
-        var p = '<ul class="ps-route"><li><b>Lessons 1–' + coreLast + "</b><span>The core, for everyone</span></li>";
-        extra.forEach(function (id) { var t = tagFor(id, picked); p += "<li><b>Lesson " + byId[id].num + ": " + esc(byId[id].title) + "</b><span>" + esc(t || "Role lesson") + "</span></li>"; });
-        p += "<li><b>Lesson " + byId["team-adoption"].num + ": " + esc(byId["team-adoption"].title) + "</b><span>Capstone</span></li></ul>";
-        var main = roleInfo(picked[0]);
+        var ids = routeFor(picked), extra = ids.slice(coreLast, -1), main = roleInfo(picked[0]);
+        var track = gen ? [] : extra.filter(function (id) { return byId[id].rid === picked[0]; }), also = extra.filter(function (id) { return track.indexOf(id) < 0; });
+        var p = '<ul class="ps-route"><li><b>' + plural(coreLast, "core lesson") + "</b><span>How models work and how to work with them, for everyone</span></li>";
+        if (track.length) p += "<li><b>" + esc(main.name) + " track: " + plural(track.length, "lesson") + "</b><span>" + track.map(function (id) { return esc(byId[id].title); }).join(" · ") + "</span></li>";
+        if (also.length) p += "<li><b>" + (picked.length === 1 ? "Neighbouring role: " : "Your other roles: ") + plural(also.length, "lesson") + "</b><span>" + also.map(function (id) { return esc(byId[id].role + ": " + byId[id].title); }).join(" · ") + "</span></li>";
+        p += "<li><b>Capstone: 1 lesson</b><span>" + esc(byId["team-adoption"].title) + "</span></li></ul>";
         p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[main.id] + "</p></div>";
         pathBox.innerHTML = p;
-        sum.innerHTML = note ? esc(note) : "<b>" + ids.length + " lessons, about " + hours(ids) + " hours.</b> " + (gen ? "The core lessons and the capstone." : picked.length === 1 ? "Your full " + esc(main.name) + " track, plus the neighbouring " + esc(roleInfo(main.also).name) + " lesson." : "Your full " + esc(main.name) + " track, plus the first lesson for each other role.");
-      } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role to continue."; }
+        sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + " hours</span>";
+      } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role."; }
       go.disabled = !picked.length;
-      go.textContent = first ? "Start the course" : "Save and go to your course";
+      go.textContent = first ? "Start the course" : "Save";
+      $(".pick-review", view).hidden = !picked.length;
     }
     paint();
 
-    $(".role-grid.pick", view).addEventListener("click", function (e) {
+    $(".pick-main", view).addEventListener("click", function (e) {
       var b = e.target.closest(".role-card"); if (!b) return;
       var id = b.getAttribute("data-r"), i = picked.indexOf(id); note = "";
       if (i > -1) picked.splice(i, 1);
@@ -392,6 +366,7 @@
       }
       paint();
     });
+    $(".pick-review", view).addEventListener("click", function (e) { e.preventDefault(); var hd = $("#ps-h", view); hd.scrollIntoView({ block: "start" }); hd.focus({ preventScroll: true }); });
     $(".pick-side", view).addEventListener("click", function (e) {
       var m = e.target.closest("[data-main]"), r = e.target.closest("[data-remove]"); note = "";
       if (m) { var id = m.getAttribute("data-main"); picked.splice(picked.indexOf(id), 1); picked.unshift(id); paint(); var nb = $('[data-remove="' + id + '"]', view); if (nb) nb.focus(); }
@@ -405,33 +380,52 @@
   }
 
   /* ---------- course home (signed in) ---------- */
+  // Two views: the learner's path, grouped by stage and numbered by position, or the full library by part.
+  var homeScope = "path";
+  function pathRow(id, pos, next) {
+    var l = byId[id], done = progress[id], isNext = id === next;
+    var cat = l.num !== pos ? '<small class="cat">No. ' + l.num + "</small>" : "";
+    return '<li><a class="' + (done ? "done" : "") + (isNext ? " next" : "") + '" href="#' + id + '"><span class="n">' + pos + '</span><span><span class="t">' + esc(l.title) + cat + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (done ? "Completed" : isNext ? "Up next, " + l.minutes + " min" : l.minutes + " min") + "</span></a></li>";
+  }
   function renderHome() {
     var path = routeFor(roles), n = doneOf(path), gen = roles[0] === "general", main = roleInfo(roles[0]) || GENERAL;
-    var next = path.filter(function (id) { return !progress[id]; })[0];
+    var next = path.filter(function (id) { return !progress[id]; })[0], pos = next ? path.indexOf(next) + 1 : path.length;
+    var left = path.filter(function (id) { return !progress[id]; });
     var h = '<div class="home">';
     if (notice) { h += '<p class="notice" role="status">' + esc(notice) + "</p>"; notice = ""; }
-    h += '<section class="dash"><div class="dash-main">';
-    h += '<p class="kicker">' + (n ? "Welcome back" : "Welcome") + "</p>";
-    h += "<h1>" + (roles.length === 1 ? "Your " + esc(main.name) + " path" : "Your path") + "</h1>";
-    if (roles.length > 1) h += '<p class="dash-roles">' + roles.map(function (r, i) { return '<span class="role-tag' + (i ? "" : " main") + '">' + esc(roleInfo(r).name) + (i ? "" : ", main role") + "</span>"; }).join("") + "</p>";
-    h += '<p class="lede">' + (roles.length > 1 ? "The core lessons, your full " + esc(main.name) + " track, the first lesson for each other role, then the capstone. Examples in the core lessons come from " + esc(main.name) + "." : esc(main.why)) + "</p>";
-    h += '<p class="dash-count">' + path.length + " lessons, about " + hours(path) + " hours. " + n + " completed.</p>";
-    h += '<div class="hero-cta">' + (next ? '<a class="btn" href="#' + next + '">' + (n ? "Continue: " : "Start: ") + esc(byId[next].title) + "</a>" : '<a class="btn" href="#team-adoption">Path complete. Revisit the capstone</a>') + '<a class="btn ghost" href="#role">Change roles</a></div>';
-    h += '</div><div class="dash-prog" aria-label="Progress on your path"><div class="ring" style="--p:' + Math.round(100 * n / path.length) + '"><b>' + n + "</b><span>of " + path.length + "</span></div></div></section>";
+    h += '<section class="dash2"><p class="kicker">Your path: ' + esc(pathLong(roles)) + "</p>";
+    h += "<h1>" + (!next ? "Path complete" : n ? "You're on lesson " + pos + " of " + path.length : "Start with lesson 1") + "</h1>";
+    h += '<div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + " done" + (left.length ? ", about " + hours(left) + " hours left" : "") + "</span></div>";
+    if (next) {
+      var nl = byId[next];
+      h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + pos + ", " + nl.minutes + ' min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue" : "Start") + "</span></a>";
+    } else h += '<a class="upnext" href="#team-adoption"><span class="un-k">All ' + path.length + ' lessons done</span><b>Revisit the capstone, or explore the full library</b><span class="btn pill dark">Open the capstone</span></a>';
+    h += '<p class="dash-links"><a href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></section>';
 
-    h += '<section><div class="section-h"><h2>Your path</h2><p>Lessons in the order we suggest</p></div><ol class="contents path">';
-    h += path.map(function (id) {
-      var l = byId[id], t = gen ? "" : tagFor(id, roles), tag = t ? '<small class="tag-r' + (t === "Neighbouring role" ? " alt" : "") + '">' + t + "</small>" : "";
-      return '<li><a class="' + (progress[id] ? "done" : "") + (id === next ? " next" : "") + '" href="#' + id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + tag + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (progress[id] ? "Completed" : id === next ? "Up next" : l.minutes + " min") + "</span></a></li>";
-    }).join("") + "</ol></section>";
+    h += '<div class="home-views"><div class="seg" role="group" aria-label="Which lessons to show"><button type="button" data-homescope="path" aria-pressed="' + (homeScope === "path") + '">Your path (' + path.length + ')</button><button type="button" data-homescope="all" aria-pressed="' + (homeScope === "all") + '">Full library (' + GW.lessons.length + ")</button></div></div>";
 
-    h += '<section><div class="section-h"><h2>Full course</h2><p>' + courseSize + ". Every lesson stays open to you.</p></div><div class=\"parts\">";
-    GW.parts.forEach(function (p) {
-      var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
-      h += '<div class="part"><div class="part-h"><h3>' + esc(p.title) + "</h3><p>" + esc(p.blurb) + '</p><span class="pn-count">' + ls.length + (ls.length === 1 ? " lesson" : " lessons") + '</span></div><ol class="contents">' + ls.map(function (l) { return lessonRow(l, path); }).join("") + "</ol></div>";
-    });
-    h += "</div></section>";
-    h += '<section><div class="section-h"><h2>Coming back to a topic?</h2></div><div class="w-row"><button class="btn ghost" data-open-search>Search lessons and terms</button><a class="btn ghost" href="#glossary">Open the glossary</a></div></section>';
+    if (homeScope === "path") {
+      var track = gen ? [] : path.filter(function (id) { return byId[id].rid === roles[0]; });
+      var also = path.slice(coreLast, -1).filter(function (id) { return track.indexOf(id) < 0; });
+      var stages = [
+        { h: "Core lessons", p: "For everyone: how models work, and how to work with them.", ids: path.slice(0, coreLast) },
+        { h: esc(main.name) + " track", p: "Your main role's lessons, in order.", ids: track },
+        { h: "Also recommended", p: roles.length === 1 ? esc(main.why) : "The first lesson for each of your other roles.", ids: also },
+        { h: "Capstone", p: "Bring AI into a team deliberately.", ids: ["team-adoption"] }
+      ];
+      stages.forEach(function (s) {
+        if (!s.ids.length) return;
+        var d = doneOf(s.ids);
+        h += '<section class="stage"><div class="stage-h"><h2>' + s.h + '</h2><p>' + s.p + '</p><span class="stage-n">' + (d === s.ids.length ? "Done" : d + " of " + plural(s.ids.length, "lesson")) + '</span></div><ol class="contents path">' + s.ids.map(function (id) { return pathRow(id, path.indexOf(id) + 1, next); }).join("") + "</ol></section>";
+      });
+    } else {
+      h += '<section><p class="lib-note">' + courseSize + ". Every lesson stays open to you; lessons on your path are marked.</p><div class=\"parts\">";
+      GW.parts.forEach(function (p) {
+        var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
+        h += '<div class="part"><div class="part-h"><h3>' + esc(p.title) + "</h3><p>" + esc(p.blurb) + '</p><span class="pn-count">' + plural(ls.length, "lesson") + '</span></div><ol class="contents">' + ls.map(function (l) { return lessonRow(l, path); }).join("") + "</ol></div>";
+      });
+      h += "</div></section>";
+    }
     h += "</div>";
     $("#view").innerHTML = h;
   }
@@ -458,13 +452,14 @@
     list.forEach(function (e) { if (lessonsWith.indexOf(e.lesson) < 0) lessonsWith.push(e.lesson); });
     var h = '<div class="tabpage"><header class="tp-head"><h1>Exercises</h1><p class="lede">Every hands-on activity in the course. Each one gives you feedback as you go.</p>';
     h += '<div class="seg" role="group" aria-label="Which exercises to show"><button type="button" data-exscope="path" aria-pressed="' + (exScope === "path") + '">Your path</button><button type="button" data-exscope="all" aria-pressed="' + (exScope === "all") + '">All lessons</button></div>';
-    h += '<p class="ex-count" aria-live="polite">' + list.length + " exercises in " + lessonsWith.length + " lessons</p></header>";
+    h += '<p class="ex-count" aria-live="polite">' + plural(list.length, "exercise") + " in " + plural(lessonsWith.length, "lesson") + "</p></header>";
     lessonsWith.forEach(function (l) {
-      h += '<section class="ex-group" aria-labelledby="exg-' + l.id + '"><h2 class="ex-l" id="exg-' + l.id + '"><span>Lesson ' + l.num + "</span>" + esc(l.title) + '</h2><div class="ex-grid">';
+      var done = progress[l.id];
+      h += '<section class="ex-group' + (done ? " done" : "") + '" aria-labelledby="exg-' + l.id + '"><h2 class="ex-l" id="exg-' + l.id + '"><span class="ex-ln">Lesson ' + l.num + (done ? ' <b class="ex-done">Completed</b>' : "") + "</span>" + esc(l.title) + '</h2><ul class="ex-list">';
       list.filter(function (e) { return e.lesson === l; }).forEach(function (e) {
-        h += '<a class="ex-card' + (progress[l.id] ? " done" : "") + '" href="#' + l.id + '" data-scroll="ex-' + e.n + '"><span class="ex-tag">' + esc(e.tag) + "</span><b>" + e.title + "</b>" + (e.kind ? '<span class="ex-kind">' + esc(e.kind) + "</span>" : "") + '<span class="ex-meta">' + (progress[l.id] ? "Lesson completed" : l.minutes + " min lesson") + "</span></a>";
+        h += '<li><a class="ex-row" href="#' + l.id + '" data-scroll="ex-' + e.n + '"><b>' + e.title + "</b>" + (e.kind ? '<span class="ex-kind">' + esc(e.kind) + "</span>" : "") + "</a></li>";
       });
-      h += "</div></section>";
+      h += "</ul></section>";
     });
     h += "</div>";
     $("#view").innerHTML = h;
@@ -499,20 +494,29 @@
   function renderGlossary() {
     var keys = Object.keys(GW.glossary).sort(function (a, b) { return GW.glossary[a][0].localeCompare(GW.glossary[b][0]); });
     var h = '<div class="gloss tabpage"><h1>Glossary</h1><p class="lede">Every term the course relies on, in plain words. Each entry links to the lesson that explains it properly.</p>';
-    h += '<div class="w filter"><label for="gloss-filter">Filter terms</label><input type="text" id="gloss-filter" placeholder="e.g. token, injection, eval"></div><dl>';
+    h += '<div class="w filter"><label for="gloss-filter">Filter terms</label><div class="gf-row"><input type="search" id="gloss-filter" placeholder="e.g. token, injection, eval" aria-describedby="gloss-count"><button type="button" class="btn small ghost" id="gloss-clear" hidden>Clear</button></div><p class="gloss-count" id="gloss-count" aria-live="polite">' + keys.length + ' terms</p></div><p class="gloss-empty" hidden>No terms match. Try a shorter word, or <button type="button" class="linkish" data-gclear>clear the filter</button>.</p><dl>';
     keys.forEach(function (k) {
       var g = GW.glossary[k];
       h += '<dt id="term-' + k + '" data-k="' + k + '">' + esc(g[0]) + '</dt><dd data-k="' + k + '">' + esc(g[1]) + (g[2] ? '<a class="see" href="#' + g[2] + '">Explained in: ' + esc(byId[g[2]].title) + "</a>" : "") + "</dd>";
     });
     h += "</dl></div>";
     $("#view").innerHTML = h;
-    $("#gloss-filter").addEventListener("input", function (e) {
-      var q = e.target.value.toLowerCase().trim();
+    var gf = $("#gloss-filter");
+    function filterGloss() {
+      var q = gf.value.toLowerCase().trim(), shown = 0;
       keys.forEach(function (k) {
         var g = GW.glossary[k], hit = !q || (g[0] + " " + g[1]).toLowerCase().indexOf(q) > -1;
+        if (hit) shown += 1;
         $$('[data-k="' + k + '"]').forEach(function (el) { el.hidden = !hit; });
       });
-    });
+      $("#gloss-count").textContent = q ? shown + " of " + keys.length + " terms" : keys.length + " terms";
+      $(".gloss-empty").hidden = shown > 0;
+      $("#gloss-clear").hidden = !q;
+    }
+    function clearGloss() { gf.value = ""; filterGloss(); gf.focus(); }
+    gf.addEventListener("input", filterGloss);
+    $("#gloss-clear").addEventListener("click", clearGloss);
+    $("[data-gclear]").addEventListener("click", clearGloss);
     if (pendingTerm) {
       var dt = document.getElementById("term-" + pendingTerm); pendingTerm = null;
       if (dt) { dt.scrollIntoView({ block: "center" }); dt.classList.add("flash"); setTimeout(function () { dt.classList.remove("flash"); }, 1800); }
@@ -536,22 +540,24 @@
     var l = byId[id], c = GW.content[id], path = routeFor(roles), onPath = path.indexOf(id) > -1;
     var seq = onPath ? path.map(function (x) { return byId[x]; }) : GW.lessons;
     var idx = seq.indexOf(l), prev = seq[idx - 1], next = seq[idx + 1];
-    var pl = roles.length === 1 ? "your " + esc(roleInfo(roles[0]).name) + " path" : "your path";
     var h = '<article class="lesson">';
     h += '<header class="lesson-head"><h1>' + esc(l.title) + "</h1>";
-    h += '<p class="meta"><span><b>Lesson ' + l.num + "</b> of " + GW.lessons.length + "</span><span>" + esc(partTitle[l.part]) + "</span><span>" + l.minutes + " min read</span>" + (roles.length ? (onPath ? '<span class="path-on">On ' + pl + "</span>" : '<span class="path-off">Outside ' + pl + "</span>") : "") + "</p>";
+    var posTxt = roles.length && onPath ? "Lesson " + (idx + 1) + " of " + seq.length : "Library lesson " + l.num;
+    h += '<p class="meta"><span><b>' + posTxt + "</b></span><span>" + l.minutes + " min</span>" + (roles.length && !onPath ? '<span class="path-off">Not on your path</span>' : "") + "</p>";
+    h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
     h += '<p class="lede">' + c.lede + "</p>";
     h += '<div class="outcomes"><h4>After this lesson you can</h4><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";
     h += '<nav class="toc" aria-label="On this page"><h4>On this page</h4></nav>';
-    h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
     var ex = roleExample(id), body = c.html;
     if (ex) body = body.indexOf('<section class="checks">') > -1 ? body.replace('<section class="checks">', ex + '<section class="checks">') : body + ex;
+    var srcHtml = "", si = body.indexOf('<section class="sources">');
+    if (si > -1) { var se = body.indexOf("</section>", si) + 10; srcHtml = body.slice(si, se); body = body.slice(0, si) + body.slice(se); }
     h += body;
     h += '<footer class="lesson-foot"><div class="complete-row"><p id="complete-msg"></p><button class="btn" id="complete-btn"></button></div><div class="pn">';
     if (prev) h += '<a class="prev" href="#' + prev.id + '"><span>Previous' + (onPath ? " on your path" : "") + "</span><b>" + esc(prev.title) + "</b></a>";
     if (next) h += '<a class="next" href="#' + next.id + '"><span>Next' + (onPath ? " on your path" : "") + "</span><b>" + esc(next.title) + "</b></a>";
     else h += '<a class="next" href="#home"><span>' + (onPath ? "End of your path" : "Finished") + "</span><b>Back to course home</b></a>";
-    h += "</div></footer></article>";
+    h += "</div></footer>" + srcHtml + "</article>";
     var view = $("#view"); view.innerHTML = h;
     $$(".activity", view).forEach(function (a, i) { a.id = "ex-" + (i + 1); });
 
@@ -659,11 +665,13 @@
     if (e.target.closest("[data-open-search]")) openSearch();
     var uc = e.target.closest("[data-ucscope]");
     if (uc) { ucScope = uc.getAttribute("data-ucscope"); renderUseCases(); var g = $('[data-ucscope="' + ucScope + '"]'); if (g) g.focus(); }
+    var hs = e.target.closest("[data-homescope]");
+    if (hs) { homeScope = hs.getAttribute("data-homescope"); renderHome(); var hf = $('[data-homescope="' + homeScope + '"]'); if (hf) hf.focus(); }
     var sc2 = e.target.closest("[data-exscope]");
     if (sc2) { exScope = sc2.getAttribute("data-exscope"); renderExercises(); var f = $('[data-exscope="' + exScope + '"]'); if (f) f.focus(); }
     var cp = e.target.closest("[data-copy]");
     if (cp) {
-      var link = cp.getAttribute("data-copy") === "link", box = cp.closest(".code-card, .save-strip"), msg = box && $("[data-copy-msg]", box);
+      var link = cp.getAttribute("data-copy") === "link", box = cp.closest(".transfer, .save-strip"), msg = box && $("[data-copy-msg]", box);
       copyText(link ? resumeLink() : prettyCode(encodeProgress()), function (ok) {
         if (msg) msg.textContent = ok ? (link ? "Resume link copied. Open it on your other device." : "Code copied.") : "Couldn't copy automatically. Select the code and copy it yourself.";
       });
@@ -684,16 +692,16 @@
     index = [];
     GW.lessons.forEach(function (l) {
       var c = GW.content[l.id] || {};
-      index.push({ kind: "Lesson " + l.num, title: l.title, text: (l.summary + " " + (c.lede || "")).replace(/<[^>]+>/g, ""), go: l.id });
+      index.push({ g: "Lessons", kind: "Lesson " + l.num, title: l.title, text: (l.summary + " " + (c.lede || "")).replace(/<[^>]+>/g, ""), go: l.id });
       var re = /<h2[^>]*>([\s\S]*?)<\/h2>/g, m;
       while ((m = re.exec(c.html || ""))) {
         var tt = m[1].replace(/<[^>]+>/g, "").trim();
-        index.push({ kind: "In: " + l.title, title: tt, text: "", go: l.id, sec: slug(tt) });
+        index.push({ g: "Sections", kind: "In: " + l.title, title: tt, text: "", go: l.id, sec: slug(tt) });
       }
     });
-    Object.keys(GW.glossary).forEach(function (k) { index.push({ kind: "Glossary", title: GW.glossary[k][0], text: GW.glossary[k][1], go: "glossary", term: k }); });
+    Object.keys(GW.glossary).forEach(function (k) { index.push({ g: "Terms", kind: "Glossary", title: GW.glossary[k][0], text: GW.glossary[k][1], go: "glossary", term: k }); });
   }
-  var selIdx = 0, results = [];
+  var selIdx = 0, results = [], resHead = [];
   function openSearch() {
     if (!index) buildIndex();
     closeSearch();
@@ -712,23 +720,36 @@
   }
   function closeSearch() { var s = $("#search"); if (s) s.remove(); }
   function runSearch(q) {
-    q = q.toLowerCase().trim(); selIdx = 0;
-    if (!q) { results = routeFor(roles).map(function (id) { return index.filter(function (x) { return x.go === id && !x.sec; })[0]; }); }
-    else {
-      var words = q.split(/\s+/);
-      results = index.map(function (x) {
-        var hay = (x.title + " " + x.text).toLowerCase(), score = 0;
-        for (var i = 0; i < words.length; i++) { if (hay.indexOf(words[i]) < 0) return null; score += x.title.toLowerCase().indexOf(words[i]) > -1 ? 3 : 1; }
-        return { x: x, s: score };
-      }).filter(Boolean).sort(function (a, b) { return b.s - a.s; }).slice(0, 14).map(function (r) { return r.x; });
+    q = q.toLowerCase().trim(); selIdx = 0; resHead = [];
+    if (!q) {
+      results = routeFor(roles).map(function (id) { return index.filter(function (x) { return x.go === id && !x.sec; })[0]; });
+      resHead[0] = "Your path";
+    } else {
+      var words = q.split(/\s+/), single = q.replace(/s$/, "");
+      var hits = index.map(function (x) {
+        var t = x.title.toLowerCase(), hay = (t + " " + x.text).toLowerCase(), score = 0;
+        for (var i = 0; i < words.length; i++) { if (hay.indexOf(words[i]) < 0) return null; score += t.indexOf(words[i]) > -1 ? 3 : 1; }
+        var exact = t === q || t.replace(/s$/, "") === single;
+        if (exact) score += 100; else if (t.indexOf(q) === 0) score += 6;
+        return { x: x, s: score, exact: exact };
+      }).filter(Boolean).sort(function (a, b) { return b.s - a.s; });
+      // exact title matches first, then the rest grouped by kind
+      var best = hits.filter(function (r) { return r.exact; }).slice(0, 3), rest = hits.filter(function (r) { return best.indexOf(r) < 0; });
+      results = [];
+      if (best.length) { resHead[0] = "Best match"; best.forEach(function (r) { results.push(r.x); }); }
+      ["Lessons", "Sections", "Terms"].forEach(function (g) {
+        var grp = rest.filter(function (r) { return r.x.g === g; }).slice(0, 5);
+        if (grp.length) { resHead[results.length] = g; grp.forEach(function (r) { results.push(r.x); }); }
+      });
     }
     paintRes();
   }
   function paintRes() {
     var box = $("#search-res"); if (!box) return;
     if (!results.length) { box.innerHTML = '<div class="empty">No matches. Try a broader word, such as "test", "context" or "risk".</div>'; return; }
-    box.innerHTML = results.map(function (r, i) { return '<a href="#' + r.go + '" data-i="' + i + '" class="' + (i === selIdx ? "sel" : "") + '"><small>' + esc(r.kind) + "</small>" + esc(r.title) + "</a>"; }).join("");
+    box.innerHTML = results.map(function (r, i) { return (resHead[i] ? '<p class="sr-h">' + esc(resHead[i]) + "</p>" : "") + '<a href="#' + r.go + '" data-i="' + i + '" class="' + (i === selIdx ? "sel" : "") + '"><small>' + esc(r.kind) + "</small>" + esc(r.title) + "</a>"; }).join("");
     $$("a", box).forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); goResult(results[+a.dataset.i]); }); });
+    var sel = $("a.sel", box); if (sel) sel.scrollIntoView({ block: "nearest" });
   }
   function goResult(r) {
     closeSearch();
@@ -777,7 +798,6 @@
   }
   document.addEventListener("click", function (e) {
     var a = e.target.closest("[data-pick]"); if (a) save("gw-pick", a.getAttribute("data-pick"));
-    if (e.target.closest("[data-motion]")) { still = !still; save("gw-still", still); paintMotion(); }
     var rx = e.target.closest("[data-rx]");
     if (rx) {
       var box = rx.closest(".role-ex"), id = rx.getAttribute("data-rx");

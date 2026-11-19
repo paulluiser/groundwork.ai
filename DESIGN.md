@@ -173,7 +173,7 @@ components:
 
 Groundwork should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.
 
-The app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.
+The app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share five tabs: Lessons, Exercises, Use cases, Glossary and Progress. The Use cases tab hides itself while there are no use cases. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.
 
 Status never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.
 
@@ -235,7 +235,7 @@ White and near-black, with soft greys for grouping and one proofing blue for wha
 - **Lesson pages:** a 280px Tint sidebar sits beside the reading page. The lesson column is 46em wide for exercises and figures, with prose capped at 38em, and a 176px "On this page" margin on the right.
 - **Below 1220px:** the margin becomes a collapsible "On this page" box.
 - **Below 960px:** the sidebar becomes a slide-in drawer opened from the menu button, which appears on lesson pages only.
-- **Below 760px:** the tabs leave the top bar and become a four-item bottom tab bar with icons, clear of the home indicator. Pages gain bottom padding so nothing hides behind it.
+- **Below 760px:** the tabs leave the top bar and become a five-item bottom tab bar with icons, clear of the home indicator. Pages gain bottom padding so nothing hides behind it.
 - **Spacing:** steps of 4, 8 and 16px inside components. Sections are separated by 40–96px.
 
 ## Elevation & Depth
@@ -244,7 +244,7 @@ Depth comes from material, not lines: glass chrome over content, grey groups on 
 
 ### Shadow Vocabulary
 - **Raised** (`box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04)`): the selected segment, activities, the progress-code card and the sidebar path card.
-- **Lift** (`box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.08)`): things that float over the page, such as the glossary popover, the search sheet, the sticky Continue bar, the hero fan and the drawer.
+- **Lift** (`box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.08)`): things that float over the page, such as the glossary popover, the search sheet, the sticky picker bar, the landing example card and the drawer.
 
 ### Named Rules
 **The Material Rule.** Content in the reading flow is flat or Raised. Only floating things get Lift, and only chrome gets glass.
@@ -276,16 +276,22 @@ Pill-shaped, at least 44px tall, weight 600. They scale to .97 on press.
 The course tabs on desktop and the Exercises filter ("Your path" / "All lessons"). The track is a grey fill with 3px of padding. The selected segment is white with Raised, its state set through `aria-current` or `aria-pressed`.
 
 ### Tab Bar (phones)
-Four equal items: Lessons, Exercises, Glossary and Progress. Each has a 24px line icon over an 11px label. The current item is cobalt. The bar is frosted glass with a hairline on top.
+Five equal items: Lessons, Exercises, Use cases, Glossary and Progress. Each has a 24px line icon over an 11px label. The current item is cobalt. The bar is frosted glass with a hairline on top.
 
 ### Grouped Lists
 Lesson lists sit in an 18px Tint group. Rows are separated by inset hairlines that start after the number column. Hover deepens the row to Tint Deep.
 
-### Exercise Cards
-On the Exercises tab, each card is an 18px Tint card holding a cobalt tag (Try it, Practice, Build it, Capstone), the exercise title, its kind and the lesson length. A ✓ marks a completed lesson. Each card opens its lesson at that exercise.
+### Exercise Rows
+On the Exercises tab, exercises are compact rows in an 18px Tint group, one group per lesson. Each row leads with the task title, then its kind (Tokenizer, Risk matrix, Make the call). The group heading carries the lesson number and title, and a cobalt "Completed" when the lesson is done; rows carry no lesson length or completion. Each row opens its lesson at that exercise.
+
+### Course Overview
+The Lessons tab leads with where the learner is: a cobalt kicker naming the path, a headline such as "You're on lesson 4 of 13", a 6px cobalt progress bar with "n of N done, about h hours left", and an Up next card (Tint, 18px) with the lesson's position, minutes, title, summary and a pill button. Below it, a segmented control switches between "Your path (N)" and "Full library (45)". The path view groups rows under stage headings (Core lessons, the main role's track, Also recommended, Capstone), numbers them by path position, and adds the library number ("No. 15") only where it differs. The neighbour explanation sits under Also recommended. The library view keeps catalogue numbers, grouped by part.
+
+### Use Case Cards
+On the Use cases tab, cards sit in a grid grouped by role, the learner's roles first, with a "Your roles" / "All roles" segmented control. Each 18px Tint card carries a fit pill (Good fit, Use with care, Keep human), a title, what AI does, a bold "Check:" line, and a link to the lesson that covers it.
 
 ### Activities
-Inside lessons, each activity is a white 18px card with a Rule Grey border and Raised. The header carries a cobalt-wash tag and a 21px title. There is no black bar.
+Inside lessons, each activity is a white 18px card with a Rule Grey border and Raised. The header carries a cobalt-wash tag and a 21px title. There is no black bar. The "decide" activity (Make the call) shows a run of situations, one at a time, under a segmented progress strip: a situation label, the title, the situation, lettered options, then feedback. Once the right option is chosen, Next sits in its own action row after the feedback, right-aligned (full width on phones), and scrolls into view above the phone tab bar. The capstone scenario works the same way. The risk matrix shows the task first and lays out its four choices in the matrix's own 2×2 order. The code test puts the input, examples and result first, with the code in a disclosure that is open on wide screens and scrolls sideways.
 
 ### Stamps (signature)
 Small verdicts with 4px corners in 13px text: confirmed is solid cobalt, wrong is solid ink, check-it is a dashed outline, and info is a cobalt outline.
@@ -295,7 +301,12 @@ White, with a 1px Field Grey border and 12px corners. The progress-code field is
 
 ### Navigation
 - **Top bar:** frosted glass, holding the wordmark, the tabs and, on the right, the path button ("Path: Engineering & Security") and search.
-- **Sidebar** (lessons only): Tint, with lessons grouped by part. The current lesson is a cobalt row with white text, and done lessons get a filled cobalt ring.
+- **Sidebar** (lessons only): Tint, with lessons grouped by part under a quiet outlined path card. The current lesson is a Cobalt Wash row with cobalt text, and done lessons get a filled cobalt ring.
+- **On this page:** the current section has a 2px cobalt bar and a Cobalt Wash fill. Below 1220px it is a disclosure directly under the lesson title and meta line.
+- **Lesson meta:** position and duration only ("Lesson 4 of 13 · 25 min"). Completion and next-lesson controls come before Sources and further reading.
+
+### Landing Example
+The hero pairs the headline with one complete worked example: an AI draft on Tint above the human check on white, with a verdict stamp and a one-line explanation. Role buttons under the card ("See it for") swap the example with a short fade, the page's only motion, and only when reduced motion is off. Nothing on the landing page is hidden, blurred or animated on load. The Start button carries "Lesson 1 takes 20 minutes" beside it, and the closing ink panel is compact on phones.
 
 ## Do's and Don'ts
 

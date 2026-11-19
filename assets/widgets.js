@@ -54,7 +54,7 @@
     var box = h('<div class="sentence" aria-live="polite"><span class="base">The deploy failed because the</span><span class="gen"></span><span class="cursor"></span></div>' +
       '<div class="w-row" style="margin-top:14px"><label for="' + rid + '">Temperature <b class="tv">1.0</b></label><input type="range" id="' + rid + '" min="0" max="2" step="0.1" value="1"></div>' +
       '<div class="bars"></div>' +
-      '<div class="w-row"><button class="btn small" data-act="gen">Generate a sentence</button><button class="btn small ghost" data-act="many">Sample 20 times</button><button class="btn small ghost" data-act="reset">Reset</button></div><div class="result" hidden></div>');
+      '<div class="w-row"><button class="btn small" data-act="gen">Generate</button><button class="btn small ghost" data-act="many">Sample 20×</button><button class="btn small ghost" data-act="reset">Reset</button></div><div class="result" hidden></div>');
     el.appendChild(box);
     var slider = box.querySelector("input"), bars = box.querySelector(".bars"), gen = box.querySelector(".gen"), res = box.querySelector(".result");
     bars.innerHTML = cands.map(function (c) { return '<div class="bar-row" data-word="' + c[0] + '"><span class="lab">' + c[0] + '</span><span class="trk"><span class="fill"></span></span><span class="pct"></span></div>'; }).join("");
@@ -97,9 +97,10 @@
     box.querySelector('[data-act="many"]').addEventListener("click", function () {
       clearPicked(); var d = paint(), tally = cands.map(function () { return 0; });
       for (var n = 0; n < 20; n++) tally[pick(d)] += 1;
-      var parts = cands.map(function (c, i) { return tally[i] ? "<b>" + c[0] + "</b> ×" + tally[i] : null; }).filter(Boolean);
+      var rows = cands.map(function (c, i) { return tally[i] ? '<li><span class="tl-w">' + c[0] + '</span><span class="tl-bar"><i style="width:' + (tally[i] * 5) + '%"></i></span><b>' + tally[i] + "</b></li>" : ""; }).join("");
+      var kinds = tally.filter(Boolean).length;
       res.hidden = false; res.className = "result";
-      res.innerHTML = "20 samples at temperature " + parseFloat(slider.value).toFixed(1) + ": " + parts.join(", ") + ". " + (parts.length === 1 ? "Every run gave the same first word." : parts.length + " different first words, each one the start of an equally fluent sentence.");
+      res.innerHTML = "<b>20 samples at temperature " + parseFloat(slider.value).toFixed(1) + '</b><ul class="tally">' + rows + "</ul>" + (kinds === 1 ? "Every run gave the same first word." : kinds + " different first words, each one the start of an equally fluent sentence.");
     });
     box.querySelector('[data-act="reset"]').addEventListener("click", function () { clearTimeout(timer); gen.innerHTML = ""; res.hidden = true; clearPicked(); slider.value = 1; paint(); });
     slider.addEventListener("input", function () { clearPicked(); paint(); });
