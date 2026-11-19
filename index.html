@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Groundwork: AI for software teams</title>
+<meta name="description" content="A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.">
+<meta name="theme-color" content="#FFFFFF">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Groundwork: AI for software teams">
+<meta property="og:description" content="A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="tb-btn menu-btn" id="menu-btn" aria-label="Open lesson list" aria-controls="rail">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+  </button>
+  <a class="brand" href="#welcome" aria-label="Groundwork, about the course">
+    <svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true">
+      <rect x="3" y="15" width="22" height="4" rx="1.5" fill="var(--ink)"/>
+      <rect x="3" y="21" width="22" height="4" rx="1.5" fill="var(--ink)" opacity=".35"/>
+      <path d="M7 9.5l3.2 3.2L20 3" stroke="var(--accent)" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Groundwork</span>
+  </a>
+  <nav class="tabs" id="tabs" aria-label="Course sections" hidden>
+    <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg><span>Lessons</span></a>
+    <a href="#exercises" data-tab="exercises"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/></svg><span>Exercises</span></a>
+    <a href="#usecases" data-tab="usecases"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg><span>Use cases</span></a>
+    <a href="#glossary" data-tab="glossary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19l5.5-14h3L19 19M7.6 13.5h8.8"/></svg><span>Glossary</span></a>
+    <a href="#progress" data-tab="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8h-8z"/></svg><span>Progress</span></a>
+  </nav>
+  <span class="spacer"></span>
+  <a class="tb-btn role-btn" id="role-btn" href="#role" hidden></a>
+  <a class="tb-btn signin-btn" id="signin-btn" href="#progress" hidden>Have a code?</a>
+  <button class="tb-btn" id="search-btn" aria-label="Search the course">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    <span class="lbl">Search</span><kbd>/</kbd>
+  </button>
+</header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Lessons"></nav>
+  <main class="view" id="view" tabindex="-1"></main>
+</div>
+
+<script src="assets/course.js"></script>
+<script src="content/01-how-models-work.js"></script>
+<script src="content/02-context.js"></script>
+<script src="content/03-failure-modes.js"></script>
+<script src="content/03b-choosing-models.js"></script>
+<script src="content/04-asking-well.js"></script>
+<script src="content/05-checking-work.js"></script>
+<script src="content/06-tools-agents.js"></script>
+<script src="content/07-data-security.js"></script>
+<script src="content/08-product.js"></script>
+<script src="content/08-2-product-discovery.js"></script>
+<script src="content/08-3-product-ai-features.js"></script>
+<script src="content/09-design.js"></script>
+<script src="content/09-2-design-research.js"></script>
+<script src="content/09-3-design-ai-ux.js"></script>
+<script src="content/10-engineering.js"></script>
+<script src="content/10-2-engineering-agents.js"></script>
+<script src="content/11-qa.js"></script>
+<script src="content/11b-security.js"></script>
+<script src="content/11c-data-analytics.js"></script>
+<script src="content/11d-technical-writing.js"></script>
+<script src="content/12-delivery.js"></script>
+<script src="content/12b-project-management.js"></script>
+<script src="content/12c-engineering-management.js"></script>
+<script src="content/13-operations.js"></script>
+<script src="content/13b-customer-support.js"></script>
+<script src="content/14-team-adoption.js"></script>
+<script src="assets/role-examples.js"></script>
+<script src="assets/use-cases.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="assets/widgets-b.js"></script>
+<script src="assets/widgets-c.js"></script>
+<script src="assets/widgets-d.js"></script>
+<script src="assets/widgets-e.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

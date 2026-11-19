@@ -1,0 +1,452 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T02:38:33.758123+00:00",
+  "title": "Design System: Groundwork",
+  "extensions": {
+    "colorMeta": {
+      "proof-cobalt": {
+        "role": "primary",
+        "displayName": "Proof Cobalt",
+        "canonical": "#2F4BFF",
+        "tonalRamp": [
+          "#0C1340",
+          "#152273",
+          "#1F31A6",
+          "#2840D9",
+          "#2F4BFF",
+          "#6D81FF",
+          "#ACB7FF",
+          "#E6E9FF"
+        ]
+      },
+      "cobalt-deep": {
+        "role": "primary",
+        "displayName": "Cobalt Deep",
+        "canonical": "#1F38E0",
+        "tonalRamp": [
+          "#080E38",
+          "#0E1965",
+          "#142492",
+          "#1A30BE",
+          "#1F38E0",
+          "#6274E9",
+          "#A5AFF3",
+          "#E4E7FB"
+        ]
+      },
+      "cobalt-wash": {
+        "role": "primary",
+        "displayName": "Cobalt Wash",
+        "canonical": "#EDF0FF",
+        "tonalRamp": [
+          "#3B3C40",
+          "#6B6C73",
+          "#9A9CA6",
+          "#C9CCD9",
+          "#EDF0FF",
+          "#F2F4FF",
+          "#F8F9FF",
+          "#FDFDFF"
+        ]
+      },
+      "cobalt-rule": {
+        "role": "primary",
+        "displayName": "Cobalt Rule",
+        "canonical": "#AEB9FF",
+        "tonalRamp": [
+          "#2C2E40",
+          "#4E5373",
+          "#7178A6",
+          "#949DD9",
+          "#AEB9FF",
+          "#C6CEFF",
+          "#DFE3FF",
+          "#F5F7FF"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#404040",
+          "#737373",
+          "#A6A6A6",
+          "#D9D9D9",
+          "#FFFFFF",
+          "#FFFFFF",
+          "#FFFFFF",
+          "#FFFFFF"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1D1D1F",
+        "tonalRamp": [
+          "#070708",
+          "#0D0D0E",
+          "#131314",
+          "#19191A",
+          "#1D1D1F",
+          "#616162",
+          "#A5A5A5",
+          "#E4E4E4"
+        ]
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "Ink Hover",
+        "canonical": "#3A3A3C",
+        "tonalRamp": [
+          "#0E0E0F",
+          "#1A1A1B",
+          "#262627",
+          "#313133",
+          "#3A3A3C",
+          "#757576",
+          "#B0B0B1",
+          "#E7E7E8"
+        ]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#424245",
+        "tonalRamp": [
+          "#101011",
+          "#1E1E1F",
+          "#2B2B2D",
+          "#38383B",
+          "#424245",
+          "#7B7B7D",
+          "#B3B3B5",
+          "#E8E8E9"
+        ]
+      },
+      "secondary-grey": {
+        "role": "neutral",
+        "displayName": "Secondary Grey",
+        "canonical": "#6E6E73",
+        "tonalRamp": [
+          "#1C1C1D",
+          "#313134",
+          "#48484B",
+          "#5E5E62",
+          "#6E6E73",
+          "#9A9A9D",
+          "#C5C5C7",
+          "#EEEEEE"
+        ]
+      },
+      "field-grey": {
+        "role": "neutral",
+        "displayName": "Field Grey",
+        "canonical": "#8A8A8A",
+        "tonalRamp": [
+          "#222222",
+          "#3E3E3E",
+          "#5A5A5A",
+          "#757575",
+          "#8A8A8A",
+          "#ADADAD",
+          "#D0D0D0",
+          "#F1F1F1"
+        ]
+      },
+      "mute-grey": {
+        "role": "neutral",
+        "displayName": "Mute Grey",
+        "canonical": "#9A9A9A",
+        "tonalRamp": [
+          "#262626",
+          "#454545",
+          "#646464",
+          "#838383",
+          "#9A9A9A",
+          "#B8B8B8",
+          "#D7D7D7",
+          "#F3F3F3"
+        ]
+      },
+      "rule-grey": {
+        "role": "neutral",
+        "displayName": "Rule Grey",
+        "canonical": "#D2D2D7",
+        "tonalRamp": [
+          "#343436",
+          "#5E5E61",
+          "#88888C",
+          "#B2B2B7",
+          "#D2D2D7",
+          "#E0E0E3",
+          "#EDEDEF",
+          "#FAFAFA"
+        ]
+      },
+      "separator": {
+        "role": "neutral",
+        "displayName": "Separator",
+        "canonical": "#E5E5EA",
+        "tonalRamp": [
+          "#39393A",
+          "#676769",
+          "#959598",
+          "#C3C3C7",
+          "#E5E5EA",
+          "#EDEDF0",
+          "#F5F5F7",
+          "#FCFCFC"
+        ]
+      },
+      "tint": {
+        "role": "neutral",
+        "displayName": "Tint",
+        "canonical": "#F5F5F7",
+        "tonalRamp": [
+          "#3D3D3E",
+          "#6E6E6F",
+          "#9F9FA1",
+          "#D0D0D2",
+          "#F5F5F7",
+          "#F8F8F9",
+          "#FBFBFC",
+          "#FEFEFE"
+        ]
+      },
+      "tint-deep": {
+        "role": "neutral",
+        "displayName": "Tint Deep",
+        "canonical": "#E8E8ED",
+        "tonalRamp": [
+          "#3A3A3B",
+          "#68686B",
+          "#97979A",
+          "#C5C5C9",
+          "#E8E8ED",
+          "#EFEFF2",
+          "#F6F6F8",
+          "#FCFCFD"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing hero headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles: lessons, role picker, course home."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Lesson sections, under a hairline rule."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Subsections, step and card titles."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Opening paragraph of a page, in Graphite."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Lesson reading text, 37em measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Stamps, tags and meta; sentence case, untracked."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code, prompts and logs only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04)",
+        "purpose": "Selected segment, activities, progress-code card, sidebar path card."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 8px rgba(0,0,0,.06), 0 16px 40px rgba(0,0,0,.08)",
+        "purpose": "Things floating over the page: popover, search sheet, sticky bar, hero fan, drawer."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Reveals, progress fills, the hero fan and the drawer."
+      },
+      {
+        "name": "state",
+        "value": "150ms ease",
+        "purpose": "Hover colour and border changes on controls and cards."
+      },
+      {
+        "name": "press",
+        "value": "scale(.97), 120ms ease-out",
+        "purpose": "Every tappable control answers the press; off under reduced motion."
+      },
+      {
+        "name": "reveal",
+        "value": "600ms ease-out, 60-70ms stagger",
+        "purpose": "Landing words, rises and staggered lists; off under reduced motion."
+      },
+      {
+        "name": "marquee",
+        "value": "44s and 64s linear, infinite",
+        "purpose": "Landing ticker and role drift; pausable, off under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "600px"
+      },
+      {
+        "name": "tab-bar",
+        "value": "760px"
+      },
+      {
+        "name": "tablet",
+        "value": "960px"
+      },
+      {
+        "name": "toc",
+        "value": "1220px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action inside the course: Continue, Start, Mark complete.",
+      "html": "<button class=\"ds-btn-primary\">Mark lesson complete</button>",
+      "css": ".ds-btn-primary { font-family: var(--font-body, -apple-system, BlinkMacSystemFont, system-ui, sans-serif); font-weight: 600; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; padding: 9px 20px; border-radius: 99px; border: 1.5px solid #2F4BFF; background: #2F4BFF; color: #FFFFFF; } .ds-btn-primary:hover { background: #1F38E0; border-color: #1F38E0; } .ds-btn-primary:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action: Change roles, Search lessons.",
+      "html": "<button class=\"ds-btn-ghost\">Change roles</button>",
+      "css": ".ds-btn-ghost { font-family: var(--font-body, -apple-system, BlinkMacSystemFont, system-ui, sans-serif); font-weight: 600; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; padding: 9px 20px; border-radius: 99px; border: 1.5px solid #D2D2D7; background: #FFFFFF; color: #1D1D1F; } .ds-btn-ghost:hover { background: #F5F5F7; } .ds-btn-ghost:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; } .ds-btn-ghost:active { transform: scale(.97); }"
+    },
+    {
+      "name": "Pill Buttons",
+      "kind": "button",
+      "refersTo": "button-pill-dark",
+      "description": "Arrival pages and progress codes: ink pill for the main action, tint pill beside it.",
+      "html": "<div class=\"ds-row\"><a class=\"ds-pill-dark\" href=\"#\">Start the course</a><a class=\"ds-pill-soft\" href=\"#\">I have a progress code</a></div>",
+      "css": ".ds-row { display: flex; gap: 12px; flex-wrap: wrap; } .ds-pill-dark, .ds-pill-soft { font-family: var(--font-body, -apple-system, BlinkMacSystemFont, system-ui, sans-serif); font-weight: 600; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; padding: 9px 24px; border-radius: 99px; border: 1.5px solid #1D1D1F; background: #1D1D1F; color: #FFFFFF; } .ds-pill-soft { background: #F5F5F7; border-color: #F5F5F7; color: #1D1D1F; } .ds-pill-dark:hover { background: #3A3A3C; border-color: #3A3A3C; } .ds-pill-soft:hover { background: #E8E8ED; border-color: #E8E8ED; } .ds-pill-dark:focus-visible, .ds-pill-soft:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle option in exercises; solid black when pressed.",
+      "html": "<div class=\"ds-row\"><button class=\"ds-chip\" aria-pressed=\"true\">8k tokens</button><button class=\"ds-chip\" aria-pressed=\"false\">32k tokens</button></div>",
+      "css": ".ds-row { display: flex; gap: 8px; } .ds-chip { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-size: 15px; min-height: 44px; padding: 8px 16px; border-radius: 99px; border: 1px solid #8A8A8A; background: #FFFFFF; color: #1D1D1F; cursor: pointer; } .ds-chip:hover { border-color: #1D1D1F; } .ds-chip[aria-pressed=\"true\"] { background: #1D1D1F; border-color: #1D1D1F; color: #FFFFFF; } .ds-chip:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Exercise input, mono by default.",
+      "html": "<label class=\"ds-label\" for=\"ds-in\">Your request</label><input id=\"ds-in\" class=\"ds-input\" type=\"text\" value=\"Summarise these tickets using only the text below\">",
+      "css": ".ds-label { display: block; margin-bottom: 4px; font: 700 15px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #1D1D1F; } .ds-input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #8A8A8A; background: #FFFFFF; color: #1D1D1F; font: 14.5px ui-monospace, 'SF Mono', Menlo, monospace; } .ds-input:focus { outline: 3px solid #2F4BFF; outline-offset: 0; border-color: #2F4BFF; }"
+    },
+    {
+      "name": "Verdict Stamps",
+      "kind": "custom",
+      "refersTo": "stamp-confirmed",
+      "description": "Status coded by shape and colour: solid, outlined, dashed, black.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-stamp ok\">Tests pass</span><span class=\"ds-stamp warn\">No source</span><span class=\"ds-stamp info\">Check it</span><span class=\"ds-stamp bad\">Wrong grain</span></div>",
+      "css": ".ds-row { display: flex; gap: 8px; flex-wrap: wrap; } .ds-stamp { display: inline-block; font: 700 13px/1.5 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; padding: 2px 9px; border-radius: 4px; border: 1.5px solid #1D1D1F; background: #FFFFFF; color: #1D1D1F; } .ds-stamp.ok { background: #2F4BFF; border-color: #2F4BFF; color: #FFFFFF; } .ds-stamp.bad { background: #1D1D1F; color: #FFFFFF; } .ds-stamp.warn { border-style: dashed; } .ds-stamp.info { border-color: #2F4BFF; color: #2F4BFF; }"
+    },
+    {
+      "name": "Role Card",
+      "kind": "card",
+      "refersTo": "role-card",
+      "description": "Checkbox card in the role picker; the first pick is badged Main.",
+      "html": "<div class=\"ds-grid\"><button class=\"ds-role\" role=\"checkbox\" aria-checked=\"true\"><span class=\"ds-top\"><b>Security</b><span class=\"ds-badge\">Main</span></span><span class=\"ds-s\">Adds lesson 13</span></button><button class=\"ds-role\" role=\"checkbox\" aria-checked=\"false\"><span class=\"ds-top\"><b>Design</b></span><span class=\"ds-s\">Adds lesson 10</span></button></div>",
+      "css": ".ds-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .ds-role { display: grid; gap: 6px; text-align: left; padding: 18px; border: 1px solid #D2D2D7; border-radius: 18px; background: #FFFFFF; color: #1D1D1F; cursor: pointer; transition: border-color .15s ease, background-color .15s ease; } .ds-role:hover { border-color: #1D1D1F; } .ds-role[aria-checked=\"true\"] { border-color: #2F4BFF; background: #EDF0FF; box-shadow: inset 0 0 0 1px #2F4BFF; } .ds-role:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; } .ds-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; } .ds-top b { font: 700 19px/1.2 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; } .ds-badge { padding: 1px 10px; border-radius: 99px; background: #2F4BFF; color: #FFFFFF; font: 700 13px/1.6 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; } .ds-s { font: 13px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #6E6E73; }"
+    },
+    {
+      "name": "Exercise Block",
+      "kind": "card",
+      "refersTo": "activity-header",
+      "description": "A white card with a hairline, a cobalt-wash tag and a bold title; no header bar.",
+      "html": "<div class=\"ds-act\"><div class=\"ds-act-h\"><span class=\"ds-tag\">Practice</span><span class=\"ds-ttl\">Check every promise</span></div><div class=\"ds-act-b\">Flag every sentence the agent shouldn't send as written.</div></div>",
+      "css": ".ds-act { border: 1px solid #D2D2D7; border-radius: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.12); background: #FFFFFF; overflow: hidden; } .ds-act-h { display: flex; gap: 12px; align-items: baseline; padding: 18px 22px 2px; background: transparent; color: #1D1D1F; } .ds-tag { padding: 2px 10px; border-radius: 99px; background: #EDF0FF; color: #2F4BFF; font: 700 13px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; } .ds-ttl { font: 700 21px/1.25 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; } .ds-act-b { padding: 18px 20px; font: 16.5px/1.55 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #1D1D1F; }"
+    },
+    {
+      "name": "Top Bar",
+      "kind": "nav",
+      "refersTo": "topbar",
+      "description": "Frosted glass bar: wordmark, course tabs as a segmented control, path and search.",
+      "html": "<header class=\"ds-bar\"><b class=\"ds-brand\">Groundwork</b><nav class=\"ds-seg\"><a aria-current=\"page\">Lessons</a><a>Exercises</a><a>Glossary</a><a>Progress</a></nav><span class=\"ds-sp\"></span><a class=\"ds-tb\" href=\"#\"><span class=\"ds-k\">Path</span> <b>Security +2</b></a><button class=\"ds-tb\">Search</button></header>",
+      "css": ".ds-bar { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 16px; background: rgba(255,255,255,.72); backdrop-filter: saturate(180%) blur(20px); color: #1D1D1F; border-bottom: 1px solid rgba(0,0,0,.1); } .ds-brand { font: 700 19px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: -.022em; } .ds-seg { display: flex; gap: 2px; padding: 3px; border-radius: 99px; background: rgba(118,118,128,.12); } .ds-seg a { padding: 6px 14px; border-radius: 99px; font: 500 14px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #424245; } .ds-seg a[aria-current] { background: #FFFFFF; color: #1D1D1F; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); } .ds-sp { flex: 1; } .ds-tb { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 12px; border-radius: 99px; border: 0; background: rgba(118,118,128,.12); color: #1D1D1F; font: 15px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; text-decoration: none; cursor: pointer; } .ds-tb:hover { background: rgba(118,118,128,.2); } .ds-tb:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; } .ds-k { color: #6E6E73; font-size: 13px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Clear Glass, One Pencil",
+    "overview": "Groundwork should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.\n\nThe app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.\n\nStatus never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.",
+    "keyCharacteristics": [
+      "White pages, #F5F5F7 grouped surfaces, near-black type, one cobalt accent.",
+      "The platform system font (SF Pro on Apple devices), with tracking that tightens as size grows.",
+      "Translucent top bar and phone tab bar, both solid white under reduced transparency.",
+      "Rounded grouped lists, pill buttons and a press response of scale(.97) on everything you can tap.",
+      "A single light theme."
+    ],
+    "rules": [
+      {
+        "name": "The Blue Pencil Rule",
+        "body": "Cobalt marks only something confirmed, correct, current or actionable. It is never decoration, never a heading colour, and never more than about a tenth of the screen.",
+        "section": "colors"
+      },
+      {
+        "name": "The Glass Chrome Rule",
+        "body": "Only chrome is translucent: the top bar and the phone tab bar. Never stack glass on glass, never put glass inside content, and always fall back to solid white when the device asks for reduced transparency.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tracking Follows Size Rule",
+        "body": "Letter spacing tightens as type grows and stays at zero for reading and labels. Never use one tracking value for every size, and never use uppercase with letter spacing.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Is Material Rule",
+        "body": "Mono appears only where the content is code, a prompt, a log or a progress code. It is never used for a label.",
+        "section": "typography"
+      },
+      {
+        "name": "The Material Rule",
+        "body": "Content in the reading flow is flat or Raised. Only floating things get Lift, and only chrome gets glass.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep cobalt to confirmed, correct, current or actionable things, at about 10% of a screen.",
+      "Do code every status by shape as well as colour: solid, outlined, dashed or ink.",
+      "Do give everything you can tap a hover, a 3px cobalt focus ring, a press scale of .97 and a 44px minimum height.",
+      "Do keep glass to the top bar and the phone tab bar, with solid fallbacks for reduced transparency and higher contrast.",
+      "Do make the content visible without scripts and with reduced motion. Press scaling turns off under reduced motion."
+    ],
+    "donts": [
+      "Don't add a dark theme, gradients, or a second accent colour.",
+      "Don't use web fonts. The system font is the brand face.",
+      "Don't use uppercase tracked labels, eyebrows, middle-dot meta strings or decorative status dots.",
+      "Don't use black rules or heavy borders. Use hairlines and grey groups.",
+      "Don't animate width, height, top or left. Animate transform and opacity only.",
+      "Don't use a dashed border for anything except \"uncertain\"."
+    ]
+  }
+}
