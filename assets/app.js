@@ -160,10 +160,10 @@
     h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">' + first.minutes + "-minute first lesson</span>") + "</div>";
     h += "</div>";
     h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card">' + heroCard(0) + "</div>";
-    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + '</span><button type="button" class="hx-play" aria-pressed="false" hidden><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2h2v8H3zM7 2h2v8H7z"/></svg><span>Pause</span></button></figcaption></figure>';
+    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + '</span></figcaption></figure>';
     h += "</section>";
 
-    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three.</p></div>';
+    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three</p></div>';
     h += '<ul class="lr-grid">' + roleList.map(function (r) {
       return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b></a></li>";
     }).join("") + "</ul></section>";
@@ -173,53 +173,21 @@
     h += '<div><dt>' + GW.lessons.length + '</dt><dd>short lessons, 20 to 35 minutes each</dd></div>';
     h += '<div><dt>' + nTracks + '</dt><dd>role tracks, from product to support</dd></div>';
     h += '<div><dt>' + nEx + '</dt><dd>hands-on exercises that check your answer</dd></div>';
-    h += '<div><dt>0</dt><dd>accounts to create. A code carries your progress.</dd></div>';
+    h += '<div><dt>0</dt><dd>accounts to create, a short code carries your progress</dd></div>';
     h += "</dl></section>";
-    h += '<section class="l-start"><div><h2>Start with lesson 1.</h2><p>It takes ' + first.minutes + '\u00a0minutes and needs no background.</p></div><a class="btn pill dark" href="' + go + '">' + goTxt + "</a></section>";
+    h += '<section class="l-start"><div><h2>Start with lesson 1</h2><p>It takes ' + first.minutes + '\u00a0minutes and needs no background.</p></div><a class="btn pill dark" href="' + go + '">' + goTxt + "</a></section>";
     h += "</div>";
     $("#view").innerHTML = h;
-    startHero();
   }
-  // The hero card plays through the roles: the draft first, then the human check lands.
-  // It pauses on hover or focus, stops for good once a role is picked, and stays still with reduced motion.
-  var heroTimer = null, heroK = 0, heroStopped = false;
-  function showHero(fig, k, staged) {
-    heroK = k;
+  // The hero example is still; the role buttons swap it with one short fade.
+  function showHero(fig, k) {
     $$("[data-hx]", fig).forEach(function (x) { x.setAttribute("aria-pressed", String(+x.getAttribute("data-hx") === k)); });
     var card = $(".hx-card", fig); card.innerHTML = heroCard(k);
     card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
-    if (staged) { card.classList.add("pending"); setTimeout(function () { card.classList.remove("pending"); }, 1400); }
-    else card.classList.remove("pending");
-  }
-  function startHero() {
-    clearInterval(heroTimer); heroK = 0; heroStopped = false;
-    var fig = $(".hero-ex"); if (!fig) return;
-    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    var play = $(".hx-play", fig), hover = false;
-    play.hidden = false;
-    function setPlaying(on) {
-      heroStopped = !on; play.setAttribute("aria-pressed", String(!on));
-      play.querySelector("span").textContent = on ? "Pause" : "Play";
-      play.querySelector("path").setAttribute("d", on ? "M3 2h2v8H3zM7 2h2v8H7z" : "M3 2l7 4-7 4z");
-    }
-    play.addEventListener("click", function () { setPlaying(heroStopped); });
-    fig.addEventListener("mouseenter", function () { hover = true; });
-    fig.addEventListener("mouseleave", function () { hover = false; });
-    fig.addEventListener("focusin", function () { hover = true; });
-    fig.addEventListener("focusout", function () { hover = false; });
-    showHero(fig, 0, true);
-    heroTimer = setInterval(function () {
-      if (!document.body.contains(fig)) { clearInterval(heroTimer); return; }
-      if (heroStopped || hover || document.hidden) return;
-      showHero(fig, (heroK + 1) % HERO.length, true);
-    }, 6000);
-    fig._setPlaying = setPlaying;
   }
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-hx]"); if (!b) return;
-    var fig = b.closest(".hero-ex");
-    if (fig._setPlaying) fig._setPlaying(false);
-    showHero(fig, +b.getAttribute("data-hx"), false);
+    showHero(b.closest(".hero-ex"), +b.getAttribute("data-hx"));
   });
 
   /* ---------- progress code: roles and completed lessons, no server ----------
@@ -374,7 +342,7 @@
         p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[main.id] + "</p></div>";
         pathBox.innerHTML = p;
         sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + " hours</span>";
-      } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role."; }
+      } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role"; }
       go.disabled = !picked.length;
       go.textContent = first ? "Start the course" : "Save roles";
       $(".pick-review", view).hidden = !picked.length;
@@ -686,7 +654,7 @@
     });
     $$("[data-w]", root).forEach(function (el) {
       var fn = GW.widgets && GW.widgets[el.getAttribute("data-w")];
-      if (fn) { try { fn(el); } catch (e) { el.textContent = "This activity could not load."; console.error(e); } }
+      if (fn) { try { fn(el); } catch (e) { el.textContent = "This activity could not load"; console.error(e); } }
     });
   }
 
@@ -721,7 +689,7 @@
     if (cp) {
       var link = cp.getAttribute("data-copy") === "link", box = cp.closest(".transfer, .save-strip"), msg = box && $("[data-copy-msg]", box);
       copyText(link ? resumeLink() : prettyCode(encodeProgress()), function (ok) {
-        if (msg) msg.textContent = ok ? (link ? "Resume link copied. Open it on your other device." : "Code copied.") : "Couldn't copy automatically. Select the code and copy it yourself.";
+        if (msg) msg.textContent = ok ? (link ? "Resume link copied. Open it on your other device." : "Code copied") : "Couldn't copy automatically. Select the code and copy it yourself.";
       });
     }
     if (e.target.closest(".rail a") && innerWidth <= 960) $("#rail").classList.remove("open");

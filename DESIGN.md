@@ -36,13 +36,15 @@ A self-paced course (explain and practise) for software teams, with an establish
 Dials, from the design-engineering suite:
 
 - DESIGN_VARIANCE 4: one asymmetric split (the landing hero), predictable course screens.
-- MOTION_INTENSITY 4: state transitions everywhere, one signature moment per page (the hero check card; the lesson simulation).
+- MOTION_INTENSITY 4: state transitions everywhere, one signature moment per page (the hero check card, which changes only when a role is picked; the lesson simulation). Nothing loops or plays on a timer.
 - VISUAL_DENSITY 5: lessons breathe; course lists and the tree are compact.
 
 ## Type
 
 - Geist for display and body, Geist Mono for numbers, lesson numbers, keyboard hints and code. Reason: Geist was drawn for developer tools, so the course reads like the tools its audience already uses; one family keeps a reading product calm, and the mono carries the technical voice in figures.
 - Sentence case for every heading, tab, badge and button. No tracked capitals.
+- Three weights: 400, 500 and 600. Hierarchy comes from size and colour, not from bold. No negative letter spacing under 16px.
+- Headings, captions, buttons and short status lines end without a period; only multi-sentence paragraphs keep them.
 
 ## Colour
 
@@ -53,7 +55,7 @@ Dials, from the design-engineering suite:
 ## Layout
 
 - Course screens use four zones: top bar, course tree, reading column (at most 68 characters), right panel with "You'll learn" and "On this page".
-- Landing: split hero (headline, one line, one primary action, the animated check card), role choice, a proof band of real figures, a closing band. No two consecutive sections share a layout.
+- Landing: split hero (headline, one line, one primary action, the check card on a plain tint panel), role choice, a proof band of real figures, a closing band. No two consecutive sections share a layout.
 - One primary action per viewport; top-bar links on bare pages are secondary.
 
 ## Components and states
@@ -62,10 +64,12 @@ Dials, from the design-engineering suite:
 - Touch targets are at least 44 by 44 on touch screens.
 - Quotes and ellipses are typographic in rendered copy (a typesetting pass runs on every render).
 
+- Verdict marks (stamps and fit labels) share one shape, 6px corners, and keep the shape code: solid confirmed, outlined check it, dashed uncertain. They are the product's signature and appear only where something is being judged.
+
 ## Logo
 
 The original artwork in `assets/brand/`: ink on light, reversed on dark, and the G mark alone below 120px of width. Never redraw it.
 
 ## Verification
 
-Audit with the design-engineering suite: anti-slop rules, the interface linter, and the six-width responsive check (320, 375, 425, 768, 1024, 1440) in both themes.
+Audit with the unslop skill (by Damir Sokolovsky, @heydamir, CC BY 4.0) and the design-engineering suite: anti-slop rules, the interface linter, and the six-width responsive check (320, 375, 425, 768, 1024, 1440) in both themes.
