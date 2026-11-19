@@ -62,7 +62,7 @@
   GW.store = { load: load, save: save };
 
   var totalMin = GW.lessons.reduce(function (a, l) { return a + l.minutes; }, 0);
-  var courseSize = GW.lessons.length + " lessons · about " + Math.round(totalMin / 60 * 2) / 2 + " hours";
+  var courseSize = GW.lessons.length + " lessons, about " + Math.round(totalMin / 60 * 2) / 2 + " hours in all";
   function doneOf(ids) { return ids.filter(function (id) { return progress[id]; }).length; }
 
   // Everything lives in this browser; the progress code carries it to another one.
@@ -426,9 +426,9 @@
       var nl = byId[next];
       h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + nl.num + ", " + nl.minutes + '\u00a0min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue lesson" : "Start lesson") + "</span></a>";
     } else h += '<a class="upnext" href="#team-adoption"><span class="un-k">All ' + path.length + ' lessons done</span><b>Revisit the capstone, or explore the full library</b><span class="btn pill dark">Open the capstone</span></a>';
-    h += '<p class="dash-links"><a class="linkish" href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></section>';
+    h += '</section>';
 
-    h += '<div class="home-views"><div class="seg" role="group" aria-label="Which lessons to show"><button type="button" data-homescope="path" aria-pressed="' + (homeScope === "path") + '">Your path (' + path.length + ')</button><button type="button" data-homescope="all" aria-pressed="' + (homeScope === "all") + '">Full library (' + GW.lessons.length + ")</button></div></div>";
+    h += '<div class="home-views"><div class="seg" role="group" aria-label="Which lessons to show"><button type="button" data-homescope="path" aria-pressed="' + (homeScope === "path") + '">Your path (' + path.length + ')</button><button type="button" data-homescope="all" aria-pressed="' + (homeScope === "all") + '">Full library (' + GW.lessons.length + ")</button></div>" + '<p class="dash-links"><a class="linkish" href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></div>';
 
     if (homeScope === "path") {
       var track = gen ? [] : path.filter(function (id) { return byId[id].rid === roles[0]; });

@@ -1928,3 +1928,23 @@ body.bare .signin-btn:hover { background: var(--tint); border-color: var(--mute-
 @media (pointer: coarse) { #search-btn { min-width: 44px; } }
 @media (max-width: 1000px) { .role-btn .pn-full { display: none; } .role-btn .pn-short { display: block; } .role-btn { max-width: none; } }
 @media (min-width: 761px) and (max-width: 1000px) { .tabs { margin-left: 4px; } .tabs a { padding-inline: 7px; } .tabs a[aria-current="page"]::after { left: 7px; right: 7px; } .role-btn b { overflow: visible; text-overflow: clip; } .topbar { gap: 6px; } }
+
+/* ---------- Course home, compact: no empty columns, one row for view and actions ---------- */
+.view:has(> .home) { padding-block: 28px 72px; }
+.dash2 { gap: 10px; padding-bottom: 0; }
+.dash2 h1 { font-size: 30px; line-height: 1.15; }
+.pbar { max-width: none; }
+.pbar-track { max-width: 360px; }
+.upnext { max-width: none; padding: 16px 20px; margin-top: 6px; }
+.upnext b { font-size: 18px; }
+.home-views { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin: 20px 0 0; }
+.home-views .dash-links { margin: 0; }
+.stage, .part { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 24px; }
+.parts { gap: 0; }
+.stage-h, .part-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.stage-h h2, .part-h h2 { margin: 0; font-size: 17px; }
+.stage-h p, .part-h p { margin: 0; font-size: 14px; color: var(--ink-3); }
+.stage-n, .part-h .pn-count { margin: 0 0 0 auto; font-size: 12.5px; color: var(--ink-3); }
+.contents a { padding-block: 12px; }
+.lib-note { margin: 16px 0 0; }
+@media (max-width: 760px) { .stage-n, .part-h .pn-count { margin-left: 0; flex-basis: 100%; } }
