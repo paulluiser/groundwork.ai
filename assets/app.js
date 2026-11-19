@@ -108,7 +108,7 @@
       } else ls.forEach(function (l) { h += railLink(l, active); });
       h += "</div>";
     });
-    h += '<div class="rail-foot"><a href="#progress"' + (active === "progress" ? ' aria-current="page"' : "") + '>Your progress code</a><a href="#glossary"' + (active === "glossary" ? ' aria-current="page"' : "") + '>Glossary of terms</a><a href="#welcome">About the course</a><p class="who-line">Progress saves in this browser.</p></div>';
+    h += '<div class="rail-foot"><a href="#progress"' + (active === "progress" ? ' aria-current="page"' : "") + '>Your progress code</a><a href="#glossary"' + (active === "glossary" ? ' aria-current="page"' : "") + '>Glossary of terms</a><a href="#welcome">About the course</a><p class="who-line">Progress saves in this browser.</p>' + (GW.version ? '<p class="build-v">Version ' + esc(GW.version) + "</p>" : "") + "</div>";
     $("#rail").innerHTML = h;
   }
 

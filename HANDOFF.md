@@ -36,6 +36,15 @@ Then open http://localhost:8765. The `.claude/launch.json` file runs the same se
 
 Routing uses `#` fragments (`#home`, `#exercises`, `#how-models-work`), so no rewrites are needed.
 
+### Versioning
+
+Every commit carries a version in the form `<number>.<YYYYMMDD>.<HHMM>`, for example `3.20261119.1345`. The number is the commit's position on `main`, and the date and time are UTC+8. Before each commit:
+
+1. Run `./scripts/bump-version.sh`. It rewrites `assets/version.js` and prints the version.
+2. Start the commit message with that version, for example `3.20261119.1345: Add version stamp`.
+
+The site shows the version in small text at the bottom of the lesson sidebar. To check which commit is live, open `<site>/assets/version.js` or look at the sidebar, then find that commit with `git log --grep "^<version>"`.
+
 ## File structure
 
 ```

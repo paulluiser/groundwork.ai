@@ -1235,3 +1235,4 @@ html { scroll-padding-bottom: 24px; }
 @media (max-width: 600px) { .rv-long { display: none; } }
 .ex-ln .ex-done { margin-left: 6px; }
 .dash-links { gap: 4px 20px; }
+.build-v { margin: 8px 0 0; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
