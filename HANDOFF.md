@@ -45,6 +45,15 @@ Every commit carries a version in the form `<number>.<YYYYMMDD>.<HHMM>`, for exa
 
 The site shows the version in small text at the bottom of the lesson sidebar. To check which commit is live, open `<site>/assets/version.js` or look at the sidebar, then find that commit with `git log --grep "^<version>"`.
 
+## Design system
+
+The visual rules live in the Groundwork design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist and Geist Mono, hairline borders and soft depth, in light and dark themes.
+
+- In code, the system is the last section of `assets/style.css` ("Design system v2"). It re-points every colour token for both themes and restyles components. Change values there, not in the older sections above it.
+- The logo is the original artwork in `assets/brand/` (ink and reversed versions, plus the G mark for small spaces). Don't redraw it.
+- Lessons use the four-zone layout: top bar, course tree, reading column, and a right panel with "You'll learn" (ticks as you read) and "On this page".
+- Simulations use the `sim` widget in `assets/widgets-e.js`, configured in a lesson file through `GW.trackCfg`. Lesson 16 has the first one. Use one only where a process is clearer to watch than to read.
+
 ## File structure
 
 ```

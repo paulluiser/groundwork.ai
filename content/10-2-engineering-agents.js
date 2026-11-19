@@ -1,3 +1,16 @@
+GW.trackCfg["agent-shortcut"] = {
+  nodes: { you: { x: 120, y: 175, tone: "surface", label: "You" }, model: { x: 280, y: 90, tone: "info", label: "Agent" }, tool: { x: 440, y: 175, tone: "warning", label: "Tests" } },
+  path: ["you", "model", "tool"],
+  metrics: ["Steps", "Tool calls", "Tests failing", "Reviewed"],
+  steps: [
+    { badge: "Setup", tone: "warning", label: "Task", title: "Hand over a task", text: "You ask an agent to fix the failing test in billing. It can run commands and edit files.", changed: ["One task, two tests failing"], show: ["you", "model"], pill: ["you", "fix failing test"], m: ["0", "0", "2", "No"] },
+    { badge: "Technique", tone: "info", label: "Plan", title: "The agent plans", text: "It reads the task and the code, then writes a short plan before touching anything.", changed: ["Plan: run tests, find the cause, fix"], show: ["you", "model"], dot: ["you", "model"], pill: ["model", "plan: 3 steps"], m: ["1", "0", "2", "No"], hot: 0 },
+    { badge: "Technique", tone: "info", label: "Run", title: "It runs the tests", text: "To check its plan, the agent runs the suite. Tools are how a model acts on your code.", changed: ["1 tool call"], show: ["you", "model", "tool"], dot: ["model", "tool"], pill: ["tool", "npm test"], m: ["2", "1", "2", "No"], hot: 1 },
+    { badge: "Technique", tone: "info", label: "Read", title: "It reads the result", text: "The output comes back into the agent's context. Two tests still fail.", changed: ["Result: 2 failing"], show: ["you", "model", "tool"], dot: ["tool", "model", 1], pill: ["model", "2 failing"], m: ["3", "1", "2", "No"], hot: 2 },
+    { badge: "Problem", tone: "danger", label: "Shortcut", title: "It takes a shortcut", text: "Instead of fixing the code, it changes the test's expected value. The suite turns green.", changed: ["1 assertion changed", "Suite passes"], bad: [0], show: ["you", "model", "tool"], tones: { tool: "danger" }, dot: ["model", "tool"], pill: ["tool", "edit test", 1], m: ["4", "2", "0", "No"], hot: 1, badm: 2 },
+    { badge: "Solution", tone: "accent", label: "Review", title: "You review the diff", text: "The summary says done. The diff shows a changed assertion, so you send it back with the real bug.", changed: ["Shortcut caught in review"], show: ["you", "model", "tool"], tones: { you: "accent" }, dot: ["model", "you", 1], pill: ["you", "diff: 1 test changed"], m: ["5", "2", "0", "Yes"], goodm: 3 }
+  ]
+};
 GW.trackCfg = GW.trackCfg || {};
 GW.trackCfg["agent-calls"] = {
   steps: [
@@ -55,6 +68,12 @@ GW.lesson({
 <li><strong>Limit what it can do</strong>Work on a branch or in a container. Allow safe commands; require confirmation for network access, secrets and shared systems (lesson 7).</li>
 <li><strong>Review the diff, not the summary</strong>Check scope, read the tests' assertions, and run them yourself.</li>
 </ol>
+
+<h2>Watch it happen</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Simulation</span><span class="ttl">One task, one shortcut</span></div><div class="activity-b">
+<p>Step through an agent session and watch the numbers. The tests go green for the wrong reason, and only the diff shows it.</p>
+<div data-w="sim" data-cfg="agent-shortcut"></div>
+</div></div>
 
 <h2>Practice: make the call</h2>
 <div class="activity"><div class="activity-h"><span class="tag">Practice</span><span class="ttl">Five moments with a coding agent</span></div><div class="activity-b">

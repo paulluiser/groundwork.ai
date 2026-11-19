@@ -95,9 +95,9 @@
     var path = routeFor(roles), n = doneOf(path);
     var h = '<div class="rail-path"><span class="k">Your path</span><b>' + esc(pathLong(roles) || "Not chosen") + '</b><span class="m">' + n + " of " + path.length + ' lessons done</span><a href="#role">Change roles</a></div>';
     h += '<a class="rail-home" href="#home">All lessons</a>';
-    GW.parts.forEach(function (p) {
+    GW.parts.forEach(function (p, pi) {
       var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
-      h += '<div class="rail-part"><h2>' + esc(p.title) + "</h2>";
+      h += '<div class="rail-part p' + pi + '"><h2>' + esc(p.title) + "</h2>";
       if (p.id === "c") {
         var on = ls.filter(function (l) { return path.indexOf(l.id) > -1; }), off = ls.filter(function (l) { return path.indexOf(l.id) < 0; });
         on.forEach(function (l) { h += railLink(l, active); });
@@ -158,8 +158,8 @@
     h += '<p class="l-lede">A free course for software teams on checking AI\'s work.</p>';
     h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">' + first.minutes + "-minute first lesson</span>") + "</div>";
     h += "</div>";
-    h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card" aria-live="polite">' + heroCard(0) + "</div>";
-    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + "</span></figcaption></figure>";
+    h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card">' + heroCard(0) + "</div>";
+    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + '</span><button type="button" class="hx-play" aria-pressed="false" hidden><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2h2v8H3zM7 2h2v8H7z"/></svg><span>Pause</span></button></figcaption></figure>';
     h += "</section>";
 
     h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three.</p></div>';
@@ -182,13 +182,48 @@
     h += '<section class="l-close"><h2>Whatever you ship, there\'s a path for you.</h2><a class="btn pill light" href="' + go + '">' + goTxt + "</a></section>";
     h += "</div>";
     $("#view").innerHTML = h;
+    startHero();
+  }
+  // The hero card plays through the roles: the draft first, then the human check lands.
+  // It pauses on hover or focus, stops for good once a role is picked, and stays still with reduced motion.
+  var heroTimer = null, heroK = 0, heroStopped = false;
+  function showHero(fig, k, staged) {
+    heroK = k;
+    $$("[data-hx]", fig).forEach(function (x) { x.setAttribute("aria-pressed", String(+x.getAttribute("data-hx") === k)); });
+    var card = $(".hx-card", fig); card.innerHTML = heroCard(k);
+    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+    if (staged) { card.classList.add("pending"); setTimeout(function () { card.classList.remove("pending"); }, 1400); }
+    else card.classList.remove("pending");
+  }
+  function startHero() {
+    clearInterval(heroTimer); heroK = 0; heroStopped = false;
+    var fig = $(".hero-ex"); if (!fig) return;
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var play = $(".hx-play", fig), hover = false;
+    play.hidden = false;
+    function setPlaying(on) {
+      heroStopped = !on; play.setAttribute("aria-pressed", String(!on));
+      play.querySelector("span").textContent = on ? "Pause" : "Play";
+      play.querySelector("path").setAttribute("d", on ? "M3 2h2v8H3zM7 2h2v8H7z" : "M3 2l7 4-7 4z");
+    }
+    play.addEventListener("click", function () { setPlaying(heroStopped); });
+    fig.addEventListener("mouseenter", function () { hover = true; });
+    fig.addEventListener("mouseleave", function () { hover = false; });
+    fig.addEventListener("focusin", function () { hover = true; });
+    fig.addEventListener("focusout", function () { hover = false; });
+    showHero(fig, 0, true);
+    heroTimer = setInterval(function () {
+      if (!document.body.contains(fig)) { clearInterval(heroTimer); return; }
+      if (heroStopped || hover || document.hidden) return;
+      showHero(fig, (heroK + 1) % HERO.length, true);
+    }, 6000);
+    fig._setPlaying = setPlaying;
   }
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-hx]"); if (!b) return;
     var fig = b.closest(".hero-ex");
-    $$("[data-hx]", fig).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-    var card = $(".hx-card", fig); card.innerHTML = heroCard(+b.getAttribute("data-hx"));
-    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+    if (fig._setPlaying) fig._setPlaying(false);
+    showHero(fig, +b.getAttribute("data-hx"), false);
   });
 
   /* ---------- progress code: roles and completed lessons, no server ----------
@@ -429,7 +464,7 @@
   }
 
   /* ---------- exercises tab: every hands-on activity, grouped by lesson ---------- */
-  var EX_KIND = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call" };
+  var EX_KIND = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call", sim: "Simulation" };
   var exIndex = null, exScope = "path";
   function exercises() {
     if (exIndex) return exIndex;
@@ -543,8 +578,9 @@
     h += '<p class="meta"><span><b>Lesson ' + l.num + "</b></span><span>" + l.minutes + " min</span>" + (roles.length ? (onPath ? "<span>Step " + (idx + 1) + " of " + seq.length + " on your path</span>" : '<span class="path-off">Not on your path</span>') : "") + "</p>";
     h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
     h += '<p class="lede">' + c.lede + "</p>";
+    h += '<div class="lsn-steps" hidden><div class="h"><span>In this lesson</span><b id="ls-cur"></b></div><ol></ol></div>';
     h += '<div class="outcomes"><h2 class="oc-h">After this lesson you can</h2><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";
-    h += '<nav class="toc" aria-label="On this page"><h2 class="toc-h">On this page</h2></nav>';
+    h += '<div class="lsn-side"><div class="learn"><h2>You\'ll learn</h2><ul>' + c.outcomes.map(function (o) { return '<li><span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>' + o + "</span></li>"; }).join("") + '</ul></div><nav class="toc" aria-label="On this page"><h2 class="toc-h">On this page</h2></nav></div>';
     var ex = roleExample(id), body = c.html;
     if (ex) body = body.indexOf('<section class="checks">') > -1 ? body.replace('<section class="checks">', ex + '<section class="checks">') : body + ex;
     var srcHtml = "", si = body.indexOf('<section class="sources">');
@@ -560,7 +596,13 @@
 
     // table of contents
     var toc = $(".toc", view), heads = $$(".lesson > h2, .lesson > section > h2", view);
-    heads.forEach(function (hd) {
+    var strip = $(".lsn-steps", view), stripOl = $("ol", strip);
+    strip.hidden = heads.length < 2;
+    heads.forEach(function (hd, k) {
+      var li = document.createElement("li"), sb = document.createElement("button");
+      sb.type = "button"; sb.textContent = k + 1; sb.title = hd.textContent; sb.setAttribute("aria-label", "Section " + (k + 1) + ": " + hd.textContent);
+      sb.addEventListener("click", function () { hd.scrollIntoView({ behavior: "smooth", block: "start" }); });
+      li.appendChild(sb); stripOl.appendChild(li);
       if (!hd.id) hd.id = slug(hd.textContent);
       var a = document.createElement("a"); a.href = "#" + id; a.textContent = hd.textContent; a.dataset.target = hd.id;
       a.addEventListener("click", function (e) { e.preventDefault(); hd.scrollIntoView({ behavior: "smooth", block: "start" }); });
@@ -582,14 +624,27 @@
         li.scrollIntoView({ behavior: "smooth", block: "center" }); li.classList.add("flash"); setTimeout(function () { li.classList.remove("flash"); }, 1800);
       });
     });
-    if ("IntersectionObserver" in window) {
-      var io = new IntersectionObserver(function (ents) {
-        ents.forEach(function (en) {
-          if (en.isIntersecting) $$(".toc a", view).forEach(function (a) { a.classList.toggle("on", a.dataset.target === en.target.id); });
-        });
-      }, { rootMargin: "-80px 0px -70% 0px" });
-      heads.forEach(function (hd) { io.observe(hd); });
+    var article = $(".lesson", view), lastK = -1, ticking = false;
+    function onScroll() {
+      if (!document.body.contains(article)) { window.removeEventListener("scroll", onScrollRaf); return; }
+      var k = 0; heads.forEach(function (hd, j) { if (hd.getBoundingClientRect().top < 140) k = j; });
+      if (k === lastK) return; lastK = k;
+      $$(".toc a", view).forEach(function (a) { a.classList.toggle("on", a.dataset.target === heads[k].id); });
+      paintReading(k);
     }
+    function onScrollRaf() { if (ticking) return; ticking = true; requestAnimationFrame(function () { ticking = false; onScroll(); }); }
+    window.addEventListener("scroll", onScrollRaf, { passive: true });
+
+    // where the reader is: the strip, its label, and the outcomes reached so far
+    var readAt = 0;
+    function paintReading(k) {
+      if (k < 0) return; readAt = Math.max(readAt, k);
+      $$("li", stripOl).forEach(function (li, j) { li.classList.toggle("done", j < k); li.classList.toggle("cur", j === k); });
+      var cur = $("#ls-cur", view); if (cur) cur.textContent = heads[k] ? (k + 1) + " of " + heads.length + ": " + heads[k].textContent : "";
+      var outs = $$(".learn li", view), n = outs.length, H = heads.length;
+      outs.forEach(function (li, i) { li.classList.toggle("on", !!progress[id] || readAt + 1 >= Math.ceil((i + 1) * H / n)); });
+    }
+    paintReading(0);
 
     // completion
     function paintComplete() {
@@ -600,7 +655,7 @@
     paintComplete();
     $("#complete-btn").addEventListener("click", function () {
       if (progress[id]) delete progress[id]; else progress[id] = true;
-      persist(); paintComplete(); renderRail(id);
+      persist(); paintComplete(); renderRail(id); paintReading(readAt);
     });
 
     enhance(view);
@@ -813,7 +868,7 @@
     b.classList.toggle("is-dark", d);
     b.setAttribute("aria-label", d ? "Switch to light mode" : "Switch to dark mode");
     b.title = d ? "Light mode" : "Dark mode";
-    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", d ? "#000000" : "#FFFFFF"); m.removeAttribute("media"); });
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", d ? "#0B0B0A" : "#FAFAF9"); m.removeAttribute("media"); });
   }
   $("#theme-btn").addEventListener("click", function () {
     var next = isDark() ? "light" : "dark";
