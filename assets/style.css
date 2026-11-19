@@ -330,7 +330,7 @@ details.reveal > div { padding: 6px 18px 16px; font-size: 16.5px; }
   border: 1px solid var(--field-line); background: var(--white); color: var(--ink);
 }
 .gloss .w input[type="text"], .gloss .w input[type="search"] { font-family: var(--font-body); font-size: 16px; }
-.w input[type="text"]:focus, .w input[type="search"]:focus, .w textarea:focus { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.w input[type="text"]:focus-visible, .w input[type="search"]:focus-visible, .w textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 .w textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
 .w input[type="range"] { accent-color: var(--accent); width: min(280px, 100%); }
 .w .muted { color: var(--ink-3); font-size: var(--t-sm); }
@@ -1866,3 +1866,65 @@ input[type="text"], input[type="search"], textarea, select { border-radius: var(
 .l-lede { max-width: 28em; text-wrap: pretty; }
 .hero-ex figcaption { justify-content: flex-start; gap: 8px 10px; }
 .hx-play { margin-left: auto; }
+
+/* ---------- Design engineering pass (anti-slop rules, interface linter, six-width check) ---------- */
+/* One depth language: borders. Shadows stay only on layers that float (dialogs, pop-ups, the hero card). */
+:root { --shadow-sm: none !important; }
+.upnext, .activity, .opt, .lr-card, .btn, .chip, .uc-card, .checks .check { box-shadow: none; }
+/* Skip link (SEM-07) */
+.skip { position: absolute; left: 12px; top: -100px; z-index: 100; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--ink); color: var(--on-black); font-size: 14px; font-weight: 500; text-decoration: none; }
+.skip:focus-visible { top: calc(8px + env(safe-area-inset-top, 0px)); }
+/* Touch (TCH-03, TCH-04, TCH-05) */
+a, button, summary, label, select, input, [role="button"] { touch-action: manipulation; }
+.btn, .tb-btn, .tabs a, .chip, .opt, .seg button, .lr-card, .rx-btn, .contents a, .rail a, .claim, .sim button { -webkit-tap-highlight-color: transparent; }
+.search-box, #search-res, .rail, .pick-side { overscroll-behavior: contain; }
+/* Touch targets at least 44 by 44 on touch screens (TCH-02) */
+@media (pointer: coarse) {
+  .btn, .btn.small, .tb-btn, .tabs a, .chip, .seg button, .rx-btn, .lr-card, .hx-play, .opt, .role-card, .pick-review, select,
+  .w input[type="text"], .w input[type="search"], .pc-row input, .sim button, .sim-steps button, .lsn-steps button { min-height: 44px; }
+  .tb-btn, .theme-btn, #search-btn, .menu-btn, .gw-btn--icon, .sim-steps button, .lsn-steps button, .hx-play { min-width: 44px; }
+  .brand { min-height: 44px; min-width: 44px; justify-content: center; }
+  .back, .pick-top .back, .dash-links .linkish, .rail-path a, .rail-home, .rail a.lnk, .rail-foot a, .uc-card .uc-link, .gloss dd .see, .tx-mail,
+  .auth-back a, .role-ex-h a, .toc-m summary, .toc-m a, .rail-more summary, .linkish, .ex-row, .see { display: inline-flex; align-items: center; min-height: 44px; }
+  .rail a.lnk, .ex-row, .toc-m a { display: flex; }
+  .lsn-steps button, .sim-steps button { width: 44px; height: 44px; }
+  .lsn-steps li::before, .sim-steps li::before { top: 21px; }
+}
+/* The phone tab bar never covers the focused element or an anchor target (FOC-04, layout rule 9) */
+@media (max-width: 760px) { html { scroll-padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); } }
+
+/* Landing below the hero: a proof band of real figures, then a split closing band */
+.l-proof { margin: 0; padding: 0; border-block: 1px solid var(--line); }
+.l-proof dl { margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.l-proof dl > div { padding: 24px 20px 26px; display: grid; gap: 6px; align-content: start; }
+.l-proof dl > div + div { border-left: 1px solid var(--line); }
+.l-proof dt { font: 500 32px/1 var(--font-mono); letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--ink); }
+.l-proof dd { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-3); max-width: 22ch; }
+.l-start { margin-top: 56px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; text-align: left;
+  padding: 28px 32px; border-radius: var(--radius-lg); background: var(--tint); color: var(--ink); border: 1px solid var(--line); justify-items: start; }
+.l-start h2 { margin: 0; font-size: 24px; line-height: 1.2; letter-spacing: -.02em; color: var(--ink); }
+.l-start p { margin: 4px 0 0; font-size: 15px; color: var(--ink-3); }
+.l-roles { margin-bottom: 56px; }
+@media (max-width: 760px) {
+  .l-proof dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .l-proof dl > div:nth-child(3) { border-left: 0; }
+  .l-proof dl > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .l-proof dt { font-size: 26px; }
+  .l-start { padding: 22px 20px; }
+}
+@media (pointer: coarse) {
+  .skip, .hero-ex .hx-roles .rx-btn, .pick-bar .btn.small, .pick-bar .btn { min-height: 44px; }
+  .back, .pick-top .back { min-width: 44px; justify-content: center; }
+  .w input[type="range"], input[type="range"] { height: 44px; }
+}
+/* One primary action per viewport: the top-bar link on bare pages is secondary */
+body.bare .signin-btn { background: var(--white); color: var(--ink); border: 1px solid var(--line); }
+body.bare .signin-btn:hover { background: var(--tint); border-color: var(--mute-line); }
+/* Top bar never squeezes the logo; search collapses to an icon when its label is hidden */
+.brand { flex: none; }
+@media (max-width: 1100px) { #search-btn { min-width: 36px; padding-inline: 10px; } #search-btn kbd { display: none; } }
+/* Step circles sit above the connecting lines */
+.lsn-steps button, .sim-steps button { z-index: 1; }
+@media (pointer: coarse) { #search-btn { min-width: 44px; } }
+@media (max-width: 1000px) { .role-btn .pn-full { display: none; } .role-btn .pn-short { display: block; } .role-btn { max-width: none; } }
+@media (min-width: 761px) and (max-width: 1000px) { .tabs { margin-left: 4px; } .tabs a { padding-inline: 7px; } .tabs a[aria-current="page"]::after { left: 7px; right: 7px; } .role-btn b { overflow: visible; text-overflow: clip; } .topbar { gap: 6px; } }

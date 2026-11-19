@@ -50,7 +50,8 @@
     if (list.length === 1 && r === roleInfo(list[0]).also) return "Neighbouring role";
     return "";
   }
-  function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); return Math.round(m / 60 * 2) / 2; }
+  var NUM = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
+  function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); return NUM.format(Math.round(m / 60 * 2) / 2); }
 
   /* ---------- local storage (per-browser copy) ---------- */
   function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
@@ -78,7 +79,7 @@
     if (roles.length) { rb.innerHTML = '<span class="k">Path</span><b class="pn-full">' + esc(pathName(roles)) + '</b><b class="pn-short">' + esc(roleInfo(roles[0]).name + (roles.length > 1 ? " +" + (roles.length - 1) : "")) + '</b><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'; rb.setAttribute("aria-label", "Your path: " + pathLong(roles) + ". Change roles"); }
     var sb = $("#signin-btn");
     sb.hidden = !bare || location.hash === "#progress" || location.hash === "#role";
-    sb.textContent = roles.length ? "Continue" : "Have a code?";
+    sb.textContent = roles.length ? "Open course" : "Have a code?";
     sb.setAttribute("href", roles.length ? "#home" : "#progress");
     $("#search-btn").hidden = bare;
     var tabs = $("#tabs"); tabs.hidden = bare || !roles.length;
@@ -116,7 +117,7 @@
   function roleBlurb(r) { return r === GENERAL ? "Core lessons and the capstone, with examples that suit any role." : byId[r.id].summary; }
   function lessonRow(l, path, grouped) {
     var on = path && path.indexOf(l.id) > -1 && l.part === "c";
-    return '<li><a class="' + (progress[l.id] ? "done" : "") + '" href="#' + l.id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + (l.role && !grouped ? "<small>" + esc(l.role) + "</small>" : "") + (on ? '<small class="on-path">On your path</small>' : "") + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (progress[l.id] ? "Completed" : l.minutes + " min") + "</span></a></li>";
+    return '<li><a class="' + (progress[l.id] ? "done" : "") + '" href="#' + l.id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + (l.role && !grouped ? "<small>" + esc(l.role) + "</small>" : "") + (on ? '<small class="on-path">On your path</small>' : "") + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (progress[l.id] ? "Completed" : l.minutes + "\u00a0min") + "</span></a></li>";
   }
 
   /* ---------- landing ---------- */
@@ -167,19 +168,14 @@
       return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b></a></li>";
     }).join("") + "</ul></section>";
 
-    h += '<section class="l-steps"><div class="section-h"><h2>How it works</h2></div><ol class="steps3">';
-    h += "<li><b>Choose your roles</b><p>Up to three. Your first sets the examples.</p></li>";
-    h += "<li><b>Learn by doing</b><p>Short lessons with hands-on exercises.</p></li>";
-    h += "<li><b>Pick up anywhere</b><p>No account. A code moves your progress.</p></li>";
-    h += "</ol></section>";
-
-    h += '<section class="l-out"><div class="section-h"><h2>By the end you can</h2></div><ul class="outcome-list">';
-    ["Explain why AI can be fluent and wrong.",
-      "Check its work in proportion to the risk.",
-      "Set safe limits on agents and tools."].forEach(function (o) { h += "<li>" + esc(o) + "</li>"; });
-    h += "</ul></section>";
-
-    h += '<section class="l-close"><h2>Whatever you ship, there\'s a path for you.</h2><a class="btn pill light" href="' + go + '">' + goTxt + "</a></section>";
+    var nEx = exercises().length, nTracks = GW.roles.length;
+    h += '<section class="l-proof" aria-label="What the course includes"><dl>';
+    h += '<div><dt>' + GW.lessons.length + '</dt><dd>short lessons, 20 to 35 minutes each</dd></div>';
+    h += '<div><dt>' + nTracks + '</dt><dd>role tracks, from product to support</dd></div>';
+    h += '<div><dt>' + nEx + '</dt><dd>hands-on exercises that check your answer</dd></div>';
+    h += '<div><dt>0</dt><dd>accounts to create. A code carries your progress.</dd></div>';
+    h += "</dl></section>";
+    h += '<section class="l-start"><div><h2>Start with lesson 1.</h2><p>It takes ' + first.minutes + '\u00a0minutes and needs no background.</p></div><a class="btn pill dark" href="' + go + '">' + goTxt + "</a></section>";
     h += "</div>";
     $("#view").innerHTML = h;
     startHero();
@@ -302,7 +298,7 @@
       h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></section>';
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
     h += '<section class="restore">' + (has ? "<h2>Restore a different code</h2>" : "");
-    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore</button></div>';
+    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
     h += '<p class="pc-err" id="pc-err" role="alert">' + esc(err || "") + "</p></form>";
     h += "</section>";
     if (has) h += '<section class="restore"><h2>Clear this browser</h2><p class="fine">Removes your roles and progress from this browser. Copy your code first if you want them back later.</p><button type="button" class="btn ghost" id="pc-clear">Clear progress in this browser</button></section>';
@@ -380,7 +376,7 @@
         sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + " hours</span>";
       } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role."; }
       go.disabled = !picked.length;
-      go.textContent = first ? "Start the course" : "Save";
+      go.textContent = first ? "Start the course" : "Save roles";
       $(".pick-review", view).hidden = !picked.length;
     }
     paint();
@@ -412,10 +408,10 @@
 
   /* ---------- course home (signed in) ---------- */
   // Two views: the learner's path, grouped by stage and numbered by position, or the full library by part.
-  var homeScope = "path";
+  var homeScope = load("gw-homescope", "path");
   function pathRow(id, pos, next) {
     var l = byId[id], done = progress[id], isNext = id === next;
-    return '<li><a class="' + (done ? "done" : "") + (isNext ? " next" : "") + '" href="#' + id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (done ? "Completed" : isNext ? "Up next, " + l.minutes + " min" : l.minutes + " min") + "</span></a></li>";
+    return '<li><a class="' + (done ? "done" : "") + (isNext ? " next" : "") + '" href="#' + id + '"><span class="n">' + l.num + '</span><span><span class="t">' + esc(l.title) + '</span><span class="s">' + esc(l.summary) + '</span></span><span class="st">' + (done ? "Completed" : isNext ? "Up next, " + l.minutes + "\u00a0min" : l.minutes + "\u00a0min") + "</span></a></li>";
   }
   function renderHome() {
     var path = routeFor(roles), n = doneOf(path), gen = roles[0] === "general", main = roleInfo(roles[0]) || GENERAL;
@@ -428,7 +424,7 @@
     h += '<div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + " done" + (left.length ? ", about " + hours(left) + " hours left" : "") + "</span></div>";
     if (next) {
       var nl = byId[next];
-      h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + nl.num + ", " + nl.minutes + ' min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue" : "Start") + "</span></a>";
+      h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + nl.num + ", " + nl.minutes + '\u00a0min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue lesson" : "Start lesson") + "</span></a>";
     } else h += '<a class="upnext" href="#team-adoption"><span class="un-k">All ' + path.length + ' lessons done</span><b>Revisit the capstone, or explore the full library</b><span class="btn pill dark">Open the capstone</span></a>';
     h += '<p class="dash-links"><a class="linkish" href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></section>';
 
@@ -465,7 +461,7 @@
 
   /* ---------- exercises tab: every hands-on activity, grouped by lesson ---------- */
   var EX_KIND = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call", sim: "Simulation" };
-  var exIndex = null, exScope = "path";
+  var exIndex = null, exScope = load("gw-exscope", "path");
   function exercises() {
     if (exIndex) return exIndex;
     exIndex = [];
@@ -500,7 +496,7 @@
 
   /* ---------- use cases tab: concrete ways each role uses AI, rated for fit ---------- */
   var FIT = { good: ["good", "Good fit"], care: ["care", "Use with care"], human: ["human", "Keep human"] };
-  var ucScope = "mine";
+  var ucScope = load("gw-ucscope", "mine");
   function renderUseCases() {
     var gen = !roles.length || roles[0] === "general", mine = gen ? [] : roles.slice();
     var scope = gen ? "all" : ucScope;
@@ -716,11 +712,11 @@
     if (sc) { pendingScroll = sc.getAttribute("data-scroll"); var here = location.hash.replace(/^#/, "") || "welcome"; if (sc.getAttribute("href") === "#" + here) { e.preventDefault(); doPendingScroll(true); } }
     if (e.target.closest("[data-open-search]")) openSearch();
     var uc = e.target.closest("[data-ucscope]");
-    if (uc) { ucScope = uc.getAttribute("data-ucscope"); renderUseCases(); var g = $('[data-ucscope="' + ucScope + '"]'); if (g) g.focus(); }
+    if (uc) { ucScope = uc.getAttribute("data-ucscope"); save("gw-ucscope", ucScope); renderUseCases(); var g = $('[data-ucscope="' + ucScope + '"]'); if (g) g.focus(); }
     var hs = e.target.closest("[data-homescope]");
-    if (hs) { homeScope = hs.getAttribute("data-homescope"); renderHome(); var hf = $('[data-homescope="' + homeScope + '"]'); if (hf) hf.focus(); }
+    if (hs) { homeScope = hs.getAttribute("data-homescope"); save("gw-homescope", homeScope); renderHome(); var hf = $('[data-homescope="' + homeScope + '"]'); if (hf) hf.focus(); }
     var sc2 = e.target.closest("[data-exscope]");
-    if (sc2) { exScope = sc2.getAttribute("data-exscope"); renderExercises(); var f = $('[data-exscope="' + exScope + '"]'); if (f) f.focus(); }
+    if (sc2) { exScope = sc2.getAttribute("data-exscope"); save("gw-exscope", exScope); renderExercises(); var f = $('[data-exscope="' + exScope + '"]'); if (f) f.focus(); }
     var cp = e.target.closest("[data-copy]");
     if (cp) {
       var link = cp.getAttribute("data-copy") === "link", box = cp.closest(".transfer, .save-strip"), msg = box && $("[data-copy-msg]", box);
@@ -857,6 +853,23 @@
       $$("[data-rx-p]", box).forEach(function (p) { p.hidden = p.getAttribute("data-rx-p") !== id; });
     }
   });
+  // Curly quotes and a real ellipsis in everything the page shows, code and fields excepted.
+  var NOTYPE = "code, pre, kbd, script, style, textarea, input, .code-big, .codebox, .log, .no-type";
+  function typeset(root) {
+    if (!root || !root.ownerDocument) return;
+    var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) { var el = n.parentElement; return el && el.closest(NOTYPE) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } }), n;
+    while ((n = tw.nextNode())) {
+      var t = n.nodeValue; if (!/['"]|\.\.\./.test(t)) continue;
+      t = t.replace(/\.\.\./g, "\u2026").replace(/(\w)'(\w)/g, "$1\u2019$2").replace(/(^|[\s(\[{\u201c\u2018-])'/g, "$1\u2018").replace(/'/g, "\u2019")
+        .replace(/(^|[\s(\[{\u2018-])"/g, "$1\u201c").replace(/"/g, "\u201d");
+      if (t !== n.nodeValue) n.nodeValue = t;
+    }
+  }
+  if ("MutationObserver" in window) new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (x) { if (x.nodeType === 1) typeset(x); else if (x.nodeType === 3 && x.parentElement) typeset(x.parentElement); }); }); })
+    .observe(document.body, { childList: true, subtree: true });
+  typeset(document.body);
+  var skip = $(".skip");
+  if (skip) skip.addEventListener("click", function (e) { e.preventDefault(); var v = $("#view"); v.focus(); v.scrollIntoView(); });
   window.addEventListener("hashchange", route);
   $("#menu-btn").addEventListener("click", function () { $("#rail").classList.toggle("open"); });
   $("#search-btn").addEventListener("click", openSearch);
