@@ -12,7 +12,7 @@ Individual members of software teams who take the course themselves, at their ow
 
 ## Product Purpose
 
-Groundwork is a free, self-paced course on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
+Loona is a free, self-paced course on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
 
 ## Positioning
 
@@ -45,7 +45,7 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 
 ## Brand Commitments
 
-- Name: Groundwork, with the line "AI for software teams".
+- Name: Loona, with the line "AI for software teams".
 - Voice: neutral, plain English, no hype. It states what AI is good at and where it fails, without cheerleading or alarm.
 - Palette: white 60%, black 30%, cobalt accent 10%. The user set this palette and it is binding.
 

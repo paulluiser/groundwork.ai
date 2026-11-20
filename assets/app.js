@@ -1,4 +1,4 @@
-/* Groundwork app: landing, role picker, progress codes, routing, course rail, home, lessons, glossary, search, progress, checks. */
+/* Loona app: landing, role picker, progress codes, routing, course rail, home, lessons, glossary, search, progress, checks. */
 (function () {
   "use strict";
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -152,32 +152,78 @@
   function renderWelcome() {
     var ready = roles.length > 0;
     var go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
-    var first = GW.lessons[0];
-    var h = '<div class="landing">';
-    h += '<section class="l-hero"><div class="l-copy">';
-    h += "<h1>AI drafts.<br>You decide.</h1>";
-    h += '<p class="l-lede">A free course for software teams on checking AI\'s work.</p>';
-    h += '<div class="hero-cta"><a class="btn pill dark" href="' + go + '">' + goTxt + "</a>" + (ready ? "" : '<span class="cta-note">' + first.minutes + "-minute first lesson</span>") + "</div>";
-    h += "</div>";
-    h += '<figure class="hero-ex" aria-label="An AI draft and the human check that follows it"><div class="hx-card">' + heroCard(0) + "</div>";
-    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + '</span></figcaption></figure>';
-    h += "</section>";
+    var first = GW.lessons[0], nEx = exercises().length, nTracks = GW.roles.length;
+    var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" stroke-width="2"/><path d="m12 5 7 7-7 7" stroke-width="2"/></svg>';
+    var ICON = {
+      workflow: '<rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="15" y="15" width="6" height="6" rx="1.5"/><path d="M6 9v3a3 3 0 0 0 3 3h3"/>',
+      analytics: '<path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M13 16V8"/><path d="M18 16v-7"/>',
+      leads: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+      bolt: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
+      globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>'
+    };
+    var icon = function (k) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + "</svg>"; };
+    var rv = function (ms) { return ' data-reveal style="--rd:' + ms + 'ms"'; };
+    var h = '<div class="lx">';
 
-    h += '<section class="l-roles" id="roles-l"><div class="section-h"><h2>Start with your role</h2><p>Pick up to three</p></div>';
-    h += '<ul class="lr-grid">' + roleList.map(function (r) {
-      return '<li><a class="lr-card" href="#role" data-pick="' + r.id + '"><b>' + esc(r.name) + "</b></a></li>";
-    }).join("") + "</ul></section>";
+    // 1 · hero
+    h += '<header class="lx-hero"><div class="lx-hero-inner">';
+    h += '<h1 class="lx-title"' + rv(60) + '>AI drafts.<br>You <em>decide</em></h1>';
+    h += '<p class="lx-sub"' + rv(180) + '>A free course for software teams: how a model writes, where it goes wrong, and how to check its work before it ships.</p>';
+    h += '<div class="lx-actions"' + rv(300) + '><a class="lx-btn lx-primary" href="' + go + '">' + goTxt + ARROW + '</a><a class="lx-btn lx-outline" href="#progress">I have a progress code</a></div>';
+    h += '</div><div class="lx-logos"' + rv(420) + '><p class="lx-logos-label">' + nTracks + ' role tracks, plus a path for everyone</p><ul class="lx-logos-row">' +
+      ["product", "design", "engineering", "qa", "security", "customer-support"].map(function (id) { return '<li><a class="lx-logo" href="#role" data-pick="' + id + '">' + esc(roleInfo(id).name) + "</a></li>"; }).join("") + "</ul></div></header>";
 
-    var nEx = exercises().length, nTracks = GW.roles.length;
-    h += '<section class="l-proof" aria-label="What the course includes"><dl>';
-    h += '<div><dt>' + GW.lessons.length + '</dt><dd>short lessons, 20 to 35 minutes each</dd></div>';
-    h += '<div><dt>' + nTracks + '</dt><dd>role tracks, from product to support</dd></div>';
-    h += '<div><dt>' + nEx + '</dt><dd>hands-on exercises that check your answer</dd></div>';
-    h += '<div><dt>0</dt><dd>accounts to create, a short code carries your progress</dd></div>';
-    h += "</dl></section>";
-    h += '<section class="l-start"><div><h2>Start with lesson 1</h2><p>It takes ' + first.minutes + '\u00a0minutes and needs no background.</p></div><a class="btn pill dark" href="' + go + '">' + goTxt + "</a></section>";
+    // 2 · features: what the course covers
+    var feats = [
+      ["workflow", "How models work", "What a model is doing when it writes, what it can see, and why it can be fluent and wrong at the same time."],
+      ["analytics", "Check in proportion", "A repeatable way to check AI work, scaled to how costly a mistake would be and how easily you would notice it."],
+      ["leads", "Your role, your examples", "Pick up to three roles. Your main role adds a three-lesson track and sets the examples in every core lesson."],
+      ["bolt", "Exercises that answer back", nEx + " hands-on exercises, from flagging claims to running code, each with feedback as you go."],
+      ["shield", "Data and agents, safely", "What a model must never see, and sensible limits for tools and agents that take actions on your behalf."],
+      ["globe", "No account needed", "Progress saves in your browser. A short code or a resume link carries it to any other device."]
+    ];
+    h += '<section class="lx-section lx-features" id="lx-features"><div class="lx-head"><span class="lx-eyebrow"' + rv(0) + '>What you learn</span><h2' + rv(80) + '>One course for working with AI on a software team</h2><p' + rv(160) + '>Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team. Short lessons, real cases, and nothing to install.</p></div><div class="lx-grid">';
+    feats.forEach(function (f, i) { h += '<article class="lx-card"' + rv(i * 90) + '><div class="lx-card-icon">' + icon(f[0]) + "</div><h3>" + f[1] + "</h3><p>" + esc(f[2]) + "</p></article>"; });
+    h += "</div></section>";
+
+    // 3 · showcase: the worked example, then real figures
+    h += '<section class="lx-section lx-showcase" id="lx-example"><div class="lx-show-grid"><div class="lx-show-copy">';
+    h += '<span class="lx-eyebrow"' + rv(0) + '>See it in practice</span><h2' + rv(90) + '>What checking AI work looks like</h2>';
+    h += '<p' + rv(180) + '>Every lesson works from cases like this one: an AI draft that reads well, and the human check that decides whether it ships. Switch roles to see the same habit in different work.</p>';
+    h += '<a class="lx-btn lx-primary"' + rv(270) + ' href="' + go + '">' + (ready ? "Continue the course" : "Choose your roles") + ARROW + "</a></div>";
+    h += '<figure class="lx-dash hero-ex"' + rv(160) + ' aria-label="An AI draft and the human check that follows it"><div class="lx-dash-top"><b>Worked example</b><span class="lx-live"><i aria-hidden="true"></i>Human check</span></div><div class="hx-card">' + heroCard(0) + "</div>";
+    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + "</span></figcaption></figure></div>";
+    var stats = [[GW.lessons.length, "Short lessons, 20 to 35 minutes"], [nTracks, "Role tracks, product to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
+    h += '<div class="lx-stats">' + stats.map(function (s, i) { return '<div class="lx-stat"' + rv(i * 80) + '><div class="lx-stat-v">' + s[0] + '</div><div class="lx-stat-l">' + s[1] + "</div></div>"; }).join("") + "</div></section>";
+
+    // 4 · call to action and footer
+    h += '<section class="lx-section lx-cta" id="lx-cta"><div class="lx-cta-card">';
+    h += '<span class="lx-eyebrow"' + rv(60) + '>Ready when you are</span><h2' + rv(140) + '>Start with lesson 1</h2>';
+    h += '<p' + rv(220) + '>It takes ' + first.minutes + ' minutes and needs no background. Choose your roles first, or start with General and add roles later.</p>';
+    h += '<div class="lx-actions"' + rv(300) + '><a class="lx-btn lx-primary" href="' + go + '">' + goTxt + ARROW + '</a><a class="lx-btn lx-outline" href="#progress">Continue with a code</a></div></div>';
+    h += '<footer class="lx-footer"><div class="lx-foot-brand"><span class="lx-brand"><svg class="brand-mark" viewBox="-1 1 24 24" aria-hidden="true"><circle cx="11" cy="13" r="5.6"/><path class="halo" d="M20.4 9.6A10 10 0 1 1 14.4 3.6"/><circle cx="19.2" cy="4.8" r="2"/></svg><span>Loona</span></span><p>A free course for software teams on understanding AI and using it well at work.</p></div>';
+    h += '<div class="lx-foot-cols"><div><h4>Course</h4><a href="#home">Lessons</a><a href="#exercises">Exercises</a><a href="#glossary">Glossary</a></div><div><h4>Start</h4><a href="#role">Choose roles</a><a href="#progress">Progress code</a></div><div><h4>Privacy</h4><span>No accounts</span><span>Progress stays in your browser</span></div></div></footer>';
+    h += '<p class="lx-copy">© ' + new Date().getFullYear() + ' Loona. Moon model and imagery: NASA.</p></section>';
     h += "</div>";
     $("#view").innerHTML = h;
+    document.body.classList.add("on-landing");
+    landingReveal();
+    if (GW.landing) GW.landing.enter();
+  }
+  // staggered fade-up: the hero starts at once, the rest as it scrolls into view (delays come from --rd)
+  var revealIO = null;
+  function landingReveal() {
+    if (revealIO) { revealIO.disconnect(); revealIO = null; }
+    document.documentElement.classList.add("js-anim");
+    var els = $$(".lx [data-reveal]");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("in"); }); return; }
+    void document.body.offsetWidth; // flush the hidden state so the fade-up transition runs
+    $$(".lx-hero [data-reveal]").forEach(function (e) { e.classList.add("in"); });
+    revealIO = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); revealIO.unobserve(en.target); } });
+    }, { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
+    els.forEach(function (e) { if (!e.closest(".lx-hero")) revealIO.observe(e); });
   }
   // The hero example is still; the role buttons swap it with one short fade.
   function showHero(fig, k) {
@@ -186,6 +232,8 @@
     card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
   }
   document.addEventListener("click", function (e) {
+    var more = e.target.closest("[data-nh-more]");
+    if (more) { var ex = $(".l-example, #lx-example"); if (ex) ex.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); return; }
     var b = e.target.closest("[data-hx]"); if (!b) return;
     showHero(b.closest(".hero-ex"), +b.getAttribute("data-hx"));
   });
@@ -214,11 +262,11 @@
     for (var j = 0; j < b.length; j += 5) out += B32[parseInt(b.slice(j, j + 5), 2)];
     return out;
   }
-  function prettyCode(c) { return c.length === 9 ? "GW-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6) : "GW-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10); }
+  function prettyCode(c) { return c.length === 9 ? "LN-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6) : "LN-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10); }
   function decodeProgress(raw) {
     var s = String(raw || "").toUpperCase().replace(/O/g, "0").replace(/[IL]/g, "1").replace(/[^0-9A-Z]/g, "");
-    if ((s.length === 11 || s.length === 17) && s.slice(0, 2) === "GW") s = s.slice(2);
-    if (s.length !== 9 && s.length !== 15) return { error: "A progress code has 15 letters and numbers after GW, like GW-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
+    if ((s.length === 11 || s.length === 17) && /^(GW|1N)/.test(s)) s = s.slice(2);   // LN- now, GW- before the rename
+    if (s.length !== 9 && s.length !== 15) return { error: "A progress code has 15 letters and numbers after LN, like LN-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
     var b = "";
     for (var i = 0; i < s.length; i++) { var v = B32.indexOf(s[i]); if (v < 0) return { error: "That code has a character that isn't used in progress codes. Check it and try again." }; b += bitsOf(v, 5); }
     var v1 = s.length === 9, body = v1 ? 37 : 67;
@@ -257,7 +305,7 @@
       var next = path.filter(function (id) { return !progress[id]; })[0], all = GW.lessons.filter(function (l) { return progress[l.id]; }).length;
       h += '<div class="prog-top"><div class="prog-sum"><div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + ' done</span></div><p class="fine">' + esc(pathLong(roles)) + " path. " + all + " of " + GW.lessons.length + " lessons completed across the whole library.</p></div>" + (next ? '<a class="btn pill dark" href="#' + next + '">Continue learning</a>' : '<a class="btn pill dark" href="#home">Path complete. Back to lessons</a>') + "</div>";
       if (next) h += '<p class="prog-next">Up next: <a href="#' + next + '">' + esc(byId[next].title) + "</a>, " + byId[next].minutes + " min</p>";
-      var link = resumeLink(), mail = "mailto:?subject=" + encodeURIComponent("My Groundwork progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + prettyCode(encodeProgress()));
+      var link = resumeLink(), mail = "mailto:?subject=" + encodeURIComponent("My Loona progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + prettyCode(encodeProgress()));
       h += '<section class="transfer"><h2>Continue on another device</h2>';
       h += '<p class="fine">Progress saves in this browser as you go. Open your resume link on the other device and you pick up where you left off.</p>';
       h += '<div class="w-row"><button type="button" class="btn pill dark" data-copy="link">Copy resume link</button><a class="tx-mail" href="' + esc(mail) + '">Email it to yourself</a></div>';
@@ -266,7 +314,7 @@
       h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></section>';
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
     h += '<section class="restore">' + (has ? "<h2>Restore a different code</h2>" : "");
-    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="GW-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
+    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
     h += '<p class="pc-err" id="pc-err" role="alert">' + esc(err || "") + "</p></form>";
     h += "</section>";
     if (has) h += '<section class="restore"><h2>Clear this browser</h2><p class="fine">Removes your roles and progress from this browser. Copy your code first if you want them back later.</p><button type="button" class="btn ghost" id="pc-clear">Clear progress in this browser</button></section>';
@@ -784,6 +832,8 @@
   var inner = function (h) { return byId[h] || h === "glossary" || h === "home" || h === "exercises" || h === "usecases"; };
   function route() {
     closePop(); closeSearch();
+    if (document.body.classList.contains("on-landing") && GW.landing) GW.landing.leave();
+    document.body.classList.remove("on-landing");
     var h = (location.hash || "").replace(/^#/, "");
     // the workflow: landing → choose roles → course; a resume link restores a code first
     if (h.indexOf("resume=") === 0) {
@@ -796,17 +846,17 @@
     var open = h === "welcome" || h === "role" || h === "progress";
     if (!roles.length && !open) { if (inner(h) && h !== "home") { resumeTo = h; location.replace("#role"); } else location.replace("#welcome"); return; }
     if (h === "") { location.replace("#home"); return; }
-    var title = "Groundwork", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length);
+    var title = "Loona", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length);
     paintTopbar(bare ? "bare" : byId[h] ? "lesson" : "tabs", byId[h] ? "home" : h);
     $("#rail").classList.remove("open");
-    if (h === "welcome") { renderWelcome(); title = "Groundwork · AI for software teams"; }
-    else if (h === "progress") { var pc = pendingCode || {}; pendingCode = null; renderProgress(pc.code, pc.err); title = (roles.length ? "Progress" : "Continue with a code") + " · Groundwork"; }
-    else if (h === "role") { renderRolePicker(); title = "Choose your roles · Groundwork"; }
-    else if (byId[h] && GW.content[h]) { renderLesson(h); renderRail(h); title = byId[h].title + " · Groundwork"; }
-    else if (h === "glossary") { renderGlossary(); title = "Glossary · Groundwork"; }
-    else if (h === "exercises") { renderExercises(); title = "Exercises · Groundwork"; }
-    else if (h === "usecases" && hasUseCases) { renderUseCases(); title = "Use cases · Groundwork"; }
-    else { renderHome(); title = "Lessons · Groundwork"; }
+    if (h === "welcome") { renderWelcome(); title = "Loona · AI for software teams"; }
+    else if (h === "progress") { var pc = pendingCode || {}; pendingCode = null; renderProgress(pc.code, pc.err); title = (roles.length ? "Progress" : "Continue with a code") + " · Loona"; }
+    else if (h === "role") { renderRolePicker(); title = "Choose your roles · Loona"; }
+    else if (byId[h] && GW.content[h]) { renderLesson(h); renderRail(h); title = byId[h].title + " · Loona"; }
+    else if (h === "glossary") { renderGlossary(); title = "Glossary · Loona"; }
+    else if (h === "exercises") { renderExercises(); title = "Exercises · Loona"; }
+    else if (h === "usecases" && hasUseCases) { renderUseCases(); title = "Use cases · Loona"; }
+    else { renderHome(); title = "Lessons · Loona"; }
     if (!(h === "glossary" && pendingTerm) && !pendingSection) window.scrollTo(0, 0);
     setTimeout(doPendingScroll, 30);
     document.title = title;

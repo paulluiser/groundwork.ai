@@ -1,5 +1,5 @@
 ---
-name: Groundwork
+name: Loona
 description: A free course for software teams on checking AI's work. Quiet, exact, tool-like. Neutral surfaces, near-black ink, one green accent.
 colors:
   bg: { light: "#FAFAF9", dark: "#0B0B0A" }
@@ -25,9 +25,9 @@ radius: { sm: "6px", md: "10px", lg: "14px", full: "999px" }
 depth: "Borders. Shadows only on layers that float: dialogs, pop-ups, the hero card."
 ---
 
-# Groundwork design
+# Loona design
 
-The live reference is the Groundwork design system artifact. In code, the system is the "Design system v2" section at the end of `assets/style.css`, followed by the "Design engineering pass". Change values there.
+The live reference is the design system artifact (made when the course was called Loona). In code, the system is the "Design system v2" section at the end of `assets/style.css`, followed by the "Design engineering pass". Change values there.
 
 ## Design read
 
@@ -36,7 +36,7 @@ A self-paced course (explain and practise) for software teams, with an establish
 Dials, from the design-engineering suite:
 
 - DESIGN_VARIANCE 4: one asymmetric split (the landing hero), predictable course screens.
-- MOTION_INTENSITY 4: state transitions everywhere, one signature moment per page (the hero check card, which changes only when a role is picked; the lesson simulation). Nothing loops or plays on a timer.
+- MOTION_INTENSITY 4: state transitions everywhere, one signature moment per page (the landing moon; the lesson simulation). The worked example changes only when a role is picked.
 - VISUAL_DENSITY 5: lessons breathe; course lists and the tree are compact.
 
 ## Type
@@ -48,6 +48,7 @@ Dials, from the design-engineering suite:
 
 ## Colour
 
+- The landing page uses the dark theme's tokens in both themes (bg #0B0B0A, ink #F4F3F0, ink-2 #CFCCC6, muted #9A968F, accent #4CC38A); the moon scene uses info blue for its faint halo and warning gold for the marker pings.
 - One accent, green, for progress and position only: current step, done checks, progress bars, the section being read, correct answers.
 - Status tints (info, idea, warning, danger) appear only where they carry meaning, always with a word or an icon too.
 - Text pairs hold at least 4.5:1 and control edges and focus at least 3:1 in both themes.
@@ -55,7 +56,7 @@ Dials, from the design-engineering suite:
 ## Layout
 
 - Course screens use four zones: top bar, course tree, reading column (at most 68 characters), right panel with "You'll learn" and "On this page".
-- Landing: split hero (headline, one line, one primary action, the check card on a plain tint panel), role choice, a proof band of real figures, a closing band. No two consecutive sections share a layout.
+- Landing: built from the GetLayers "Ascend" template prompt. The whole landing page floats over a fixed WebGL moon (`assets/landing-fx.js`, three r0.143 from unpkg). The moon is NASA's textured model (`assets/moon/moon.glb`, from solarsystem.nasa.gov, public domain, credited in the footer). Its coarse mesh is split 16 ways per triangle and pushed out to the interpolated radius, so the outline is smooth and the authored texture mapping and relief are kept; the 2048x1536 texture is copied to a 2048x2048 canvas so WebGL1 keeps every pixel. The shader adds gentle relief from the texture and fine 3D-noise roughness, and shades with Lommel-Seeliger reflectance under a fixed sun: evenly bright to the limb, a crisp terminator, faint earthshine. If the model can't load, a moon painted in code (separate albedo and height maps) takes its place. No atmosphere, so no rim glow; a faint halo, stars, motes and gold marker pings remain. It enters huge and low behind the hero, rises once on load, then zooms out and swings left and right as you scroll. Dark-theme tokens with the green accent, Geist, glass sections, a staggered fade-up reveal and Lenis smooth scroll. Sections: hero (display headline at weight 600 in ink, one line in ink-2, an ink primary button (off-white with near-black text, as on other arrival pages) and a hairline secondary; no accent in the hero, then the role tracks as a quiet caption on a soft shadow), what you learn (six cards), the worked example with real course figures, and a closing call to action with a footer. The tokens are `--lx-*` and everything is scoped to `.lx` and `body.on-landing`, so course pages keep this design system. Under reduced motion the reveal shows at once and Lenis and the rise are skipped.
 - One primary action per viewport; top-bar links on bare pages are secondary.
 
 ## Components and states
@@ -68,7 +69,7 @@ Dials, from the design-engineering suite:
 
 ## Logo
 
-The original artwork in `assets/brand/`: ink on light, reversed on dark, and the G mark alone below 120px of width. Never redraw it.
+The name is Loona (renamed from Groundwork). The mark is the broken halo: a full moon inside a halo with a gap, and a small moon that has slipped out through it. Three shapes share one centre: a disc (r 5.6), a 2.4-unit halo arc with round ends, and a small disc (r 2). It sits beside the name in Geist 600, everything in currentColor so it follows the theme; below 760px only the mark shows. The favicon (`assets/brand/loona-mark.svg`, halo stroke 2.8 so it holds at 16px) and the home-screen icon are the mark in off-white on near-black.
 
 ## Verification
 

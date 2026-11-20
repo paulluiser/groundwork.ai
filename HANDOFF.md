@@ -1,8 +1,8 @@
-# Groundwork: project handoff
+# Loona: project handoff
 
 *Last updated 19 November 2026 (all lessons and use cases written; UI review pass done).*
 
-Groundwork is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
+Loona is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
 
 ## Current state at a glance
 
@@ -47,7 +47,7 @@ The site shows the version in small text at the bottom of the lesson sidebar. To
 
 ## Design system
 
-The visual rules live in the Groundwork design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist and Geist Mono, hairline borders and soft depth, in light and dark themes.
+The visual rules live in the design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist and Geist Mono, hairline borders and soft depth, in light and dark themes.
 
 - In code, the system is the last section of `assets/style.css` ("Design system v2"). It re-points every colour token for both themes and restyles components. Change values there, not in the older sections above it.
 - The logo is the original artwork in `assets/brand/` (ink and reversed versions, plus the G mark for small spaces). Don't redraw it.
@@ -190,6 +190,8 @@ All 31 findings from the UI review are resolved:
 - Optional analytics without cookies, if the team wants usage numbers.
 
 ## Known issues and decisions
+- **Renamed to Loona** (from Groundwork). New progress codes start with LN-; codes that start with GW- still restore. The `GW` JavaScript namespace and the `gw-` browser-storage keys keep their old names on purpose: they are invisible, and renaming the storage keys would wipe everyone's saved progress. The repository and the project folder still use the old name.
+- **Landing page dependencies:** the moon loads three.js r0.143 and Lenis from unpkg, and NASA's moon model from `assets/moon/moon.glb` (3.3 MB, public domain, credit NASA, from solarsystem.nasa.gov). If the CDN is unreachable, the landing copy still shows and only the moon is missing; if the model fails, a moon painted in code is used. Tune the look with the `MOON` values at the top of `assets/landing-fx.js`.
 - **Copy buttons:** the progress page falls back to a "copy it yourself" message when the clipboard API is unavailable. That happens in sandboxed frames, such as the old artifact. On the real website it should work, but **test it once after deploying**.
 - **Resume links** use `location.origin + location.pathname`. They're correct on the website and unreliable inside the artifact.
 - **Decided: no accounts and no database.** Progress codes carry progress between devices. Adding Google sign-in would need a backend, which was deliberately left out.
