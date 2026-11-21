@@ -1,4 +1,4 @@
-/* Loona extras: lesson helpers (copy buttons, section links, pick up where you left off, glossary on hover),
+/* Kern extras: lesson helpers (copy buttons, section links, pick up where you left off, glossary on hover),
    keyboard shortcuts, the "You decide" practice, term review, team plans, certificates and the QR code.
    Loads after app.js and uses GW.app. Everything stays in this browser. */
 (function () {
@@ -113,7 +113,7 @@
   function exercisesHtml() {
     var n = (GW.practice || []).length, done = practiceDone(), rv = reviewQueue();
     return '<section class="more-practice" aria-label="More practice">' +
-      '<a class="mp-card" href="#practice"><span class="mp-k">You decide</span><b>Review ' + n + ' AI drafts</b><span class="mp-s">Make the call on a draft, say what you would check, then compare with a reviewer.</span><span class="mp-m">' + A().moon(done / n, 16) + (done ? done + " of " + n + " reviewed" : "Not started") + CHEVRON + "</span></a>" +
+      '<a class="mp-card" href="#practice"><span class="mp-k">You decide</span><b>Review ' + n + ' AI drafts</b><span class="mp-s">Make the call on a draft, say what you would check, then compare with a reviewer.</span><span class="mp-m">' + A().meter(done / n, 16) + (done ? done + " of " + n + " reviewed" : "Not started") + CHEVRON + "</span></a>" +
       '<a class="mp-card" href="#review"><span class="mp-k">Review</span><b>Key terms, a few a day</b><span class="mp-s">Short card reviews of the terms from lessons you have finished, spaced out so they stick.</span><span class="mp-m">' + (rv.pool.length ? (rv.queue.length ? A().plural(rv.queue.length, "card") + " ready" : "Nothing due today") : "Finish a lesson to start") + CHEVRON + "</span></a></section>";
   }
 
@@ -128,7 +128,7 @@
     var done = list.filter(function (x) { return s[x.n]; }), same = done.filter(function (x) { return s[x.n].v === x.p.v; }).length;
     var next = list.filter(function (x) { return !s[x.n]; })[0];
     var h = '<div class="tabpage practice"><p class="pick-top"><a class="back" href="#exercises">Exercises</a></p><header class="tp-head"><h1>You decide</h1><p class="lede">Each draft below came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s.</p>';
-    h += '<div class="pr-sum">' + a.moon(done.length / list.length, 22) + "<p><b>" + done.length + " of " + list.length + " reviewed</b>" + (done.length ? "<span>Same call as the reviewer on " + same + "</span>" : "<span>About 3 minutes each</span>") + "</p>" + (next ? '<a class="btn pill dark" href="#practice/' + next.n + '">' + (done.length ? "Next draft" : "Start with the first draft") + "</a>" : "") + "</div></header>";
+    h += '<div class="pr-sum">' + a.meter(done.length / list.length, 22) + "<p><b>" + done.length + " of " + list.length + " reviewed</b>" + (done.length ? "<span>Same call as the reviewer on " + same + "</span>" : "<span>About 3 minutes each</span>") + "</p>" + (next ? '<a class="btn pill dark" href="#practice/' + next.n + '">' + (done.length ? "Next draft" : "Start with the first draft") + "</a>" : "") + "</div></header>";
     var groups = [["Your roles", list.filter(function (x) { return mine.indexOf(x.p.r) > -1; })], [mine.length && mine[0] !== "general" ? "Other roles" : "All roles", list.filter(function (x) { return mine.indexOf(x.p.r) < 0; })]];
     groups.forEach(function (g) {
       if (!g[1].length) return;
@@ -212,7 +212,7 @@
     if (!s.pool) h += '<p class="gloss-empty">No terms yet. Terms join the review when you finish the lesson that explains them. Or <button type="button" class="linkish" data-revscope="all">review all terms</button>.</p>';
     else if (s.i >= s.queue.length) {
       var st = load("gw-review", {}), t = today(), nextDue = Object.keys(st).map(function (k) { return st[k].d; }).filter(function (d) { return d > t; }).sort(function (x, y) { return x - y; })[0];
-      h += '<div class="rv-card rv-done">' + a.moon(1, 40) + "<h2>" + (s.total ? "Done for today" : "Nothing due today") + "</h2><p>" + (s.total ? "You knew " + s.knew + " of " + a.plural(s.total, "card") + ". " : "") + (nextDue ? "More cards are due " + (nextDue - t === 1 ? "tomorrow" : "in " + (nextDue - t) + " days") + "." : "") + '</p><a class="btn pill soft" href="#exercises">Back to exercises</a></div>';
+      h += '<div class="rv-card rv-done">' + a.meter(1, 40) + "<h2>" + (s.total ? "Done for today" : "Nothing due today") + "</h2><p>" + (s.total ? "You knew " + s.knew + " of " + a.plural(s.total, "card") + ". " : "") + (nextDue ? "More cards are due " + (nextDue - t === 1 ? "tomorrow" : "in " + (nextDue - t) + " days") + "." : "") + '</p><a class="btn pill soft" href="#exercises">Back to exercises</a></div>';
     } else {
       var k = s.queue[s.i], g = GW.glossary[k], l = g[2] && a.byId[g[2]];
       h += '<div class="rv-card" aria-live="polite"><p class="rv-n">Card ' + (s.i + 1) + " of " + s.queue.length + "</p><h2>" + esc(g[0]) + "</h2>";
@@ -301,7 +301,7 @@
   }
   function memberRow(name, done, plan, you) {
     var a = A(), n = plan.filter(function (id) { return done[id]; }).length;
-    return "<tr" + (you ? ' class="you"' : "") + '><th scope="row">' + esc(name) + (you && name !== "You" ? " <small>you</small>" : "") + '</th><td class="tb-n">' + a.moon(n / plan.length, 18) + n + " of " + plan.length + "</td>" +
+    return "<tr" + (you ? ' class="you"' : "") + '><th scope="row">' + esc(name) + (you && name !== "You" ? " <small>you</small>" : "") + '</th><td class="tb-n">' + a.meter(n / plan.length, 18) + n + " of " + plan.length + "</td>" +
       plan.map(function (id) { return '<td class="tb-dot' + (done[id] ? " on" : "") + '"><span class="sr-only">' + (done[id] ? "Done" : "Not done") + "</span></td>"; }).join("") + "</tr>";
   }
   function renderTeamBoard(team) {
@@ -310,7 +310,7 @@
     var h = '<div class="saver team">' + (has ? '<p class="pick-top"><a class="back" href="#progress">Progress</a></p>' : "") + '<p class="kicker">Team plan</p><h1>' + esc(team.n) + "</h1>";
     h += '<p class="lede">' + a.plural(plan.length, "lesson") + ", about " + a.hours(plan) + " each. Progress stays in each person’s browser. The board below is built from the codes you paste in, and only you can see it.</p>";
     if (!has) h += '<div class="notice">To start, choose your roles. The team’s lessons are open to everyone, whatever roles you pick.<div class="w-row"><a class="btn pill dark" href="#role">Choose your roles</a></div></div>';
-    else h += '<div class="prog-top"><div class="prog-sum">' + a.moon(myN / plan.length, 28) + "<p><b>You: " + myN + " of " + plan.length + " done</b>" + (nextId ? '<span>Up next: <a href="#' + nextId + '">' + esc(a.byId[nextId].title) + "</a></span>" : "<span>You’ve finished the plan</span>") + "</p></div>" + (nextId ? '<a class="btn pill dark" href="#' + nextId + '">Continue</a>' : "") + "</div>";
+    else h += '<div class="prog-top"><div class="prog-sum">' + a.meter(myN / plan.length, 28) + "<p><b>You: " + myN + " of " + plan.length + " done</b>" + (nextId ? '<span>Up next: <a href="#' + nextId + '">' + esc(a.byId[nextId].title) + "</a></span>" : "<span>You’ve finished the plan</span>") + "</p></div>" + (nextId ? '<a class="btn pill dark" href="#' + nextId + '">Continue</a>' : "") + "</div>";
     h += '<section class="tm-board"><h2>Board</h2>';
     h += '<div class="tb-scroll" tabindex="0" role="region" aria-label="Team board"><table class="tboard"><thead><tr><th scope="col">Name</th><th scope="col">Done</th>' + plan.map(function (id) { return '<th scope="col" class="tb-l" title="' + esc(a.byId[id].title) + '"><abbr title="' + esc(a.byId[id].title) + '">' + a.byId[id].num + "</abbr></th>"; }).join("") + "</tr></thead><tbody>";
     if (has) h += memberRow(team.me || "You", mine, plan, true);
@@ -369,7 +369,7 @@
     h += '<section class="transfer"><h2>Tracks and certificates</h2><p class="fine">Finish a track to make a certificate you can download and share.</p><ul class="ex-list tracks">';
     tracks().forEach(function (t) {
       var n = t.ids.filter(function (id) { return done[id]; }).length, full = n === t.ids.length;
-      h += "<li>" + (full ? '<a class="ex-row" href="#certificate/' + t.k + '">' : '<div class="ex-row">') + '<span class="tr-name">' + a.moon(n / t.ids.length, 20) + "<b>" + esc(t.name) + '</b></span><span class="ex-end"><span class="ex-kind">' + (full ? "Get your certificate" : n + " of " + t.ids.length + " done") + "</span>" + (full ? CHEVRON + "</span></a>" : "</span></div>") + "</li>";
+      h += "<li>" + (full ? '<a class="ex-row" href="#certificate/' + t.k + '">' : '<div class="ex-row">') + '<span class="tr-name">' + a.meter(n / t.ids.length, 20) + "<b>" + esc(t.name) + '</b></span><span class="ex-end"><span class="ex-kind">' + (full ? "Get your certificate" : n + " of " + t.ids.length + " done") + "</span>" + (full ? CHEVRON + "</span></a>" : "</span></div>") + "</li>";
     });
     h += "</ul></section>";
     h += '<section class="transfer"><h2>Learning with a team</h2><p class="fine">' + (team ? "You’re in “" + esc(team.n) + "”." : "Pick lessons for your team, share one link, and compare progress using codes. No accounts.") + '</p><div class="w-row"><a class="btn pill soft" href="#team">' + (team ? "Open the team board" : "Make a team plan") + "</a></div></section>";
@@ -424,23 +424,21 @@
   }
   function drawCert(cv, who, t, date) {
     var a = A(), c = cv.getContext("2d"), W = cv.width, H = cv.height;
-    var INK = "#F4F3F0", INK2 = "#CFCCC6", MUTED = "#9A968F", ACC = "#4CC38A", F = "'Geist Mono', ui-monospace, monospace", M = "'Geist Mono', ui-monospace, monospace";
-    c.fillStyle = "#0B0B0A"; c.fillRect(0, 0, W, H);
-    c.strokeStyle = "rgba(244,243,240,.14)"; c.lineWidth = 2; c.strokeRect(48, 48, W - 96, H - 96);
-    // mark and name
-    c.save(); c.translate(112, 104); c.scale(2.2, 2.2); c.translate(1, -1);
-    c.fillStyle = INK; c.strokeStyle = INK; c.lineWidth = 2.4; c.lineCap = "round";
-    c.beginPath(); c.arc(11, 13, 5.6, 0, Math.PI * 2); c.fill();
-    c.stroke(new Path2D("M20.4 9.6A10 10 0 1 1 14.4 3.6"));
-    c.beginPath(); c.arc(19.2, 4.8, 2, 0, Math.PI * 2); c.fill(); c.restore();
-    c.fillStyle = INK; c.font = "600 40px " + F; c.textBaseline = "middle"; c.fillText("Loona", 182, 132);
-    // a full moon in the accent: the track is complete
-    c.beginPath(); c.arc(W - 160, 132, 44, 0, Math.PI * 2); c.fillStyle = ACC; c.fill();
+    var INK = "#111110", INK2 = "#3D3B37", MUTED = "#67645E", ACC = "#17734D", F = "'Geist Mono', ui-monospace, monospace", M = "'Geist Mono', ui-monospace, monospace";
+    c.fillStyle = "#F5F3EE"; c.fillRect(0, 0, W, H);
+    c.strokeStyle = "rgba(17,17,16,.16)"; c.lineWidth = 2; c.strokeRect(48, 48, W - 96, H - 96);
+    // the mark (an ink slash and a green one) and the name
+    var slash = function (x1, y1, x2, y2, col, w) { c.strokeStyle = col; c.lineWidth = w; c.lineCap = "round"; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); };
+    c.save(); c.translate(104, 96); c.scale(1.9, 1.9);
+    slash(8, 5, 15, 27, INK, 4.4); slash(17, 5, 24, 27, ACC, 4.4); c.restore();
+    c.fillStyle = INK; c.font = "600 40px " + F; c.textBaseline = "middle"; c.fillText("Kern", 172, 128);
+    // five green slashes: the progress meter, full
+    for (var k = 0; k < 5; k++) slash(W - 300 + k * 36, 104, W - 286 + k * 36, 152, ACC, 7);
     c.textBaseline = "alphabetic";
     c.fillStyle = MUTED; c.font = "400 30px " + F; c.fillText("Certificate of completion", 112, 330);
-    c.fillStyle = who ? INK : "rgba(244,243,240,.3)"; c.font = "600 " + fit(c, who || "Your name", 96, W - 224, F) + "px " + F; c.fillText(who || "Your name", 112, 448);
+    c.fillStyle = who ? INK : "rgba(17,17,16,.25)"; c.font = "600 " + fit(c, who || "Your name", 96, W - 224, F) + "px " + F; c.fillText(who || "Your name", 112, 448);
     c.fillStyle = INK2; c.font = "400 32px " + F;
-    c.fillText("completed " + (t.k === "path" ? "their path" : t.k === "core" ? "the core lessons" : "the " + t.name) + " of Loona, a course on using AI well at work", 112, 520, W - 224);
+    c.fillText("completed " + (t.k === "path" ? "their path" : t.k === "core" ? "the core lessons" : "the " + t.name) + " of Kern, a course on using AI well at work", 112, 520, W - 224);
     c.font = "400 22px " + M; c.fillStyle = MUTED;
     var cols = t.ids.length > 6 ? 2 : 1, rows = Math.ceil(t.ids.length / cols), colW = (W - 224) / cols, lh = Math.min(36, 260 / rows);
     t.ids.forEach(function (id, i) {

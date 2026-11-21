@@ -1,4 +1,4 @@
-/* Loona app: landing, role picker, progress codes, routing, course rail, home, lessons, glossary, search, progress, checks. */
+/* Kern app: landing, role picker, progress codes, routing, course rail, home, lessons, glossary, search, progress, checks. */
 (function () {
   "use strict";
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -52,13 +52,13 @@
   }
   var NUM = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
   function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); var h = NUM.format(Math.round(m / 60 * 2) / 2); return h + (h === "1" ? " hour" : " hours"); }
-  // Loona's signature: progress drawn as a moon phase, new (nothing done) to full (all done). Used only for progress.
-  function moon(f, size, label) {
-    f = Math.max(0, Math.min(1, f || 0)); size = size || 18;
-    var r = 7, c = 8, rx = Math.abs(1 - 2 * f) * r, lit = "";
-    if (f >= 0.995) lit = '<circle cx="8" cy="8" r="7"/>';
-    else if (f > 0.005) lit = '<path d="M' + c + " " + (c - r) + "A" + r + " " + r + " 0 0 1 " + c + " " + (c + r) + "A" + rx.toFixed(2) + " " + r + " 0 0 " + (f < 0.5 ? 0 : 1) + " " + c + " " + (c - r) + 'Z"/>';
-    return '<svg class="moon' + (f >= 0.995 ? " full" : "") + '" width="' + size + '" height="' + size + '" viewBox="0 0 16 16"' + (label ? ' role="img" aria-label="' + esc(label) + '"' : ' aria-hidden="true"') + '><circle class="moon-disc" cx="8" cy="8" r="7"/><g class="moon-lit">' + lit + "</g></svg>";
+  // Kern's signature: progress drawn as five backslashes that turn green as lessons are done. Used only for progress.
+  function meter(f, size, label) {
+    f = Math.max(0, Math.min(1, f || 0)); size = size || 16;
+    var on = Math.round(f * 5); if (f > 0 && on === 0) on = 1; if (f < 1 && on === 5) on = 4;
+    var lines = "";
+    for (var i = 0; i < 5; i++) { var x = 3 + i * 5; lines += '<line class="' + (i < on ? "on" : "") + '" x1="' + (x - 1.6) + '" y1="3" x2="' + (x + 1.6) + '" y2="13"/>'; }
+    return '<svg class="meter' + (on === 5 ? " full" : "") + '" width="' + Math.round(size * 1.65) + '" height="' + size + '" viewBox="0 0 26.5 16"' + (label ? ' role="img" aria-label="' + esc(label) + '"' : ' aria-hidden="true"') + ">" + lines + "</svg>";
   }
 
   /* ---------- local storage (per-browser copy) ---------- */
@@ -102,7 +102,7 @@
   }
   function renderRail(active) {
     var path = routeFor(roles), n = doneOf(path);
-    var h = '<div class="rail-path"><span class="k">Your path</span><b>' + esc(pathLong(roles) || "Not chosen") + '</b><span class="m">' + moon(n / path.length, 16) + n + " of " + path.length + ' lessons done</span><a href="#role">Change roles</a></div>';
+    var h = '<div class="rail-path"><span class="k">Your path</span><b>' + esc(pathLong(roles) || "Not chosen") + '</b><span class="m">' + meter(n / path.length, 14) + n + " of " + path.length + ' lessons done</span><a href="#role">Change roles</a></div>';
     h += '<a class="rail-home" href="#home">All lessons</a>';
     GW.parts.forEach(function (p, pi) {
       var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
@@ -174,13 +174,13 @@
     var rv = function (ms) { return ' data-reveal style="--rd:' + ms + 'ms"'; };
     var h = '<div class="lx">';
 
-    // 1 · hero
+    // 1 · hero: one headline; the role at its end is deleted and retyped every 2.4 seconds
     h += '<header class="lx-hero"><div class="lx-hero-inner">';
-    h += '<h1 class="lx-title"' + rv(60) + '>AI drafts.<br>You <em>decide</em></h1>';
-    h += '<p class="lx-sub"' + rv(180) + '>A free course for software teams: how a model writes, where it goes wrong, and how to check its work before it ships.</p>';
+    h += '<h1 class="lx-title"' + rv(60) + '><span class="sr-only">Learn the basics of AI and its use cases for every role on a software team</span><span aria-hidden="true">Learn the basics of AI and its use cases for<br><span class="lx-role-line"><span class="lx-role" id="lx-role">' + HERO_ROLES[0] + '</span><span class="lx-cursor"></span></span></span></h1>';
+    h += '<p class="lx-sub"' + rv(180) + '>A free course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>';
     h += '<div class="lx-actions"' + rv(300) + '><a class="lx-btn lx-primary" href="' + go + '">' + goTxt + ARROW + '</a><a class="lx-btn lx-outline" href="#progress">I have a progress code</a></div>';
-    h += '</div><div class="lx-logos"' + rv(420) + '><p class="lx-logos-label">' + nTracks + ' role tracks, plus a path for everyone</p><ul class="lx-logos-row">' +
-      ["product", "design", "engineering", "qa", "security", "customer-support"].map(function (id) { return '<li><a class="lx-logo" href="#role" data-pick="' + id + '">' + esc(roleInfo(id).name) + "</a></li>"; }).join("") + "</ul></div></header>";
+    h += '<p class="lx-meta"' + rv(380) + '>' + GW.lessons.length + " lessons · " + nTracks + " role tracks · no account</p>";
+    h += "</div></header>";
 
     // 2 · features: what the course covers
     var feats = [
@@ -210,16 +210,35 @@
     h += '<span class="lx-eyebrow"' + rv(60) + '>Ready when you are</span><h2' + rv(140) + '>Start with lesson 1</h2>';
     h += '<p' + rv(220) + '>It takes ' + first.minutes + ' minutes and needs no background. Choose your roles first, or start with General and add roles later.</p>';
     h += '<div class="lx-actions"' + rv(300) + '><a class="lx-btn lx-primary" href="' + go + '">' + goTxt + ARROW + '</a><a class="lx-btn lx-outline" href="#progress">Continue with a code</a></div></div>';
-    h += '<footer class="lx-footer"><div class="lx-foot-brand"><span class="lx-brand"><svg class="brand-mark" viewBox="-1 1 24 24" aria-hidden="true"><circle cx="11" cy="13" r="5.6"/><path class="halo" d="M20.4 9.6A10 10 0 1 1 14.4 3.6"/><circle cx="19.2" cy="4.8" r="2"/></svg><span>Loona</span></span><p>A free course for software teams on understanding AI and using it well at work.</p></div>';
+    h += '<footer class="lx-footer"><div class="lx-foot-brand"><span class="lx-brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="s1" x1="8" y1="5" x2="15" y2="27"/><line class="s2" x1="17" y1="5" x2="24" y2="27"/></svg><span>Kern</span></span><p>A free course for software teams on understanding AI and using it well at work.</p></div>';
     h += '<div class="lx-foot-cols"><div><h4>Course</h4><a href="#home">Lessons</a><a href="#exercises">Exercises</a><a href="#glossary">Glossary</a></div><div><h4>Start</h4><a href="#role">Choose roles</a><a href="#progress">Progress code</a></div><div><h4>Privacy</h4><span>No accounts</span><span>Progress stays in your browser</span></div></div></footer>';
-    h += '<p class="lx-copy">© ' + new Date().getFullYear() + ' Loona. Moon model and imagery: NASA.</p></section>';
+    h += '<p class="lx-copy">© ' + new Date().getFullYear() + ' Kern.</p></section>';
     h += "</div>";
     $("#view").innerHTML = h;
     document.body.classList.add("on-landing");
     landingReveal();
-    if (GW.landing) GW.landing.enter();
+    startRoles();
   }
   // staggered fade-up: the hero starts at once, the rest as it scrolls into view (delays come from --rd)
+  // the roles the hero cycles through, as people rather than role names, so the sentence reads naturally
+  var HERO_ROLES = ["engineers", "designers", "product managers", "QA testers", "security teams", "data analysts", "technical writers", "delivery leads", "project managers", "engineering managers", "operations teams", "support teams"];
+  var roleTimer = null;
+  function startRoles() {
+    clearInterval(roleTimer);
+    var el = $("#lx-role"), k = 0, busy = false; if (!el) return;
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    roleTimer = setInterval(function () {
+      if (busy || !document.body.contains(el)) return;
+      var cur = el.textContent, next = HERO_ROLES[++k % HERO_ROLES.length];
+      if (reduced) { el.textContent = next; return; }
+      busy = true;
+      var i = cur.length, j = 0;
+      (function del() {
+        if (i >= 0) { el.textContent = cur.slice(0, i--); return setTimeout(del, 22); }
+        (function type() { if (j <= next.length) { el.textContent = next.slice(0, j++); return setTimeout(type, 38); } busy = false; })();
+      })();
+    }, 2400);
+  }
   var revealIO = null;
   function landingReveal() {
     if (revealIO) { revealIO.disconnect(); revealIO = null; }
@@ -270,11 +289,11 @@
     for (var j = 0; j < b.length; j += 5) out += B32[parseInt(b.slice(j, j + 5), 2)];
     return out;
   }
-  function prettyCode(c) { return c.length === 9 ? "LN-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6) : "LN-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10); }
+  function prettyCode(c) { return c.length === 9 ? "KN-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6) : "KN-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10); }
   function decodeProgress(raw) {
     var s = String(raw || "").toUpperCase().replace(/O/g, "0").replace(/[IL]/g, "1").replace(/[^0-9A-Z]/g, "");
-    if ((s.length === 11 || s.length === 17) && /^(GW|1N)/.test(s)) s = s.slice(2);   // LN- now, GW- before the rename
-    if (s.length !== 9 && s.length !== 15) return { error: "A progress code has 15 letters and numbers after LN, like LN-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
+    if ((s.length === 11 || s.length === 17) && /^(KN|1N|GW)/.test(s)) s = s.slice(2);   // KN- now; LN- (read as 1N) and GW- from earlier names
+    if (s.length !== 9 && s.length !== 15) return { error: "A progress code has 15 letters and numbers after KN, like KN-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
     var b = "";
     for (var i = 0; i < s.length; i++) { var v = B32.indexOf(s[i]); if (v < 0) return { error: "That code has a character that isn't used in progress codes. Check it and try again." }; b += bitsOf(v, 5); }
     var v1 = s.length === 9, body = v1 ? 37 : 67;
@@ -313,7 +332,7 @@
       var next = path.filter(function (id) { return !progress[id]; })[0], all = GW.lessons.filter(function (l) { return progress[l.id]; }).length;
       h += '<div class="prog-top"><div class="prog-sum"><div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + ' done</span></div><p class="fine">' + esc(pathLong(roles)) + " path. " + all + " of " + GW.lessons.length + " lessons completed across the whole library.</p></div>" + (next ? '<a class="btn pill dark" href="#' + next + '">Continue learning</a>' : '<a class="btn pill dark" href="#home">Path complete. Back to lessons</a>') + "</div>";
       if (next) h += '<p class="prog-next">Up next: <a href="#' + next + '">' + esc(byId[next].title) + "</a>, " + byId[next].minutes + " min</p>";
-      var link = resumeLink(), mail = "mailto:?subject=" + encodeURIComponent("My Loona progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + prettyCode(encodeProgress()));
+      var link = resumeLink(), mail = "mailto:?subject=" + encodeURIComponent("My Kern progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + prettyCode(encodeProgress()));
       h += '<section class="transfer"><h2>Continue on another device</h2>';
       h += '<p class="fine">Progress saves in this browser as you go. Open your resume link on the other device and you pick up where you left off.</p>';
       h += '<div class="w-row"><button type="button" class="btn pill dark" data-copy="link">Copy resume link</button><a class="tx-mail" href="' + esc(mail) + '">Email it to yourself</a></div>';
@@ -323,7 +342,7 @@
       if (GW.ext) h += GW.ext.progressHtml();
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
     h += '<section class="restore">' + (has ? "<h2>Restore a different code</h2>" : "");
-    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
+    h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
     h += '<p class="pc-err" id="pc-err" role="alert">' + esc(err || "") + "</p></form>";
     h += "</section>";
     if (has) h += '<section class="restore"><h2>Clear this browser</h2><p class="fine">Removes your roles and progress from this browser. Copy your code first if you want them back later.</p><button type="button" class="btn ghost" id="pc-clear">Clear progress in this browser</button></section>';
@@ -468,7 +487,7 @@
       stages.forEach(function (s) {
         if (!s.ids.length) return;
         var d = doneOf(s.ids);
-        h += '<section class="stage"><div class="stage-h"><h2>' + s.h + '</h2><p>' + s.p + '</p><span class="stage-n">' + moon(d / s.ids.length, 18) + (d === s.ids.length ? "Done" : d + " of " + plural(s.ids.length, "lesson")) + '</span></div><ol class="contents path">' + s.ids.map(function (id) { return pathRow(id, path.indexOf(id) + 1, next); }).join("") + "</ol></section>";
+        h += '<section class="stage"><div class="stage-h"><h2>' + s.h + '</h2><p>' + s.p + '</p><span class="stage-n">' + meter(d / s.ids.length, 14) + (d === s.ids.length ? "Done" : d + " of " + plural(s.ids.length, "lesson")) + '</span></div><ol class="contents path">' + s.ids.map(function (id) { return pathRow(id, path.indexOf(id) + 1, next); }).join("") + "</ol></section>";
       });
     } else {
       h += '<section><p class="lib-note">' + courseSize + ". Every lesson stays open to you; lessons on your path are marked.</p><div class=\"parts\">";
@@ -879,7 +898,7 @@
   var inner = function (h) { return byId[h] || h === "glossary" || h === "home" || h === "exercises" || h === "usecases" || !!page(h); };
   function route() {
     closePop(); closeSearch();
-    if (document.body.classList.contains("on-landing") && GW.landing) GW.landing.leave();
+    clearInterval(roleTimer);
     document.body.classList.remove("on-landing");
     var h = (location.hash || "").replace(/^#/, "");
     // the workflow: landing → choose roles → course; a resume link restores a code first
@@ -897,26 +916,26 @@
     var open = h === "welcome" || h === "role" || h === "progress" || (pg && pg.open);
     if (!roles.length && !open) { if (inner(h) && h !== "home") { resumeTo = h; location.replace("#role"); } else location.replace("#welcome"); return; }
     if (h === "") { location.replace("#home"); return; }
-    var title = "Loona", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length) || (pg && pg.open && !roles.length);
+    var title = "Kern", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length) || (pg && pg.open && !roles.length);
     paintTopbar(bare ? "bare" : byId[h] ? "lesson" : "tabs", byId[h] ? "home" : pg ? pg.tab : h);
     if (pg) {
       $("#rail").classList.remove("open");
       var pt = pg.render(pgArg);
       if (pt === false) return;   // the page redirected
       window.scrollTo(0, 0); setTimeout(doPendingScroll, 30);
-      document.title = (pg.title ? pg.title(pgArg) : "Loona") + " · Loona";
+      document.title = (pg.title ? pg.title(pgArg) : "Kern") + " · Kern";
       $("#view").focus({ preventScroll: true });
       return;
     }
     $("#rail").classList.remove("open");
-    if (h === "welcome") { renderWelcome(); title = "Loona · AI for software teams"; }
-    else if (h === "progress") { var pc = pendingCode || {}; pendingCode = null; renderProgress(pc.code, pc.err); title = (roles.length ? "Progress" : "Continue with a code") + " · Loona"; }
-    else if (h === "role") { renderRolePicker(); title = "Choose your roles · Loona"; }
-    else if (byId[h] && GW.content[h]) { renderLesson(h); renderRail(h); title = byId[h].title + " · Loona"; }
-    else if (h === "glossary") { renderGlossary(); title = "Glossary · Loona"; }
-    else if (h === "exercises") { renderExercises(); title = "Exercises · Loona"; }
-    else if (h === "usecases" && hasUseCases) { renderUseCases(); title = "Use cases · Loona"; }
-    else { renderHome(); title = "Lessons · Loona"; }
+    if (h === "welcome") { renderWelcome(); title = "Kern · AI for software teams"; }
+    else if (h === "progress") { var pc = pendingCode || {}; pendingCode = null; renderProgress(pc.code, pc.err); title = (roles.length ? "Progress" : "Continue with a code") + " · Kern"; }
+    else if (h === "role") { renderRolePicker(); title = "Choose your roles · Kern"; }
+    else if (byId[h] && GW.content[h]) { renderLesson(h); renderRail(h); title = byId[h].title + " · Kern"; }
+    else if (h === "glossary") { renderGlossary(); title = "Glossary · Kern"; }
+    else if (h === "exercises") { renderExercises(); title = "Exercises · Kern"; }
+    else if (h === "usecases" && hasUseCases) { renderUseCases(); title = "Use cases · Kern"; }
+    else { renderHome(); title = "Lessons · Kern"; }
     if (!(h === "glossary" && pendingTerm) && !pendingSection) window.scrollTo(0, 0);
     setTimeout(doPendingScroll, 30);
     document.title = title;
@@ -959,7 +978,7 @@
     b.classList.toggle("is-dark", d);
     b.setAttribute("aria-label", d ? "Switch to light mode" : "Switch to dark mode");
     b.title = d ? "Light mode" : "Dark mode";
-    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", d ? "#0B0B0A" : "#FAFAF9"); m.removeAttribute("media"); });
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", d ? "#0B0B0A" : "#F5F3EE"); m.removeAttribute("media"); });
   }
   $("#theme-btn").addEventListener("click", function () {
     var next = isDark() ? "light" : "dark";
@@ -972,7 +991,7 @@
 
   // what extras.js needs from the app
   GW.app = {
-    $: $, $$: $$, esc: esc, plural: plural, moon: moon, slug: slug, byId: byId, roleInfo: roleInfo, trackOf: trackOf, routeFor: routeFor,
+    $: $, $$: $$, esc: esc, plural: plural, meter: meter, slug: slug, byId: byId, roleInfo: roleInfo, trackOf: trackOf, routeFor: routeFor,
     coreIds: coreIds, pathLong: pathLong, hours: hours, exercises: exercises, copyText: copyText, openPop: openPop, closePop: closePop,
     roles: function () { return roles; }, progress: function () { return progress; }, doneOf: doneOf,
     code: function () { return prettyCode(encodeProgress()); }, decode: decodeProgress, resumeLink: resumeLink,

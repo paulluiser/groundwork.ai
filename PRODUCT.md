@@ -12,7 +12,7 @@ Individual members of software teams who take the course themselves, at their ow
 
 ## Product Purpose
 
-Loona is a free, self-paced course on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
+Kern is a free, self-paced course on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
 
 ## Positioning
 
@@ -40,12 +40,12 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 - **Use cases:** about eight per role, each rated good fit, use with care or keep human, with what to check and a link to the lesson that covers it.
 - **Lesson parts:** each lesson has a lede, outcomes, worked examples, an interactive exercise, a key idea, pitfalls, a "try it this week" task, three knowledge checks and numbered sources.
 - **Build:** static HTML, CSS and JS with hash routing and no framework. It deploys as plain static files. Per-user data never leaves the browser except inside a progress code the learner copies themselves.
-- **Motion:** the landing animations are scoped so content stays visible without scripts, they respect reduced motion, and they offer a pause control.
+- **Motion:** the landing headline retypes its role every 2.4 seconds; content stays visible without scripts, screen readers hear one steady sentence, and reduced motion swaps the role without typing.
 - **Terminology:** "path" means the learner's sequence of lessons, "main role" means the first pick, "track" means a role's three lessons, and "neighbouring role" means the role whose first lesson a single role adds.
 
 ## Brand Commitments
 
-- Name: Loona, with the line "AI for software teams".
+- Name: Kern, with the line "AI for software teams". The landing headline: "Learn the basics of AI and its use cases for [role]".
 - Voice: neutral, plain English, no hype. It states what AI is good at and where it fails, without cheerleading or alarm.
 - Palette: white 60%, black 30%, cobalt accent 10%. The user set this palette and it is binding.
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-19T04:12:15.988356+00:00",
-  "title": "Design System: Loona",
+  "title": "Design System: Kern",
   "extensions": {
     "colorMeta": {
       "proof-cobalt": {
@@ -382,13 +382,13 @@
       "kind": "nav",
       "refersTo": "topbar",
       "description": "Frosted glass bar: wordmark, course tabs as a segmented control, path and search.",
-      "html": "<header class=\"ds-bar\"><b class=\"ds-brand\">Loona</b><nav class=\"ds-seg\"><a aria-current=\"page\">Lessons</a><a>Exercises</a><a>Glossary</a><a>Progress</a></nav><span class=\"ds-sp\"></span><a class=\"ds-tb\" href=\"#\"><span class=\"ds-k\">Path</span> <b>Security +2</b></a><button class=\"ds-tb\">Search</button></header>",
+      "html": "<header class=\"ds-bar\"><b class=\"ds-brand\">Kern</b><nav class=\"ds-seg\"><a aria-current=\"page\">Lessons</a><a>Exercises</a><a>Glossary</a><a>Progress</a></nav><span class=\"ds-sp\"></span><a class=\"ds-tb\" href=\"#\"><span class=\"ds-k\">Path</span> <b>Security +2</b></a><button class=\"ds-tb\">Search</button></header>",
       "css": ".ds-bar { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 16px; background: rgba(255,255,255,.72); backdrop-filter: saturate(180%) blur(20px); color: #1D1D1F; border-bottom: 1px solid rgba(0,0,0,.1); } .ds-brand { font: 700 19px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: -.022em; } .ds-seg { display: flex; gap: 2px; padding: 3px; border-radius: 99px; background: rgba(118,118,128,.12); } .ds-seg a { padding: 6px 14px; border-radius: 99px; font: 500 14px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #424245; } .ds-seg a[aria-current] { background: #FFFFFF; color: #1D1D1F; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); } .ds-sp { flex: 1; } .ds-tb { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 12px; border-radius: 99px; border: 0; background: rgba(118,118,128,.12); color: #1D1D1F; font: 15px -apple-system, BlinkMacSystemFont, system-ui, sans-serif; text-decoration: none; cursor: pointer; } .ds-tb:hover { background: rgba(118,118,128,.2); } .ds-tb:focus-visible { outline: 3px solid #2F4BFF; outline-offset: 2px; } .ds-k { color: #6E6E73; font-size: 13px; }"
     }
   ],
   "narrative": {
     "northStar": "Clear Glass, One Pencil",
-    "overview": "Loona should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.\n\nThe app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Use cases, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.\n\nStatus never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.",
+    "overview": "Kern should feel like a well-made Apple app: quiet, exact and obvious. The reading page is white. The chrome is a thin pane of frosted glass that content scrolls under. Everything you can touch is a soft rounded shape that answers the moment you press it. One blue pencil, Proof Cobalt, marks what is confirmed, correct or ready to act on. The course teaches people to check AI work before trusting it, so the interface stays out of the way and keeps every verdict plain.\n\nThe app has two kinds of page. Arrival pages (landing, roles, progress code without roles) have a white glass bar and no tabs. Course pages share four tabs: Lessons, Exercises, Use cases, Glossary and Progress. On desktop the tabs are a segmented control in the top bar. On phones they become a bottom tab bar with icons. Lessons add a light sidebar listing the path. Every other tab page is full width and centred.\n\nStatus never depends on colour alone. Confirmed is solid, check-it is outlined, uncertain is dashed, and wrong is solid near-black. A reader who can't tell blue from black still reads every verdict.",
     "keyCharacteristics": [
       "White pages, #F5F5F7 grouped surfaces, near-black type, one cobalt accent.",
       "The platform system font (SF Pro on Apple devices), with tracking that tightens as size grows.",

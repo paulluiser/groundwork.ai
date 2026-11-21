@@ -1,8 +1,8 @@
-# Loona: project handoff
+# Kern: project handoff
 
 *Last updated 20 November 2026 (practice, review, team plans, certificates, offline support and lesson helpers added).*
 
-Loona is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
+Kern is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
 
 ## Current state at a glance
 
@@ -124,9 +124,9 @@ DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front
   - `gw-roles` holds the chosen roles, `gw-progress` the completed lessons, `gw-pick` the role picker's draft, and `gw-still` the motion setting.
   - Added 20 November: `gw-practice` (practice calls and notes), `gw-review` (term boxes and due days), `gw-revscope`, `gw-team` (plan, pasted codes, your name), `gw-name` (certificate name), `gw-read` (where you stopped in each lesson) and `gw-ucfit`. None of these travel in a progress code.
   - `gw-role` and `gw-session` are retired keys that the app clears.
-- **Progress code v2:** 75 bits, written as 15 characters in Crockford base32 and shown as `GW-XXXXX-XXXXX-XXXXX`.
+- **Progress code v2:** 75 bits, written as 15 characters in Crockford base32 and shown as `KN-XXXXX-XXXXX-XXXXX`.
   - Layout: version (4 bits), three role slots (4 bits each, 0 = empty), 51 lesson slots (1 bit each), then a CRC-8 check (polynomial 0x07).
-- **v1 codes** (9 characters, shown as `GW-XXX-XXX-XXX`) still restore. They cover the first 21 lessons.
+- **v1 codes** (9 characters, shown as `KN-XXX-XXX-XXX`) still restore. They cover the first 21 lessons.
 - **`CODE_LESSONS` and `CODE_ROLES` in `app.js` are append-only.**
   - Never reorder or remove an entry, or every existing code decodes wrongly.
   - Lesson slots 46–51 are free. Going beyond 51 lessons needs a v3 format.
@@ -158,7 +158,7 @@ Each lesson contains `<div class="activity">` blocks with a `data-w` widget and 
 - Keyboard: `/` or ⌘K search, `j` and `k` next and previous lesson on your path, `?` lists the shortcuts.
 
 ### Offline (sw.js)
-- On install, the service worker reads `index.html` and caches every `assets/` and `content/` file it references, so new lesson files are picked up without editing `sw.js`. The 3.3 MB moon model is cached only once the landing page has loaded it.
+- On install, the service worker reads `index.html` and caches every `assets/` and `content/` file it references, so new lesson files are picked up without editing `sw.js`.
 - Pages and files come from the network first (always revalidated), with the cache as the fallback offline. Fonts and CDN libraries are served from the cache and refreshed in the background.
 - It registers only on HTTPS or localhost. To force every visitor onto a clean cache, change `CACHE` in `sw.js`.
 
@@ -217,8 +217,8 @@ All 31 findings from the UI review are resolved:
 - Optional analytics without cookies, if the team wants usage numbers.
 
 ## Known issues and decisions
-- **Renamed to Loona** (from Groundwork). New progress codes start with LN-; codes that start with GW- still restore. The `GW` JavaScript namespace and the `gw-` browser-storage keys keep their old names on purpose: they are invisible, and renaming the storage keys would wipe everyone's saved progress. The repository and the project folder still use the old name.
-- **Landing page dependencies:** the moon loads three.js r0.143 and Lenis from unpkg, and NASA's moon model from `assets/moon/moon.glb` (3.3 MB, public domain, credit NASA, from solarsystem.nasa.gov). If the CDN is unreachable, the landing copy still shows and only the moon is missing; if the model fails, a moon painted in code is used. Tune the look with the `MOON` values at the top of `assets/landing-fx.js`.
+- **Renamed to Kern** (from Loona, earlier Groundwork). New progress codes start with KN-; codes that start with LN- or GW- still restore. The `GW` JavaScript namespace and the `gw-` browser-storage keys keep their old names on purpose: they are invisible, and renaming the storage keys would wipe everyone's saved progress. The repository and the project folder still use the first name.
+- **Landing page:** plain HTML and CSS with no libraries. The rotating role in the headline is `HERO_ROLES` and `startRoles()` in `assets/app.js`; `route()` stops the timer when you leave the page. The moon scene, three.js, Lenis and NASA's model were removed in the Kern rebrand.
 - **Copy buttons:** the progress page falls back to a "copy it yourself" message when the clipboard API is unavailable. That happens in sandboxed frames, such as the old artifact. On the real website it should work, but **test it once after deploying**.
 - **Resume links** use `location.origin + location.pathname`. They're correct on the website and unreliable inside the artifact.
 - **Decided: no accounts and no database.** Progress codes carry progress between devices. Adding Google sign-in would need a backend, which was deliberately left out.

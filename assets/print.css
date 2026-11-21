@@ -1,7 +1,7 @@
 /* Print: lessons on paper or PDF, light whatever the screen theme, without the app around them.
    Loaded with media="print", so none of this touches the screen. */
 :root:not(#print), :root[data-theme]:not(#print) {
-  --bg: #FAFAF9; --white: #FFFFFF; --tint: #F3F3F1; --tint-2: #E9E8E5; --line: #DDDCD8; --ink: #111110; --ink-2: #3D3B37; --ink-3: #67645E;
+  --bg: #F5F3EE; --white: #FBFAF7; --tint: #ECE9E2; --tint-2: #E3DFD6; --line: #DDDCD8; --ink: #111110; --ink-2: #3D3B37; --ink-3: #67645E;
   --black: #F3F3F1; --on-black: #111110; --on-black-2: #3D3B37; --on-black-soft: #3D3B37; --on-black-line: #DDDCD8; --accent: #17734D; --accent-ink: #fff;
 }
 :is(pre.code, .log, .codebox, .draft.prompt, .activity-h, .l-close, .popover):not(#print) {
