@@ -52,6 +52,14 @@
   }
   var NUM = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
   function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); return NUM.format(Math.round(m / 60 * 2) / 2); }
+  // Loona's signature: progress drawn as a moon phase, new (nothing done) to full (all done). Used only for progress.
+  function moon(f, size, label) {
+    f = Math.max(0, Math.min(1, f || 0)); size = size || 18;
+    var r = 7, c = 8, rx = Math.abs(1 - 2 * f) * r, lit = "";
+    if (f >= 0.995) lit = '<circle cx="8" cy="8" r="7"/>';
+    else if (f > 0.005) lit = '<path d="M' + c + " " + (c - r) + "A" + r + " " + r + " 0 0 1 " + c + " " + (c + r) + "A" + rx.toFixed(2) + " " + r + " 0 0 " + (f < 0.5 ? 0 : 1) + " " + c + " " + (c - r) + 'Z"/>';
+    return '<svg class="moon' + (f >= 0.995 ? " full" : "") + '" width="' + size + '" height="' + size + '" viewBox="0 0 16 16"' + (label ? ' role="img" aria-label="' + esc(label) + '"' : ' aria-hidden="true"') + '><circle class="moon-disc" cx="8" cy="8" r="7"/><g class="moon-lit">' + lit + "</g></svg>";
+  }
 
   /* ---------- local storage (per-browser copy) ---------- */
   function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
@@ -94,7 +102,7 @@
   }
   function renderRail(active) {
     var path = routeFor(roles), n = doneOf(path);
-    var h = '<div class="rail-path"><span class="k">Your path</span><b>' + esc(pathLong(roles) || "Not chosen") + '</b><span class="m">' + n + " of " + path.length + ' lessons done</span><a href="#role">Change roles</a></div>';
+    var h = '<div class="rail-path"><span class="k">Your path</span><b>' + esc(pathLong(roles) || "Not chosen") + '</b><span class="m">' + moon(n / path.length, 16) + n + " of " + path.length + ' lessons done</span><a href="#role">Change roles</a></div>';
     h += '<a class="rail-home" href="#home">All lessons</a>';
     GW.parts.forEach(function (p, pi) {
       var ls = GW.lessons.filter(function (l) { return l.part === p.id; });
@@ -109,7 +117,7 @@
       } else ls.forEach(function (l) { h += railLink(l, active); });
       h += "</div>";
     });
-    h += '<div class="rail-foot"><a href="#progress"' + (active === "progress" ? ' aria-current="page"' : "") + '>Your progress code</a><a href="#glossary"' + (active === "glossary" ? ' aria-current="page"' : "") + '>Glossary of terms</a><a href="#welcome">About the course</a><p class="who-line">Progress saves in this browser.</p>' + (GW.version ? '<p class="build-v">Version ' + esc(GW.version) + "</p>" : "") + "</div>";
+    h += '<div class="rail-foot"><a href="#progress"' + (active === "progress" ? ' aria-current="page"' : "") + '>Your progress code</a><a href="#glossary"' + (active === "glossary" ? ' aria-current="page"' : "") + '>Glossary of terms</a><a href="#welcome">About the course</a><button type="button" class="linkish kb-link" data-kb-help>Keyboard shortcuts</button><p class="who-line">Progress saves in this browser.</p>' + (GW.version ? '<p class="build-v">Version ' + esc(GW.version) + "</p>" : "") + "</div>";
     $("#rail").innerHTML = h;
   }
 
@@ -312,6 +320,7 @@
       h += '<div class="code-card"><span class="hx-k">Or type this code on the other device</span><div class="code-row"><p class="code-big" id="pc-code">' + prettyCode(encodeProgress()) + '</p><button type="button" class="btn small ghost" data-copy="code">Copy code</button></div>';
       h += '<p class="code-sum">The code changes as you complete lessons, so copy it again before you switch.</p></div>';
       h += '<p class="copy-msg" data-copy-msg role="status" aria-live="polite"></p></section>';
+      if (GW.ext) h += GW.ext.progressHtml();
     } else h += '<p class="lede">Enter the progress code from your other device. Your roles and completed lessons come back in this browser.</p>';
     h += '<section class="restore">' + (has ? "<h2>Restore a different code</h2>" : "");
     h += '<form class="w" id="pc-form" novalidate><label for="pc-in">Progress code</label><p class="fine pc-help" id="pc-help">15 letters and numbers, with or without the dashes.' + (has ? " Restoring switches to the roles in the code and keeps every lesson you have completed here." : "") + '</p><div class="pc-row"><input type="text" id="pc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" value="' + esc(prefill || "") + '"><button class="btn pill dark" type="submit">Restore progress</button></div>';
@@ -321,6 +330,7 @@
     else h += '<p class="auth-back"><a href="#role">No code? Choose your roles and start</a></p>';
     h += "</div>";
     $("#view").innerHTML = h;
+    if (GW.ext && has) GW.ext.progressMount($("#view"));
     $("#pc-form").addEventListener("submit", function (e) {
       e.preventDefault();
       var d = decodeProgress($("#pc-in").value), errBox = $("#pc-err");
@@ -458,7 +468,7 @@
       stages.forEach(function (s) {
         if (!s.ids.length) return;
         var d = doneOf(s.ids);
-        h += '<section class="stage"><div class="stage-h"><h2>' + s.h + '</h2><p>' + s.p + '</p><span class="stage-n">' + (d === s.ids.length ? "Done" : d + " of " + plural(s.ids.length, "lesson")) + '</span></div><ol class="contents path">' + s.ids.map(function (id) { return pathRow(id, path.indexOf(id) + 1, next); }).join("") + "</ol></section>";
+        h += '<section class="stage"><div class="stage-h"><h2>' + s.h + '</h2><p>' + s.p + '</p><span class="stage-n">' + moon(d / s.ids.length, 18) + (d === s.ids.length ? "Done" : d + " of " + plural(s.ids.length, "lesson")) + '</span></div><ol class="contents path">' + s.ids.map(function (id) { return pathRow(id, path.indexOf(id) + 1, next); }).join("") + "</ol></section>";
       });
     } else {
       h += '<section><p class="lib-note">' + courseSize + ". Every lesson stays open to you; lessons on your path are marked.</p><div class=\"parts\">";
@@ -498,6 +508,7 @@
     var h = '<div class="tabpage"><header class="tp-head"><h1>Exercises</h1><p class="lede">Every hands-on activity in the course. Each one gives you feedback as you go.</p>';
     h += '<div class="seg" role="group" aria-label="Which exercises to show"><button type="button" data-exscope="path" aria-pressed="' + (exScope === "path") + '">Your path</button><button type="button" data-exscope="all" aria-pressed="' + (exScope === "all") + '">All lessons</button></div>';
     h += '<p class="ex-count" aria-live="polite">' + plural(list.length, "exercise") + " in " + plural(lessonsWith.length, "lesson") + "</p></header>";
+    if (GW.ext) h += GW.ext.exercisesHtml();
     lessonsWith.forEach(function (l) {
       var done = progress[l.id];
       h += '<section class="ex-group' + (done ? " done" : "") + '" aria-labelledby="exg-' + l.id + '"><h2 class="ex-l" id="exg-' + l.id + '"><span class="ex-ln">Lesson ' + l.num + (done ? ' <b class="ex-done">Completed</b>' : "") + "</span>" + esc(l.title) + '</h2><ul class="ex-list">';
@@ -512,27 +523,43 @@
 
   /* ---------- use cases tab: concrete ways each role uses AI, rated for fit ---------- */
   var FIT = { good: ["good", "Good fit"], care: ["care", "Use with care"], human: ["human", "Keep human"] };
-  var ucScope = load("gw-ucscope", "mine");
+  // A finder: role scope, fit level and a text filter. Only the results repaint, so typing keeps focus.
+  var ucScope = load("gw-ucscope", "mine"), ucFit = load("gw-ucfit", "all"), ucQ = "";
   function renderUseCases() {
+    var gen = !roles.length || roles[0] === "general";
+    var h = '<div class="tabpage"><header class="tp-head"><h1>Use cases</h1><p class="lede">Concrete ways people in each role use AI at work, how well each fits, and what to check before you rely on the result.</p>';
+    h += '<div class="uc-filters">';
+    if (!gen) h += '<div class="seg" role="group" aria-label="Which roles to show"><button type="button" data-ucscope="mine" aria-pressed="' + (ucScope === "mine") + '">Your roles</button><button type="button" data-ucscope="all" aria-pressed="' + (ucScope === "all") + '">All roles</button></div>';
+    h += '<div class="seg" role="group" aria-label="Filter by fit">' + [["all", "Any fit"], ["good", "Good fit"], ["care", "Use with care"], ["human", "Keep human"]].map(function (x) { return '<button type="button" data-ucfit="' + x[0] + '" aria-pressed="' + (ucFit === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div>";
+    h += '<div class="w uc-find"><label class="sr-only" for="uc-q">Find a use case</label><input type="search" id="uc-q" placeholder="Find a task, e.g. tests, interviews, incidents" value="' + esc(ucQ) + '" aria-describedby="uc-count"></div></div>';
+    h += '<p class="ex-count" id="uc-count" aria-live="polite"></p></header><div id="uc-body"></div></div>';
+    $("#view").innerHTML = h;
+    paintUseCases();
+    $("#uc-q").addEventListener("input", function (e) { ucQ = e.target.value; paintUseCases(); });
+  }
+  function paintUseCases() {
     var gen = !roles.length || roles[0] === "general", mine = gen ? [] : roles.slice();
     var scope = gen ? "all" : ucScope;
     var order = scope === "mine" ? mine : mine.concat(GW.roles.map(function (r) { return r.id; }).filter(function (r) { return mine.indexOf(r) < 0; }));
-    var list = GW.useCases || [], count = 0;
-    var h = '<div class="tabpage"><header class="tp-head"><h1>Use cases</h1><p class="lede">Concrete ways people in each role use AI at work, how well each fits, and what to check before you rely on the result.</p>';
-    if (!gen) h += '<div class="seg" role="group" aria-label="Which roles to show"><button type="button" data-ucscope="mine" aria-pressed="' + (scope === "mine") + '">Your roles</button><button type="button" data-ucscope="all" aria-pressed="' + (scope === "all") + '">All roles</button></div>';
-    var body = "";
+    var list = GW.useCases || [], words = ucQ.toLowerCase().trim().split(/\s+/).filter(Boolean), count = 0, nRoles = 0, body = "";
+    var hit = function (u) {
+      if (ucFit !== "all" && u.fit !== ucFit) return false;
+      var hay = (u.t + " " + u.d + " " + u.c + " " + roleInfo(u.r).name).toLowerCase();
+      return words.every(function (w) { return hay.indexOf(w) > -1; });
+    };
     order.forEach(function (r) {
-      var items = list.filter(function (u) { return u.r === r; }); if (!items.length) return;
-      count += items.length;
+      var items = list.filter(function (u) { return u.r === r && hit(u); }); if (!items.length) return;
+      count += items.length; nRoles += 1;
       body += '<section class="uc-group" aria-labelledby="ucg-' + r + '"><h2 class="ex-l" id="ucg-' + r + '"><span>' + trackSpan(r) + "</span>" + esc(roleInfo(r).name) + '</h2><div class="uc-grid">';
       items.forEach(function (u) {
         var f = FIT[u.fit], l = byId[u.l];
-        body += '<article class="uc-card"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
+        body += '<article class="uc-card" id="uc-' + list.indexOf(u) + '"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
       });
       body += "</div></section>";
     });
-    h += '<p class="ex-count" aria-live="polite">' + count + " use cases across " + order.filter(function (r) { return list.some(function (u) { return u.r === r; }); }).length + " roles</p></header>" + body + "</div>";
-    $("#view").innerHTML = h;
+    if (!count) body = '<p class="gloss-empty">No use cases match. Try a shorter word, another fit level' + (scope === "mine" ? ", or all roles" : "") + '. <button type="button" class="linkish" data-ucreset>Clear the filters</button></p>';
+    $("#uc-count").textContent = plural(count, "use case") + (count ? " across " + plural(nRoles, "role") : "");
+    $("#uc-body").innerHTML = body;
   }
 
   /* ---------- glossary page ---------- */
@@ -655,6 +682,7 @@
       var cur = $("#ls-cur", view); if (cur) cur.textContent = heads[k] ? (k + 1) + " of " + heads.length + ": " + heads[k].textContent : "";
       var outs = $$(".learn li", view), n = outs.length, H = heads.length;
       outs.forEach(function (li, i) { li.classList.toggle("on", !!progress[id] || readAt + 1 >= Math.ceil((i + 1) * H / n)); });
+      if (GW.ext && heads[k]) GW.ext.reading(id, k, heads[k].id);
     }
     paintReading(0);
 
@@ -671,10 +699,12 @@
     });
 
     enhance(view);
+    var fromLink = !!pendingSection;
     if (pendingSection) {
       var t = document.getElementById(pendingSection); pendingSection = null;
       if (t) setTimeout(function () { t.scrollIntoView({ block: "start" }); }, 30);
     }
+    if (GW.ext) GW.ext.lessonMount(view, id, heads, fromLink || !!pendingScroll);
   }
 
   /* ---------- enhancements: checks, terms, widgets ---------- */
@@ -728,7 +758,10 @@
     if (sc) { pendingScroll = sc.getAttribute("data-scroll"); var here = location.hash.replace(/^#/, "") || "welcome"; if (sc.getAttribute("href") === "#" + here) { e.preventDefault(); doPendingScroll(true); } }
     if (e.target.closest("[data-open-search]")) openSearch();
     var uc = e.target.closest("[data-ucscope]");
-    if (uc) { ucScope = uc.getAttribute("data-ucscope"); save("gw-ucscope", ucScope); renderUseCases(); var g = $('[data-ucscope="' + ucScope + '"]'); if (g) g.focus(); }
+    if (uc) { ucScope = uc.getAttribute("data-ucscope"); save("gw-ucscope", ucScope); $$("[data-ucscope]").forEach(function (b) { b.setAttribute("aria-pressed", String(b === uc)); }); paintUseCases(); }
+    var uf = e.target.closest("[data-ucfit]");
+    if (uf) { ucFit = uf.getAttribute("data-ucfit"); save("gw-ucfit", ucFit); $$("[data-ucfit]").forEach(function (b) { b.setAttribute("aria-pressed", String(b === uf)); }); paintUseCases(); }
+    if (e.target.closest("[data-ucreset]")) { ucFit = "all"; ucQ = ""; save("gw-ucfit", "all"); if (ucScope === "mine") { ucScope = "all"; save("gw-ucscope", "all"); } renderUseCases(); }
     var hs = e.target.closest("[data-homescope]");
     if (hs) { homeScope = hs.getAttribute("data-homescope"); save("gw-homescope", homeScope); renderHome(); var hf = $('[data-homescope="' + homeScope + '"]'); if (hf) hf.focus(); }
     var sc2 = e.target.closest("[data-exscope]");
@@ -747,7 +780,8 @@
     if (t && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openPop(t); }
     if (e.key === "Escape") { closePop(); closeSearch(); $("#rail").classList.remove("open"); }
     if (document.body.classList.contains("bare")) return;
-    if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName))) { e.preventDefault(); openSearch(); }
+    if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName))) { e.preventDefault(); openSearch(); return; }
+    if (GW.ext) GW.ext.key(e);
   });
 
   /* ---------- search ---------- */
@@ -764,6 +798,9 @@
       }
     });
     Object.keys(GW.glossary).forEach(function (k) { index.push({ g: "Terms", kind: "Glossary", title: GW.glossary[k][0], text: GW.glossary[k][1], go: "glossary", term: k }); });
+    (GW.useCases || []).forEach(function (u, i) { index.push({ g: "Use cases", kind: "Use case: " + roleInfo(u.r).name, title: u.t, text: u.d + " " + u.c, go: "usecases", uc: i }); });
+    exercises().forEach(function (x) { index.push({ g: "Exercises", kind: "Exercise in lesson " + x.lesson.num, title: x.title.replace(/<[^>]+>/g, ""), text: x.kind + " " + x.tag, go: x.lesson.id, scroll: "ex-" + x.n }); });
+    (GW.practice || []).forEach(function (p, i) { index.push({ g: "Practice", kind: "You decide: " + roleInfo(p.r).name, title: p.t, text: p.ctx.replace(/<[^>]+>/g, ""), go: "practice/" + (i + 1) }); });
   }
   var selIdx = 0, results = [], resHead = [];
   function openSearch() {
@@ -801,8 +838,8 @@
       var best = hits.filter(function (r) { return r.exact; }).slice(0, 3), rest = hits.filter(function (r) { return best.indexOf(r) < 0; });
       results = [];
       if (best.length) { resHead[0] = "Best match"; best.forEach(function (r) { results.push(r.x); }); }
-      ["Lessons", "Sections", "Terms"].forEach(function (g) {
-        var grp = rest.filter(function (r) { return r.x.g === g; }).slice(0, 5);
+      ["Lessons", "Sections", "Terms", "Use cases", "Exercises", "Practice"].forEach(function (g) {
+        var grp = rest.filter(function (r) { return r.x.g === g; }).slice(0, g === "Lessons" || g === "Sections" ? 5 : 4);
         if (grp.length) { resHead[results.length] = g; grp.forEach(function (r) { results.push(r.x); }); }
       });
     }
@@ -819,17 +856,27 @@
     closeSearch();
     if (r.term) pendingTerm = r.term;
     if (r.sec) pendingSection = r.sec;
+    if (r.scroll) pendingScroll = r.scroll;
+    if (r.uc !== undefined) {
+      // show the card even if it's outside the current filters
+      var u = GW.useCases[r.uc]; ucQ = ""; ucFit = "all";
+      if (roles.indexOf(u.r) < 0) ucScope = "all";
+      pendingScroll = "uc-" + r.uc; pendingFlash = true;
+    }
     if (location.hash === "#" + r.go) route(); else location.hash = r.go;
   }
 
   /* ---------- router ---------- */
-  var pendingSection = null, pendingTerm = null, pendingScroll = null, pendingCode = null;
+  var pendingSection = null, pendingTerm = null, pendingScroll = null, pendingCode = null, pendingFlash = false;
   function doPendingScroll(smooth) {
     if (!pendingScroll) return;
-    var el = document.getElementById(pendingScroll); pendingScroll = null;
-    if (el) el.scrollIntoView({ behavior: smooth === true && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto", block: "start" });
+    var el = document.getElementById(pendingScroll), fl = pendingFlash; pendingScroll = null; pendingFlash = false;
+    if (el) el.scrollIntoView({ behavior: smooth === true && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "auto", block: fl ? "center" : "start" });
+    if (el && fl) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1800); }
   }
-  var inner = function (h) { return byId[h] || h === "glossary" || h === "home" || h === "exercises" || h === "usecases"; };
+  // pages added by extras.js: GW.pages[name] = { render(arg), title(arg), tab, open (no roles needed) }
+  var page = function (h) { var p = GW.pages && GW.pages[h.split(/[\/=]/)[0]]; return p || null; };
+  var inner = function (h) { return byId[h] || h === "glossary" || h === "home" || h === "exercises" || h === "usecases" || !!page(h); };
   function route() {
     closePop(); closeSearch();
     if (document.body.classList.contains("on-landing") && GW.landing) GW.landing.leave();
@@ -843,11 +890,24 @@
       notice = "Progress restored from your link: " + pathLong(roles) + ", " + doneOf(routeFor(roles)) + " of " + routeFor(roles).length + " lessons done.";
       location.replace("#home"); return;
     }
-    var open = h === "welcome" || h === "role" || h === "progress";
+    // a section link: #lesson-id/section-slug
+    var sl = h.indexOf("/");
+    if (sl > 0 && byId[h.slice(0, sl)]) { pendingSection = h.slice(sl + 1); h = h.slice(0, sl); }
+    var pg = page(h), pgArg = pg ? decodeURIComponent(h.slice(h.split(/[\/=]/)[0].length + 1)) : "";
+    var open = h === "welcome" || h === "role" || h === "progress" || (pg && pg.open);
     if (!roles.length && !open) { if (inner(h) && h !== "home") { resumeTo = h; location.replace("#role"); } else location.replace("#welcome"); return; }
     if (h === "") { location.replace("#home"); return; }
-    var title = "Loona", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length);
-    paintTopbar(bare ? "bare" : byId[h] ? "lesson" : "tabs", byId[h] ? "home" : h);
+    var title = "Loona", bare = h === "welcome" || h === "role" || (h === "progress" && !roles.length) || (pg && pg.open && !roles.length);
+    paintTopbar(bare ? "bare" : byId[h] ? "lesson" : "tabs", byId[h] ? "home" : pg ? pg.tab : h);
+    if (pg) {
+      $("#rail").classList.remove("open");
+      var pt = pg.render(pgArg);
+      if (pt === false) return;   // the page redirected
+      window.scrollTo(0, 0); setTimeout(doPendingScroll, 30);
+      document.title = (pg.title ? pg.title(pgArg) : "Loona") + " · Loona";
+      $("#view").focus({ preventScroll: true });
+      return;
+    }
     $("#rail").classList.remove("open");
     if (h === "welcome") { renderWelcome(); title = "Loona · AI for software teams"; }
     else if (h === "progress") { var pc = pendingCode || {}; pendingCode = null; renderProgress(pc.code, pc.err); title = (roles.length ? "Progress" : "Continue with a code") + " · Loona"; }
@@ -909,6 +969,19 @@
   });
   if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener("change", paintTheme);
   paintTheme();
-  route();
+
+  // what extras.js needs from the app
+  GW.app = {
+    $: $, $$: $$, esc: esc, plural: plural, moon: moon, slug: slug, byId: byId, roleInfo: roleInfo, trackOf: trackOf, routeFor: routeFor,
+    coreIds: coreIds, pathLong: pathLong, hours: hours, exercises: exercises, copyText: copyText, openPop: openPop, closePop: closePop,
+    roles: function () { return roles; }, progress: function () { return progress; }, doneOf: doneOf,
+    code: function () { return prettyCode(encodeProgress()); }, decode: decodeProgress, resumeLink: resumeLink,
+    codeLessons: CODE_LESSONS, route: route
+  };
+  // start once every script (extras.js included) has run
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", route); else route();
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () { /* offline support is optional */ }); });
+  }
 
 })();

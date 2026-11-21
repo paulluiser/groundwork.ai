@@ -65,6 +65,7 @@ Dials, from the design-engineering suite:
 - Touch targets are at least 44 by 44 on touch screens.
 - Quotes and ellipses are typographic in rendered copy (a typesetting pass runs on every render).
 
+- Moon phases show progress: a disc that fills from new to full in the progress green as lessons are done, on the course tree, path stages, tracks, team board and practice. It's the brand's signature, so it's used for progress and nowhere else.
 - Verdict marks (stamps and fit labels) share one shape, 6px corners, and keep the shape code: solid confirmed, outlined check it, dashed uncertain. They are the product's signature and appear only where something is being judged.
 
 ## Logo

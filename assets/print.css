@@ -1,0 +1,19 @@
+/* Print: lessons on paper or PDF, light whatever the screen theme, without the app around them.
+   Loaded with media="print", so none of this touches the screen. */
+:root:not(#print), :root[data-theme]:not(#print) {
+  --bg: #FAFAF9; --white: #FFFFFF; --tint: #F3F3F1; --tint-2: #E9E8E5; --line: #DDDCD8; --ink: #111110; --ink-2: #3D3B37; --ink-3: #67645E;
+  --black: #F3F3F1; --on-black: #111110; --on-black-2: #3D3B37; --on-black-soft: #3D3B37; --on-black-line: #DDDCD8; --accent: #17734D; --accent-ink: #fff;
+}
+:is(pre.code, .log, .codebox, .draft.prompt, .activity-h, .l-close, .popover):not(#print) {
+  --black: #F3F3F1; --on-black: #111110; --on-black-2: #3D3B37; --on-black-soft: #3D3B37; --on-black-code: #111110; --on-black-line: #DDDCD8;
+}
+.topbar, .rail, .lsn-side, .toc-m, .lsn-steps, .lesson-foot, .copy-btn, .h-link, .resume-at, .skip, .planet-canvas, .role-ex-h a, .search, .popover, .pr-call, .pr-again { display: none !important; }
+body { background: var(--bg) !important; color: var(--ink); }
+.shell, .view { display: block !important; margin: 0 !important; padding: 0 !important; max-width: none !important; }
+.lesson { max-width: none; }
+a { color: inherit; }
+h2, h3 { break-after: avoid; }
+.activity, .draft, .key, .aside, table, pre.code, .check { break-inside: avoid; }
+pre.code { white-space: pre-wrap; }
+.sources a::after { content: " (" attr(href) ")"; font-size: 11px; overflow-wrap: anywhere; }
+@page { margin: 16mm 14mm; }

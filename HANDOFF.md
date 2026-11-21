@@ -1,6 +1,6 @@
 # Loona: project handoff
 
-*Last updated 19 November 2026 (all lessons and use cases written; UI review pass done).*
+*Last updated 20 November 2026 (practice, review, team plans, certificates, offline support and lesson helpers added).*
 
 Loona is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
 
@@ -59,10 +59,15 @@ The visual rules live in the design system (a private Claude artifact owned by t
 ```
 index.html              Full page: top bar, tabs, rail, <main id="view">, script tags in load order
 vercel.json             Headers for Vercel
+manifest.webmanifest    Install details for the offline app (name, colours, icons in assets/brand/)
+sw.js                   Service worker: caches the whole course for offline reading (see Offline below)
 assets/
   style.css             The whole design system. Hallmark stamp and waivers at the top; tokens on :root
   course.js             Manifest: GW.parts, GW.lessons (45), GW.roles (12), GW.glossary
-  app.js                Routing, path logic, progress codes, all pages (landing, picker, tabs, lessons), search
+  app.js                Routing, path logic, progress codes, all pages (landing, picker, tabs, lessons), search. Exposes GW.app for extras.js
+  practice.js           GW.practice: the 12 "You decide" drafts, one per role, with the reviewer's call
+  extras.js             Practice, term review, team plans, certificates, QR code, keyboard shortcuts, lesson helpers (registers GW.pages and GW.ext)
+  print.css             Print styles for lessons, loaded with media="print"
   role-examples.js      GW.roleEx: per-role examples shown in the core lessons
   use-cases.js          GW.useCases: currently empty (the tab is hidden while it's empty)
   widgets*.js           Interactive exercises. widgets-e.js holds "decide" and merges GW.trackCfg into GW.cfg
@@ -117,6 +122,7 @@ DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front
 ### Storage and progress codes
 - **Storage:** everything lives in `localStorage`, with no accounts and no server.
   - `gw-roles` holds the chosen roles, `gw-progress` the completed lessons, `gw-pick` the role picker's draft, and `gw-still` the motion setting.
+  - Added 20 November: `gw-practice` (practice calls and notes), `gw-review` (term boxes and due days), `gw-revscope`, `gw-team` (plan, pasted codes, your name), `gw-name` (certificate name), `gw-read` (where you stopped in each lesson) and `gw-ucfit`. None of these travel in a progress code.
   - `gw-role` and `gw-session` are retired keys that the app clears.
 - **Progress code v2:** 75 bits, written as 15 characters in Crockford base32 and shown as `GW-XXXXX-XXXXX-XXXXX`.
   - Layout: version (4 bits), three role slots (4 bits each, 0 = empty), 51 lesson slots (1 bit each), then a CRC-8 check (polynomial 0x07).
@@ -136,7 +142,28 @@ Each lesson contains `<div class="activity">` blocks with a `data-w` widget and 
 
 **Exercises tab:** the app finds every `.activity` block itself. The tab shows each exercise's tag, title and widget type, and links to `#lesson` with `data-scroll="ex-N"`.
 
+### Practice, review, teams and certificates (extras.js)
+- **Pages:** `extras.js` registers routes in `GW.pages` (`#practice`, `#practice/N`, `#review`, `#team`, `#team=<link data>`, `#certificate/<track>`). `route()` in `app.js` checks `GW.pages` before its own pages. Each entry has `render(arg)`, `title(arg)`, the tab to highlight, and `open: true` if it works without roles (only the team page).
+- **You decide (`#practice`):** the learner picks Ship it / Ship after edits / Don't ship and writes a note (12 characters minimum) before the reviewer's answer opens. Drafts live in `assets/practice.js`, written for practice with no real people or figures. To add one, append to the list and never reorder it: results are stored by position.
+- **Review (`#review`):** Leitner boxes over the glossary. By default only terms whose lesson is completed. Up to 15 due cards plus 5 new ones a visit. Box intervals are 1, 2, 4, 8 and 16 days.
+- **Team plans (`#team`):** a lead picks lesson groups (core, any role track, capstone) and shares a link. The link carries only the team name and lesson slots from `CODE_LESSONS`, base64url-encoded. The board is built from progress codes pasted as `Name: LN-…` lines and is stored only in that browser.
+- **Certificates:** offered on the Progress page for the core lessons, each of your role tracks and your whole path once complete. Drawn on a canvas and downloaded as a PNG. They say plainly that they are self-reported.
+- **QR code:** the Progress page loads `qrcode-generator@1.4.4` from jsDelivr when the QR panel is opened, and encodes the resume link.
+
+### Lesson helpers
+- Copy buttons on `pre.code` and `.draft.prompt` blocks.
+- Every section heading gets a link button. Section links look like `#<lesson-id>/<heading-id>` and open the lesson at that section.
+- "Continue from …" appears under the lesson meta when the reader left an unfinished lesson part-way (`gw-read` keeps the furthest section).
+- Glossary terms open on hover for mouse users, after 350ms. Click and keyboard work as before.
+- Keyboard: `/` or ⌘K search, `j` and `k` next and previous lesson on your path, `?` lists the shortcuts.
+
+### Offline (sw.js)
+- On install, the service worker reads `index.html` and caches every `assets/` and `content/` file it references, so new lesson files are picked up without editing `sw.js`. The 3.3 MB moon model is cached only once the landing page has loaded it.
+- Pages and files come from the network first (always revalidated), with the cache as the fallback offline. Fonts and CDN libraries are served from the cache and refreshed in the background.
+- It registers only on HTTPS or localhost. To force every visitor onto a clean cache, change `CACHE` in `sw.js`.
+
 ### Use cases
+- **Finder:** filter by role scope, fit level and free text. Search also finds use cases and opens the card.
 - **Data:** `GW.useCases` holds entries of the form `{ r: roleId, t: title, fit: "good" | "care" | "human", d: whatAIDoes, c: whatToCheck, l: lessonId }`.
 - **Where it shows:** `renderUseCases()` groups them by role, with your roles first, and offers a choice between "Your roles" and "All roles".
 - **Tab visibility:** the tab is hidden until the array has content.
