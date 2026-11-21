@@ -30,9 +30,10 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 - **Structure:** 45 lessons in four parts. Lesson numbers are fixed catalogue identifiers.
   - How it works: lessons 1–4.
   - Working with it: lessons 5–8.
-  - In your role: a three-lesson track for each of twelve roles, lessons 9–44.
+  - In your role: twelve three-lesson tracks, lessons 9–44, shared by 33 roles (several roles use the same track until specialist lessons exist).
   - Capstone: lesson 45, bringing AI into a team.
 - **Roles:**
+  - 33 tech roles in six families, chosen from published job-demand data (BLS, CompTIA, LinkedIn, Robert Half), plus three team roles.
   - Up to three per learner. The first pick is the main role: it gets its full three-lesson track and sets the core-lesson examples.
   - Each other role adds the first lesson of its track.
   - General is exclusive and gives the core lessons plus the capstone.

@@ -2258,3 +2258,19 @@ body.on-landing .view { padding: 0; }
 
 /* Geist Mono is wide: the phone tab bar's labels get a smaller size and tighter tracking so five fit */
 @media (max-width: 760px) { .tabs a { font-size: 10px; letter-spacing: -.04em; } .tabs a span { white-space: nowrap; } }
+
+/* ---------- role picker: 33 roles in six families, with a filter ---------- */
+.pick-find { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; margin: 20px 0 4px; }
+.pick-find .pick-h { margin: 0; }
+.pick-find .w { flex: 0 1 320px; }
+.pick-find input { width: 100%; font-family: var(--font-body); font-size: 15px; }
+.pick-fam { margin-top: 20px; }
+.pick-fh { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--ink-2); letter-spacing: -.01em; }
+.pick-fh span { font-size: 12.5px; font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.picker .role-card .rc-t { font-size: 12px; line-height: 1.3; color: var(--ink-3); }
+.picker .role-card[aria-checked="true"] .rc-t { color: var(--ink-2); }
+.pick-none { margin-top: 16px; }
+/* with 33 roles, cards show the role and its track; the path panel gives the detail */
+.pick-fam .role-card .rc-s { display: none !important; }
+.pick-fam .role-card { min-height: 0; }
+@media (max-width: 760px) { .pick-fam .role-grid.pick .role-card b { font-size: 16px; line-height: 1.25; } }

@@ -24,11 +24,15 @@
   }
   // General or nothing: core + capstone. Otherwise: core + the main role's full track (three lessons)
   // + the first lesson of each other role (or, for a single role, of its neighbour) + capstone.
-  function trackOf(r) { return GW.lessons.filter(function (l) { return l.rid === r; }).map(function (l) { return l.id; }); }
+  // A role takes one of twelve shared tracks; a track id is also the id of its first lesson.
+  function trackIdOf(r) { var x = roleInfo(r); return x && x.track ? x.track : r; }
+  function trackName(t) { var x = GW.tracks.filter(function (k) { return k.id === t; })[0]; return x ? x.name : ""; }
+  function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+  function trackOf(r) { var t = trackIdOf(r); return GW.lessons.filter(function (l) { return l.rid === t; }).map(function (l) { return l.id; }); }
   function routeFor(list) {
     list = cleanRoles(list);
     if (!list.length || list[0] === "general") return coreIds.concat(["team-adoption"]);
-    var extra = trackOf(list[0]).concat(list.length === 1 ? [roleInfo(list[0]).also] : list.slice(1));
+    var extra = trackOf(list[0]).concat(list.length === 1 ? [roleInfo(list[0]).also] : list.slice(1).map(trackIdOf));
     extra = extra.filter(function (id, i) { return extra.indexOf(id) === i; }).sort(function (a, b) { return lessonPos[a] - lessonPos[b]; });
     return coreIds.concat(extra).concat(["team-adoption"]);
   }
@@ -45,8 +49,8 @@
   function tagFor(id, list) {
     if (!list.length || list[0] === "general") return "";
     var r = byId[id] && byId[id].rid; if (!r) return "";
-    if (r === list[0]) return list.length > 1 ? "Main role" : "Your role";
-    if (list.indexOf(r) > 0) return "Your role";
+    if (r === trackIdOf(list[0])) return list.length > 1 ? "Main role" : "Your role";
+    if (list.slice(1).map(trackIdOf).indexOf(r) > -1) return "Your role";
     if (list.length === 1 && r === roleInfo(list[0]).also) return "Neighbouring role";
     return "";
   }
@@ -136,7 +140,7 @@
     { r: "engineering", draft: "Return <code>res.data.items</code> from the fetch.", s: "ok", st: "Tests pass", note: "Ran it against a real response, including an empty list. The claim held up, so it ships." },
     { r: "data-analytics", draft: "October monthly active users: 1,284,550.", s: "bad", st: "Wrong grain", note: "The query counted events, not people. One row per user changes the answer completely." }
   ];
-  // Short, parallel lines for what each role practises.
+  // Short, parallel lines for what each track practises (roles show their track's line).
   var ROLE_SHORT = {
     product: "Discovery, specs and shipping AI features",
     design: "Research, prototypes and AI feature design",
@@ -154,13 +158,13 @@
   };
   function plural(n, one, many) { return n + " " + (n === 1 ? one : (many || one + "s")); }
   function heroCard(k) {
-    var c = HERO[k], info = roleInfo(c.r);
+    var c = HERO[k], info = { name: trackName(c.r) };
     return '<div class="hx-draft"><span class="hx-k">AI draft (' + esc(info.name) + ')</span><p>' + c.draft + '</p></div><div class="hx-check"><span class="hx-k">Human check</span><span class="stamp ' + c.s + '">' + esc(c.st) + "</span><p>" + esc(c.note) + "</p></div>";
   }
   function renderWelcome() {
     var ready = roles.length > 0;
     var go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
-    var first = GW.lessons[0], nEx = exercises().length, nTracks = GW.roles.length;
+    var first = GW.lessons[0], nEx = exercises().length, nRoles = GW.roles.length;
     var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" stroke-width="2"/><path d="m12 5 7 7-7 7" stroke-width="2"/></svg>';
     var ICON = {
       workflow: '<rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="15" y="15" width="6" height="6" rx="1.5"/><path d="M6 9v3a3 3 0 0 0 3 3h3"/>',
@@ -179,7 +183,7 @@
     h += '<h1 class="lx-title"' + rv(60) + '><span class="sr-only">Learn the basics of AI and its use cases for every role on a software team</span><span aria-hidden="true">Learn the basics of AI and its use cases for<br><span class="lx-role-line"><span class="lx-role" id="lx-role">' + HERO_ROLES[0] + '</span><span class="lx-cursor"></span></span></span></h1>';
     h += '<p class="lx-sub"' + rv(180) + '>A free course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>';
     h += '<div class="lx-actions"' + rv(300) + '><a class="lx-btn lx-primary" href="' + go + '">' + goTxt + ARROW + '</a><a class="lx-btn lx-outline" href="#progress">I have a progress code</a></div>';
-    h += '<p class="lx-meta"' + rv(380) + '>' + GW.lessons.length + " lessons · " + nTracks + " role tracks · no account</p>";
+    h += '<p class="lx-meta"' + rv(380) + '>' + GW.lessons.length + " lessons · " + nRoles + " roles · no account</p>";
     h += "</div></header>";
 
     // 2 · features: what the course covers
@@ -201,8 +205,8 @@
     h += '<p' + rv(180) + '>Every lesson works from cases like this one: an AI draft that reads well, and the human check that decides whether it ships. Switch roles to see the same habit in different work.</p>';
     h += '<a class="lx-btn lx-primary"' + rv(270) + ' href="' + go + '">' + (ready ? "Continue the course" : "Choose your roles") + ARROW + "</a></div>";
     h += '<figure class="lx-dash hero-ex"' + rv(160) + ' aria-label="An AI draft and the human check that follows it"><div class="lx-dash-top"><b>Worked example</b><span class="lx-live"><i aria-hidden="true"></i>Human check</span></div><div class="hx-card">' + heroCard(0) + "</div>";
-    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(roleInfo(c.r).name) + "</button>"; }).join("") + "</span></figcaption></figure></div>";
-    var stats = [[GW.lessons.length, "Short lessons, 20 to 35 minutes"], [nTracks, "Role tracks, product to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
+    h += '<figcaption><span>See it for</span><span class="hx-roles" role="group" aria-label="Show the example for">' + HERO.map(function (c, k) { return '<button type="button" class="rx-btn" data-hx="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(trackName(c.r)) + "</button>"; }).join("") + "</span></figcaption></figure></div>";
+    var stats = [[GW.lessons.length, "Short lessons, 20 to 35 minutes"], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
     h += '<div class="lx-stats">' + stats.map(function (s, i) { return '<div class="lx-stat"' + rv(i * 80) + '><div class="lx-stat-v">' + s[0] + '</div><div class="lx-stat-l">' + s[1] + "</div></div>"; }).join("") + "</div></section>";
 
     // 4 · call to action and footer
@@ -221,7 +225,10 @@
   }
   // staggered fade-up: the hero starts at once, the rest as it scrolls into view (delays come from --rd)
   // the roles the hero cycles through, as people rather than role names, so the sentence reads naturally
-  var HERO_ROLES = ["engineers", "designers", "product managers", "QA testers", "security teams", "data analysts", "technical writers", "delivery leads", "project managers", "engineering managers", "operations teams", "support teams"];
+  var HERO_ROLES = ["software engineers", "designers", "data scientists", "DevOps engineers", "product managers", "AI engineers", "QA testers", "security analysts",
+    "frontend developers", "cloud engineers", "data analysts", "solutions architects", "mobile developers", "SREs", "ML engineers", "support specialists",
+    "systems engineers", "data engineers", "security engineers", "technical writers", "automation engineers", "network architects", "AI researchers", "project managers",
+    "sysadmins", "database admins", "SOC analysts", "AI strategists", "systems analysts", "delivery leads", "data annotators", "data center techs", "engineering managers"];
   var roleTimer = null;
   function startRoles() {
     clearInterval(roleTimer);
@@ -269,10 +276,13 @@
      v2 layout (75 bits, 15 characters): version (4) · three role slots (4 each, 0 = empty) · 51 lesson slots (1 bit each) · CRC-8 (8).
      v1 codes (9 characters, the first 21 lessons) still decode.
      Both lists are append-only: never reorder or remove an entry, or old codes decode wrongly. Lesson slots 46–51 are spare. */
-  var CODE_V = 2, CODE_SLOTS = 51;
+  var CODE_V = 2, CODE_SLOTS = 51, V3_SLOTS = 90;
   var CODE_LESSONS = ["how-models-work", "context", "failure-modes", "choosing-models", "asking-well", "checking-work", "tools-agents", "data-security", "product", "design", "engineering", "qa", "security", "data-analytics", "technical-writing", "delivery", "project-management", "engineering-management", "operations", "customer-support", "team-adoption",
     "product-discovery", "product-ai-features", "design-research", "design-ai-ux", "engineering-agents", "engineering-review", "qa-automation", "qa-ai-features", "security-threat-models", "security-detection", "data-analysis", "data-quality", "docs-for-ai", "docs-maintenance", "delivery-flow", "delivery-rituals", "pm-planning", "pm-vendors", "em-measuring", "em-people", "ops-iac", "ops-llm", "support-knowledge", "support-assistant"];
-  var CODE_ROLES = ["general", "product", "design", "engineering", "qa", "security", "data-analytics", "technical-writing", "delivery", "project-management", "engineering-management", "operations", "customer-support"];
+  var CODE_ROLES = ["general", "product", "design", "engineering", "qa", "security", "data-analytics", "technical-writing", "delivery", "project-management", "engineering-management", "operations", "customer-support",
+    "web-frontend", "mobile", "test-automation", "systems-engineering", "systems-analysis", "sysadmin", "network-architecture", "database-admin", "cloud", "sre", "data-center",
+    "cybersecurity-engineering", "soc", "data-science", "data-engineering", "ai-engineering", "ml-engineering", "ai-research", "ai-strategy", "data-annotation", "solutions-architecture"];
+  var V2_ROLES = 13;   // version 2 codes hold only the first 13 entries (4 bits per role)
   var B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";   // Crockford: no I, L, O or U
   function bitsOf(n, w) { var s = n.toString(2); while (s.length < w) s = "0" + s; return s; }
   function crc8(bits) {
@@ -280,29 +290,37 @@
     for (var i = 0; i < bits.length; i++) { var fb = ((c >> 7) & 1) ^ (bits[i] === "1" ? 1 : 0); c = (c << 1) & 255; if (fb) c ^= 7; }
     return c;
   }
+  // Version 2 (15 characters) while every role fits it; version 3 (24 characters: 6 bits per role, 90 lesson slots) otherwise.
   function encodeProgress() {
-    var b = bitsOf(CODE_V, 4);
-    for (var i = 0; i < 3; i++) b += bitsOf(roles[i] ? CODE_ROLES.indexOf(roles[i]) + 1 : 0, 4);
-    for (var n = 0; n < CODE_SLOTS; n++) b += CODE_LESSONS[n] && progress[CODE_LESSONS[n]] ? "1" : "0";
+    var v3 = roles.some(function (r) { return CODE_ROLES.indexOf(r) >= V2_ROLES; }) || CODE_LESSONS.slice(CODE_SLOTS).some(function (id) { return progress[id]; });
+    var rb = v3 ? 6 : 4, slots = v3 ? V3_SLOTS : CODE_SLOTS;
+    var b = bitsOf(v3 ? 3 : CODE_V, 4);
+    for (var i = 0; i < 3; i++) b += bitsOf(roles[i] ? CODE_ROLES.indexOf(roles[i]) + 1 : 0, rb);
+    for (var n = 0; n < slots; n++) b += CODE_LESSONS[n] && progress[CODE_LESSONS[n]] ? "1" : "0";
     b += bitsOf(crc8(b), 8);
     var out = "";
     for (var j = 0; j < b.length; j += 5) out += B32[parseInt(b.slice(j, j + 5), 2)];
     return out;
   }
-  function prettyCode(c) { return c.length === 9 ? "KN-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6) : "KN-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10); }
+  function prettyCode(c) {
+    if (c.length === 9) return "KN-" + c.slice(0, 3) + "-" + c.slice(3, 6) + "-" + c.slice(6);
+    if (c.length === 24) return "KN-" + c.match(/.{6}/g).join("-");
+    return "KN-" + c.slice(0, 5) + "-" + c.slice(5, 10) + "-" + c.slice(10);
+  }
   function decodeProgress(raw) {
     var s = String(raw || "").toUpperCase().replace(/O/g, "0").replace(/[IL]/g, "1").replace(/[^0-9A-Z]/g, "");
-    if ((s.length === 11 || s.length === 17) && /^(KN|1N|GW)/.test(s)) s = s.slice(2);   // KN- now; LN- (read as 1N) and GW- from earlier names
-    if (s.length !== 9 && s.length !== 15) return { error: "A progress code has 15 letters and numbers after KN, like KN-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
+    if ((s.length === 11 || s.length === 17 || s.length === 26) && /^(KN|1N|GW)/.test(s)) s = s.slice(2);   // KN- now; LN- (read as 1N) and GW- from earlier names
+    if (s.length !== 9 && s.length !== 15 && s.length !== 24) return { error: "A progress code has 15 or 24 letters and numbers after KN, like KN-7K2Q9-M4TAB-8C1DE. Older nine-character codes work too." };
     var b = "";
     for (var i = 0; i < s.length; i++) { var v = B32.indexOf(s[i]); if (v < 0) return { error: "That code has a character that isn't used in progress codes. Check it and try again." }; b += bitsOf(v, 5); }
-    var v1 = s.length === 9, body = v1 ? 37 : 67;
+    var ver = s.length === 9 ? 1 : s.length === 15 ? 2 : 3, rb = ver === 3 ? 6 : 4, slots = ver === 1 ? 21 : ver === 2 ? CODE_SLOTS : V3_SLOTS;
+    var body = 4 + 3 * rb + slots;
     if (parseInt(b.slice(body, body + 8), 2) !== crc8(b.slice(0, body))) return { error: "That code doesn't check out. A character may have been mistyped." };
-    if (parseInt(b.slice(0, 4), 2) !== (v1 ? 1 : 2)) return { error: "That code comes from a different version of the course." };
+    if (parseInt(b.slice(0, 4), 2) !== ver) return { error: "That code comes from a different version of the course." };
     var rs = [];
-    for (var k = 0; k < 3; k++) { var r = parseInt(b.slice(4 + k * 4, 8 + k * 4), 2); if (r > 0 && CODE_ROLES[r - 1]) rs.push(CODE_ROLES[r - 1]); }
-    var done = {};
-    CODE_LESSONS.slice(0, v1 ? 21 : CODE_SLOTS).forEach(function (id, n) { if (b[16 + n] === "1") done[id] = true; });
+    for (var k = 0; k < 3; k++) { var r = parseInt(b.slice(4 + k * rb, 4 + (k + 1) * rb), 2); if (r > 0 && CODE_ROLES[r - 1]) rs.push(CODE_ROLES[r - 1]); }
+    var done = {}, lb = 4 + 3 * rb;
+    CODE_LESSONS.slice(0, slots).forEach(function (id, n) { if (b[lb + n] === "1") done[id] = true; });
     return { roles: cleanRoles(rs), progress: done };
   }
   // Restoring switches to the code's roles and keeps every lesson completed in either place.
@@ -381,7 +399,8 @@
       else { picked = picked.filter(function (x) { return x !== "general"; }); if (picked.length < MAXR) picked.push(pick); }
     }
     function card(r) {
-      return '<button type="button" class="role-card' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '"><span class="rc-top"><b>' + esc(r.name) + '</b><span class="rc-badge"></span></span><span class="rc-s">' + esc(ROLE_SHORT[r.id]) + "</span><em></em></button>";
+      var t = r === GENERAL ? "general" : trackIdOf(r.id);
+      return '<button type="button" class="role-card' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '" data-find="' + esc((r.name + " " + trackName(t) + " " + ROLE_SHORT[t]).toLowerCase()) + '"><span class="rc-top"><b>' + esc(r.name) + '</b><span class="rc-badge"></span></span>' + (r === GENERAL ? "" : '<span class="rc-t">' + esc(trackName(t)) + " track</span>") + '<span class="rc-s">' + esc(ROLE_SHORT[t]) + "</span><em></em></button>";
     }
     var h = '<div class="picker">';
     h += '<p class="pick-top"><a class="back" href="' + (first ? "#welcome" : "#home") + '">Back</a></p>';
@@ -389,7 +408,12 @@
     h += '<p class="lede">Pick up to three. Your first pick is your main role and adds its full track.</p>';
     h += '<div class="pick-layout"><div class="pick-main" role="group" aria-label="Roles, choose up to three">';
     h += '<div class="pick-gen">' + card(GENERAL) + '<p>Not sure yet? Start with General.</p></div>';
-    h += '<h2 class="pick-h">Or pick your roles</h2><div class="role-grid pick">' + GW.roles.map(card).join("") + "</div></div>";
+    h += '<div class="pick-find"><h2 class="pick-h">Or pick your roles</h2><div class="w"><label class="sr-only" for="pick-q">Find a role</label><input type="search" id="pick-q" placeholder="Find a role, e.g. data, cloud, security" autocomplete="off"></div></div>';
+    GW.families.forEach(function (f) {
+      var rs = GW.roles.filter(function (r) { return r.family === f.id; });
+      h += '<section class="pick-fam" data-fam="' + f.id + '"><h3 class="pick-fh">' + esc(f.name) + ' <span>' + rs.length + '</span></h3><div class="role-grid pick">' + rs.map(card).join("") + "</div></section>";
+    });
+    h += '<p class="gloss-empty pick-none" hidden>No roles match. Try a shorter word, or pick General.</p></div>';
     h += '<aside class="pick-side" aria-labelledby="ps-h"><h2 id="ps-h" tabindex="-1">Your path</h2><div id="pick-chosen"></div><div id="pick-path"></div></aside></div>';
     h += '<div class="pick-bar"><p id="pick-sum" aria-live="polite"></p><a class="btn small ghost pick-review" href="#ps-h">Review<span class="rv-long"> your path</span></a><button class="btn small pill dark" id="pick-go"></button></div></div>';
     var view = $("#view"); view.innerHTML = h;
@@ -400,7 +424,7 @@
         var id = b.getAttribute("data-r"), i = picked.indexOf(id), n = id === "general" ? 0 : trackOf(id).length;
         b.setAttribute("aria-checked", String(i > -1));
         $(".rc-badge", b).textContent = i < 0 ? "" : gen ? "Selected" : i === 0 ? "Main" : "Added";
-        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? "Adds its first lesson" : "";
+        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? (trackIdOf(id) === trackIdOf(picked[0]) ? "Shares your main track" : "Adds its first lesson") : "";
       });
       var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view), go = $("#pick-go", view);
       if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Nothing chosen yet. Pick the roles closest to your work.</p>';
@@ -411,12 +435,12 @@
       }).join("") + "</ol>";
       if (picked.length) {
         var ids = routeFor(picked), extra = ids.slice(coreLast, -1), main = roleInfo(picked[0]);
-        var track = gen ? [] : extra.filter(function (id) { return byId[id].rid === picked[0]; }), also = extra.filter(function (id) { return track.indexOf(id) < 0; });
+        var track = gen ? [] : extra.filter(function (id) { return byId[id].rid === trackIdOf(picked[0]); }), also = extra.filter(function (id) { return track.indexOf(id) < 0; });
         var p = '<ul class="ps-route"><li><b>' + plural(coreLast, "core lesson") + "</b><span>How models work and how to work with them, for everyone</span></li>";
-        if (track.length) p += "<li><b>" + esc(main.name) + " track: " + plural(track.length, "lesson") + "</b><span>" + track.map(function (id) { return esc(byId[id].title); }).join(" · ") + "</span></li>";
+        if (track.length) p += "<li><b>" + esc(trackName(trackIdOf(main.id))) + " track: " + plural(track.length, "lesson") + "</b><span>" + track.map(function (id) { return esc(byId[id].title); }).join(" · ") + "</span></li>";
         if (also.length) p += "<li><b>" + (picked.length === 1 ? "Neighbouring role: " : "Your other roles: ") + plural(also.length, "lesson") + "</b><span>" + also.map(function (id) { return esc(byId[id].role + ": " + byId[id].title); }).join(" · ") + "</span></li>";
         p += "<li><b>Capstone: 1 lesson</b><span>" + esc(byId["team-adoption"].title) + "</span></li></ul>";
-        p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[main.id] + "</p></div>";
+        p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[gen ? "general" : trackIdOf(main.id)] + "</p></div>";
         pathBox.innerHTML = p;
         sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + "</span>";
       } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role"; }
@@ -426,6 +450,15 @@
     }
     paint();
 
+    $("#pick-q", view).addEventListener("input", function (e) {
+      var q = e.target.value.toLowerCase().trim(), any = false;
+      $$(".pick-fam", view).forEach(function (f) {
+        var shown = 0;
+        $$(".role-card", f).forEach(function (c) { var hit = !q || c.getAttribute("data-find").indexOf(q) > -1; c.hidden = !hit; if (hit) shown++; });
+        f.hidden = !shown; if (shown) any = true;
+      });
+      $(".pick-none", view).hidden = any;
+    });
     $(".pick-main", view).addEventListener("click", function (e) {
       var b = e.target.closest(".role-card"); if (!b) return;
       var id = b.getAttribute("data-r"), i = picked.indexOf(id); note = "";
@@ -476,11 +509,11 @@
     h += '<div class="home-views"><div class="seg" role="group" aria-label="Which lessons to show"><button type="button" data-homescope="path" aria-pressed="' + (homeScope === "path") + '">Your path (' + path.length + ')</button><button type="button" data-homescope="all" aria-pressed="' + (homeScope === "all") + '">Full library (' + GW.lessons.length + ")</button></div>" + '<p class="dash-links"><a class="linkish" href="#role">Change roles</a><button type="button" class="linkish" data-open-search>Search lessons and terms</button></p></div>';
 
     if (homeScope === "path") {
-      var track = gen ? [] : path.filter(function (id) { return byId[id].rid === roles[0]; });
+      var track = gen ? [] : path.filter(function (id) { return byId[id].rid === trackIdOf(roles[0]); });
       var also = path.slice(coreLast, -1).filter(function (id) { return track.indexOf(id) < 0; });
       var stages = [
         { h: "Core lessons", p: "For everyone: how models work, and how to work with them.", ids: path.slice(0, coreLast) },
-        { h: esc(main.name) + " track", p: "Your main role's lessons, in order.", ids: track },
+        { h: esc(trackName(trackIdOf(main.id))) + " track", p: main.track && main.track !== main.id ? "The track your main role uses, in order." : "Your main role's lessons, in order.", ids: track },
         { h: "Also recommended", p: roles.length === 1 ? esc(main.why) : "The first lesson for each of your other roles.", ids: also },
         { h: "Capstone", p: "Bring AI into a team deliberately.", ids: ["team-adoption"] }
       ];
@@ -557,19 +590,19 @@
     $("#uc-q").addEventListener("input", function (e) { ucQ = e.target.value; paintUseCases(); });
   }
   function paintUseCases() {
-    var gen = !roles.length || roles[0] === "general", mine = gen ? [] : roles.slice();
+    var gen = !roles.length || roles[0] === "general", mine = gen ? [] : uniq(roles.map(trackIdOf));
     var scope = gen ? "all" : ucScope;
-    var order = scope === "mine" ? mine : mine.concat(GW.roles.map(function (r) { return r.id; }).filter(function (r) { return mine.indexOf(r) < 0; }));
+    var order = scope === "mine" ? mine : mine.concat(GW.tracks.map(function (t) { return t.id; }).filter(function (r) { return mine.indexOf(r) < 0; }));
     var list = GW.useCases || [], words = ucQ.toLowerCase().trim().split(/\s+/).filter(Boolean), count = 0, nRoles = 0, body = "";
     var hit = function (u) {
       if (ucFit !== "all" && u.fit !== ucFit) return false;
-      var hay = (u.t + " " + u.d + " " + u.c + " " + roleInfo(u.r).name).toLowerCase();
+      var hay = (u.t + " " + u.d + " " + u.c + " " + trackName(u.r)).toLowerCase();
       return words.every(function (w) { return hay.indexOf(w) > -1; });
     };
     order.forEach(function (r) {
       var items = list.filter(function (u) { return u.r === r && hit(u); }); if (!items.length) return;
       count += items.length; nRoles += 1;
-      body += '<section class="uc-group" aria-labelledby="ucg-' + r + '"><h2 class="ex-l" id="ucg-' + r + '"><span>' + trackSpan(r) + "</span>" + esc(roleInfo(r).name) + '</h2><div class="uc-grid">';
+      body += '<section class="uc-group" aria-labelledby="ucg-' + r + '"><h2 class="ex-l" id="ucg-' + r + '"><span>' + trackSpan(r) + "</span>" + esc(trackName(r)) + '</h2><div class="uc-grid">';
       items.forEach(function (u) {
         var f = FIT[u.fit], l = byId[u.l];
         body += '<article class="uc-card" id="uc-' + list.indexOf(u) + '"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
@@ -618,14 +651,14 @@
   function slug(t) { return t.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48); }
   function roleExample(id) {
     var set = GW.roleEx && GW.roleEx[id]; if (!set) return "";
-    var list = roles.filter(function (r) { return r !== "general" && set[r]; });
+    var seen = [], list = roles.filter(function (r) { var t = trackIdOf(r); if (r === "general" || !set[t] || seen.indexOf(t) > -1) return false; seen.push(t); return true; });
     if (list.length < 2) {
       var info = list.length ? roleInfo(list[0]) : GENERAL, gen = info === GENERAL;
-      return '<aside class="role-ex" aria-label="Example for your role"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "In your role") + "</span><b>" + (gen ? "For any role" : esc(info.name)) + '</b><a href="#role">Change roles</a></div><p>' + (gen ? set.general : set[info.id]) + "</p></aside>";
+      return '<aside class="role-ex" aria-label="Example for your role"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "In your role") + "</span><b>" + (gen ? "For any role" : esc(info.name)) + '</b><a href="#role">Change roles</a></div><p>' + (gen ? set.general : set[trackIdOf(info.id)]) + "</p></aside>";
     }
     return '<aside class="role-ex" aria-label="Examples for your roles"><div class="role-ex-h"><span class="tag">In your roles</span><span class="rx-tabs" role="group" aria-label="Show the example for">' + list.map(function (r, i) {
       return '<button type="button" class="rx-btn" data-rx="' + r + '" aria-pressed="' + (i === 0) + '">' + esc(roleInfo(r).name) + "</button>";
-    }).join("") + '</span><a href="#role">Change roles</a></div>' + list.map(function (r, i) { return '<p data-rx-p="' + r + '"' + (i ? " hidden" : "") + ">" + set[r] + "</p>"; }).join("") + "</aside>";
+    }).join("") + '</span><a href="#role">Change roles</a></div>' + list.map(function (r, i) { return '<p data-rx-p="' + r + '"' + (i ? " hidden" : "") + ">" + set[trackIdOf(r)] + "</p>"; }).join("") + "</aside>";
   }
   function renderLesson(id) {
     var l = byId[id], c = GW.content[id], path = routeFor(roles), onPath = path.indexOf(id) > -1;
@@ -817,9 +850,9 @@
       }
     });
     Object.keys(GW.glossary).forEach(function (k) { index.push({ g: "Terms", kind: "Glossary", title: GW.glossary[k][0], text: GW.glossary[k][1], go: "glossary", term: k }); });
-    (GW.useCases || []).forEach(function (u, i) { index.push({ g: "Use cases", kind: "Use case: " + roleInfo(u.r).name, title: u.t, text: u.d + " " + u.c, go: "usecases", uc: i }); });
+    (GW.useCases || []).forEach(function (u, i) { index.push({ g: "Use cases", kind: "Use case: " + trackName(u.r), title: u.t, text: u.d + " " + u.c, go: "usecases", uc: i }); });
     exercises().forEach(function (x) { index.push({ g: "Exercises", kind: "Exercise in lesson " + x.lesson.num, title: x.title.replace(/<[^>]+>/g, ""), text: x.kind + " " + x.tag, go: x.lesson.id, scroll: "ex-" + x.n }); });
-    (GW.practice || []).forEach(function (p, i) { index.push({ g: "Practice", kind: "You decide: " + roleInfo(p.r).name, title: p.t, text: p.ctx.replace(/<[^>]+>/g, ""), go: "practice/" + (i + 1) }); });
+    (GW.practice || []).forEach(function (p, i) { index.push({ g: "Practice", kind: "You decide: " + trackName(p.r), title: p.t, text: p.ctx.replace(/<[^>]+>/g, ""), go: "practice/" + (i + 1) }); });
   }
   var selIdx = 0, results = [], resHead = [];
   function openSearch() {
@@ -991,7 +1024,7 @@
 
   // what extras.js needs from the app
   GW.app = {
-    $: $, $$: $$, esc: esc, plural: plural, meter: meter, slug: slug, byId: byId, roleInfo: roleInfo, trackOf: trackOf, routeFor: routeFor,
+    $: $, $$: $$, esc: esc, plural: plural, meter: meter, trackIdOf: trackIdOf, trackName: trackName, uniq: uniq, slug: slug, byId: byId, roleInfo: roleInfo, trackOf: trackOf, routeFor: routeFor,
     coreIds: coreIds, pathLong: pathLong, hours: hours, exercises: exercises, copyText: copyText, openPop: openPop, closePop: closePop,
     roles: function () { return roles; }, progress: function () { return progress; }, doneOf: doneOf,
     code: function () { return prettyCode(encodeProgress()); }, decode: decodeProgress, resumeLink: resumeLink,

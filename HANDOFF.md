@@ -9,7 +9,8 @@ Kern is a free, self-paced course for software teams on understanding AI and usi
 | Area | Status |
 |---|---|
 | Core course (lessons 1–8) and capstone (45) | Done |
-| Role tracks: 3 lessons for each of 12 roles (36 total) | Done. All 36 written, sources checked |
+| Role tracks: 12 three-lesson tracks (36 lessons) | Done. All 36 written, sources checked |
+| Roles: 33, each using one of the 12 tracks | Done (21 new roles share existing tracks; no specialist lessons yet) |
 | Use cases tab | Done. 96 use cases, 8 per role |
 | Tabs: Lessons, Exercises, Use cases, Glossary, Progress | Done |
 | Progress codes (no accounts) | Done. v2 format; old v1 codes still restore |
@@ -94,12 +95,16 @@ DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front
 - **`paintTopbar(mode, tab)`** in `app.js` controls all of this. `mode` is `"bare"`, `"tabs"` or `"lesson"`.
 
 ### Roles and paths
+- **33 roles in six families** (`GW.roles` and `GW.families` in `course.js`), based on published job-demand data: BLS computer and IT occupations, CompTIA job-postings reports (via Lightcast), LinkedIn Jobs on the Rise 2026 and Robert Half's in-demand roles, plus three team roles (technical writer, delivery lead, project manager).
+- **Tracks:** there are 12 three-lesson tracks (`GW.tracks`). Each role names its track in `track` (its own id when omitted), so several roles can share one, for example frontend developer, mobile developer, AI engineer, ML engineer and solutions architect all use the Engineering track. A specialist lesson for a role can be added later as a fourth lesson; until then the role card and home page name the track it uses. `trackIdOf()` and `trackName()` in `app.js` resolve this; use cases, role examples and practice drafts are filed by track id.
+- **Role ids are stored in browsers and progress codes:** never rename or remove one. The original twelve kept their ids with new display names (Engineering is now "Software engineer", Operations "DevOps engineer", Customer support "Technical support specialist", and so on).
+- **Role picker:** grouped by family, with a filter box. Cards show the role and its track.
 - **Choosing roles:** up to 3. The first pick is the **main role**. **General** can't be combined with other roles.
 - **`routeFor(roles)`** builds the path:
   - **General or nothing:** core lessons 1–8, then the capstone.
-  - **One role:** core, the role's full 3-lesson track, the neighbouring role's first lesson (`also` in `GW.roles`), then the capstone.
-  - **Several roles:** core, the main role's full track, the first lesson of each other role, then the capstone.
-- **Track lessons** carry `rid` (role id) and `step` (1–3) in `GW.lessons`. The first lesson of each track has the same id as its role.
+  - **One role:** core, the role's full 3-lesson track, the first lesson of its neighbouring track (`also` in `GW.roles`, a track id), then the capstone.
+  - **Several roles:** core, the main role's full track, the first lesson of each other role's track (shared tracks are not repeated), then the capstone.
+- **Track lessons** carry `rid` (track id) and `step` (1–3) in `GW.lessons`. The first lesson of each track has the same id as its role.
 - **Lesson numbers are fixed** in `course.js`. Any lesson whose content file isn't loaded is filtered out at startup, and the gaps in numbering are deliberate. Lesson text refers to other lessons by number, so **never renumber casually**. If the order changes, update every "lesson N" reference.
 
 | # | Lesson id | # | Lesson id | # | Lesson id |
@@ -126,10 +131,13 @@ DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front
   - `gw-role` and `gw-session` are retired keys that the app clears.
 - **Progress code v2:** 75 bits, written as 15 characters in Crockford base32 and shown as `KN-XXXXX-XXXXX-XXXXX`.
   - Layout: version (4 bits), three role slots (4 bits each, 0 = empty), 51 lesson slots (1 bit each), then a CRC-8 check (polynomial 0x07).
+  - Still produced whenever every chosen role is one of the original twelve, so existing learners keep short codes.
+- **Progress code v3:** 120 bits, 24 characters, shown as `KN-XXXXXX-XXXXXX-XXXXXX-XXXXXX`. Used when a path includes one of the 21 newer roles.
+  - Layout: version (4 bits), three role slots (6 bits each), 90 lesson slots, then the same CRC-8.
 - **v1 codes** (9 characters, shown as `KN-XXX-XXX-XXX`) still restore. They cover the first 21 lessons.
 - **`CODE_LESSONS` and `CODE_ROLES` in `app.js` are append-only.**
   - Never reorder or remove an entry, or every existing code decodes wrongly.
-  - Lesson slots 46–51 are free. Going beyond 51 lessons needs a v3 format.
+  - Version 2 holds lesson slots 1–51 and roles 1–13 of `CODE_ROLES`; version 3 holds 90 lesson slots and 63 roles. New specialist lessons go at the end of `CODE_LESSONS`.
 - **Resume link:** `#resume=<code>` restores the code and opens `#home`. An invalid code opens `#progress` with the code filled in and an error shown.
 - **What restoring does:** it switches to the roles in the code and keeps the union of completed lessons from both browsers.
 

@@ -6,7 +6,7 @@ GW.lesson = function (def) { GW.content[def.id] = def; };
 GW.parts = [
   { id: "a", title: "How it works", blurb: "What a language model is actually doing, what it can see, why it fails in the ways it does, and how models differ." },
   { id: "b", title: "Working with it", blurb: "A repeatable method: ask clearly, check in proportion to the risk, and keep data and systems safe." },
-  { id: "c", title: "In your role", blurb: "Three lessons for each of twelve roles, from product and design to security, data, docs, support and management. Your main role gets its full track." },
+  { id: "c", title: "In your role", blurb: "Twelve three-lesson tracks shared by 33 roles, from software, data and AI to infrastructure, security, product and support. Your main role gets its full track." },
   { id: "d", title: "Bringing it together", blurb: "Introduce AI to a team deliberately, then follow one feature through every role." }
 ];
 
@@ -59,24 +59,77 @@ GW.lessons = [
 ];
 GW.lessons.forEach(function (l, i) { l.num = i + 1; });
 
-GW.roles = [
-  { id: "product", name: "Product", also: "design", why: "Product and design share research and specs, so the design lesson pays off quickly." },
-  { id: "design", name: "Design", also: "product", why: "Design decisions start from product research; the product lesson covers synthesis in depth." },
-  { id: "engineering", name: "Engineering", also: "qa", why: "Generated code is only as good as its tests; the QA lesson sharpens how you check it." },
-  { id: "qa", name: "QA", also: "engineering", why: "You will review and automate code written with AI; the engineering lesson shows how it gets made." },
-  { id: "delivery", name: "Delivery", also: "product", why: "Status, scope and priority conversations overlap heavily with product work." },
-  { id: "project-management", name: "Project management", also: "delivery", why: "Your plan depends on team-level delivery work; the delivery lesson covers status reports, meeting actions and estimates." },
-  { id: "security", name: "Security", also: "engineering", why: "Most findings end in a code change; the engineering lesson covers testing generated code." },
-  { id: "data-analytics", name: "Data and analytics", also: "product", why: "Your numbers feed product decisions; the product lesson shows how they get used." },
-  { id: "technical-writing", name: "Technical writing", also: "engineering", why: "Docs as code means working in the same review and testing loop as engineers." },
-  { id: "engineering-management", name: "Engineering management", also: "engineering", why: "You'll set norms for how your team uses AI to write and review code." },
-  { id: "customer-support", name: "Customer support", also: "technical-writing", why: "Your answers depend on the help centre; the technical writing lesson covers keeping it accurate for people and AI." },
-  { id: "operations", name: "Operations", also: "engineering", why: "Scripts, configuration and fixes cross into engineering; that lesson covers testing generated code." }
+/* Tracks: twelve three-lesson tracks. Lessons carry their track id as `rid`. */
+GW.tracks = [
+  { id: "product", name: "Product" },
+  { id: "design", name: "Design" },
+  { id: "engineering", name: "Engineering" },
+  { id: "qa", name: "QA" },
+  { id: "security", name: "Security" },
+  { id: "data-analytics", name: "Data and analytics" },
+  { id: "technical-writing", name: "Technical writing" },
+  { id: "delivery", name: "Delivery" },
+  { id: "project-management", name: "Project management" },
+  { id: "engineering-management", name: "Engineering management" },
+  { id: "operations", name: "Operations" },
+  { id: "customer-support", name: "Customer support" }
 ];
-GW.roles.sort(function (a, b) {
-  var pos = function (id) { for (var i = 0; i < GW.lessons.length; i++) if (GW.lessons[i].id === id) return i; return 99; };
-  return pos(a.id) - pos(b.id);
-});
+
+/* Roles: 33 tech jobs, based on published demand data (BLS occupations, CompTIA job postings,
+   LinkedIn Jobs on the Rise, Robert Half) plus three team roles. Each role takes one track
+   (`track`, its own id when omitted); several roles share a track until specialist lessons exist.
+   `also` is the neighbouring track whose first lesson a single-role path adds, and `why` says why.
+   Role ids are stored in browsers and progress codes: never rename or remove one. */
+GW.roles = [
+  /* Software and quality */
+  { id: "engineering", name: "Software engineer", family: "software", also: "qa", why: "Generated code is only as good as its tests; the QA lesson sharpens how you check it." },
+  { id: "web-frontend", name: "Frontend developer", family: "software", track: "engineering", also: "design", why: "Frontend work turns designs into interfaces; the design lesson covers AI in research, copy and accessibility." },
+  { id: "mobile", name: "Mobile developer", family: "software", track: "engineering", also: "qa", why: "A mobile release is slow to replace once it's out; the QA lesson sharpens how you test generated code first." },
+  { id: "qa", name: "QA analyst and tester", family: "software", also: "engineering", why: "You will review and automate code written with AI; the engineering lesson shows how it gets made." },
+  { id: "test-automation", name: "Test automation engineer", family: "software", track: "qa", also: "engineering", why: "You automate tests for code written with AI; the engineering lesson shows how that code gets made." },
+  /* Infrastructure and IT */
+  { id: "systems-engineering", name: "Systems engineer", family: "infra", track: "operations", also: "security", why: "Systems work touches access, networks and secrets; the security lesson covers reviewing it safely." },
+  { id: "systems-analysis", name: "Systems analyst", family: "infra", track: "product", also: "engineering", why: "Your requirements become code; the engineering lesson shows how teams build and test it with AI." },
+  { id: "sysadmin", name: "Network and systems admin", family: "infra", track: "operations", also: "security", why: "Admin access is what attackers want; the security lesson covers reviewing changes and AI tools safely." },
+  { id: "network-architecture", name: "Network architect", family: "infra", track: "operations", also: "security", why: "Network designs set trust boundaries; the security lesson covers the threats AI tools add." },
+  { id: "database-admin", name: "Database administrator", family: "infra", track: "operations", also: "data-analytics", why: "Your databases feed analysis; the data lesson covers generated SQL and how it goes wrong." },
+  { id: "operations", name: "DevOps engineer", family: "infra", also: "engineering", why: "Scripts, configuration and fixes cross into engineering; that lesson covers testing generated code." },
+  { id: "cloud", name: "Cloud engineer", family: "infra", track: "operations", also: "security", why: "Cloud permissions and settings are security decisions; the security lesson covers reviewing them." },
+  { id: "sre", name: "Site reliability engineer", family: "infra", track: "operations", also: "engineering", why: "Reliability fixes end in code changes; the engineering lesson covers testing generated code." },
+  { id: "customer-support", name: "Technical support specialist", family: "infra", also: "technical-writing", why: "Your answers depend on the help centre; the technical writing lesson covers keeping it accurate for people and AI." },
+  { id: "data-center", name: "Data center technician", family: "infra", track: "operations", also: "security", why: "Physical and remote access are security matters; the security lesson covers using AI tools safely." },
+  /* Security */
+  { id: "security", name: "Information security analyst", family: "security", also: "engineering", why: "Most findings end in a code change; the engineering lesson covers testing generated code." },
+  { id: "cybersecurity-engineering", name: "Cybersecurity engineer", family: "security", track: "security", also: "engineering", why: "Security controls ship as code; the engineering lesson covers testing generated code." },
+  { id: "soc", name: "Security operations analyst", family: "security", track: "security", also: "operations", why: "Alerts often turn into incidents; the operations lesson covers incident hypotheses and safe commands." },
+  /* Data and AI */
+  { id: "data-analytics", name: "Data analyst", family: "data-ai", also: "product", why: "Your numbers feed product decisions; the product lesson shows how they get used." },
+  { id: "data-science", name: "Data scientist", family: "data-ai", track: "data-analytics", also: "product", why: "Models and analyses feed product decisions; the product lesson shows how they get used." },
+  { id: "data-engineering", name: "Data engineer", family: "data-ai", track: "data-analytics", also: "operations", why: "Pipelines run in production; the operations lesson covers incidents and infrastructure code." },
+  { id: "ai-engineering", name: "AI engineer", family: "data-ai", track: "engineering", also: "qa", why: "AI features need evals before launch; the QA lesson covers testing features built on AI." },
+  { id: "ml-engineering", name: "Machine learning engineer", family: "data-ai", track: "engineering", also: "data-analytics", why: "Models are only as good as their data; the data lesson covers queries, grain and sanity checks." },
+  { id: "ai-research", name: "AI and ML researcher", family: "data-ai", track: "data-analytics", also: "qa", why: "Results need careful evaluation; the QA lesson covers evals and LLM-as-judge." },
+  { id: "ai-strategy", name: "AI consultant and strategist", family: "data-ai", track: "product", also: "engineering-management", why: "Strategy lands through teams; the engineering management lesson covers plans, norms and people." },
+  { id: "data-annotation", name: "Data annotator", family: "data-ai", track: "qa", also: "data-analytics", why: "Labels become training and evaluation data; the data lesson covers the checks that catch wrong numbers." },
+  /* Product, design and leadership */
+  { id: "product", name: "Product manager", family: "product", also: "design", why: "Product and design share research and specs, so the design lesson pays off quickly." },
+  { id: "design", name: "UX and digital designer", family: "product", also: "product", why: "Design decisions start from product research; the product lesson covers synthesis in depth." },
+  { id: "solutions-architecture", name: "Solutions architect", family: "product", track: "engineering", also: "product", why: "Solutions start from customer needs; the product lesson covers research and specs." },
+  { id: "engineering-management", name: "Engineering and IT manager", family: "product", also: "engineering", why: "You'll set norms for how your team uses AI to write and review code." },
+  /* Team roles */
+  { id: "technical-writing", name: "Technical writer", family: "team", also: "engineering", why: "Docs as code means working in the same review and testing loop as engineers." },
+  { id: "delivery", name: "Delivery lead", family: "team", also: "product", why: "Status, scope and priority conversations overlap heavily with product work." },
+  { id: "project-management", name: "Project manager", family: "team", also: "delivery", why: "Your plan depends on team-level delivery work; the delivery lesson covers status reports, meeting actions and estimates." }
+];
+GW.roles.forEach(function (r) { r.track = r.track || r.id; });
+GW.families = [
+  { id: "software", name: "Software and quality" },
+  { id: "infra", name: "Infrastructure and IT" },
+  { id: "security", name: "Security" },
+  { id: "data-ai", name: "Data and AI" },
+  { id: "product", name: "Product, design and leadership" },
+  { id: "team", name: "Team roles" }
+];
 
 GW.glossary = {
   "ai": ["Artificial intelligence (AI)", "A broad label for software that performs tasks we associate with human judgment, such as recognising images or writing text. In this course it mostly means generative AI built on large language models."],

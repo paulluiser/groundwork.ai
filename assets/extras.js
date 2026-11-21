@@ -120,11 +120,11 @@
   /* ================= "You decide" practice ================= */
   var CALLS = { ship: ["Ship it", "ok", 0], edit: ["Ship after edits", "warn", 1], reject: ["Don't ship", "bad", 2] };
   function orderedPractice() {
-    var mine = A().roles(), list = (GW.practice || []).map(function (p, i) { return { p: p, n: i + 1 }; });
+    var a = A(), mine = a.uniq(a.roles().map(a.trackIdOf)), list = (GW.practice || []).map(function (p, i) { return { p: p, n: i + 1 }; });
     return list.filter(function (x) { return mine.indexOf(x.p.r) > -1; }).concat(list.filter(function (x) { return mine.indexOf(x.p.r) < 0; }));
   }
   function renderPracticeList() {
-    var a = A(), s = load("gw-practice", {}), list = orderedPractice(), mine = a.roles();
+    var a = A(), s = load("gw-practice", {}), list = orderedPractice(), mine = a.uniq(a.roles().map(a.trackIdOf));
     var done = list.filter(function (x) { return s[x.n]; }), same = done.filter(function (x) { return s[x.n].v === x.p.v; }).length;
     var next = list.filter(function (x) { return !s[x.n]; })[0];
     var h = '<div class="tabpage practice"><p class="pick-top"><a class="back" href="#exercises">Exercises</a></p><header class="tp-head"><h1>You decide</h1><p class="lede">Each draft below came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s.</p>';
@@ -135,7 +135,7 @@
       h += '<section class="ex-group"><h2 class="ex-l">' + g[0] + '</h2><ul class="ex-list">';
       g[1].forEach(function (x) {
         var r = s[x.n], st = !r ? "Not tried" : r.v === x.p.v ? "Same call" : "Different call";
-        h += '<li><a class="ex-row" href="#practice/' + x.n + '"><b>' + esc(x.p.t) + '</b><span class="ex-end"><span class="ex-kind">' + esc(a.roleInfo(x.p.r).name) + " · " + st + "</span>" + CHEVRON + "</span></a></li>";
+        h += '<li><a class="ex-row" href="#practice/' + x.n + '"><b>' + esc(x.p.t) + '</b><span class="ex-end"><span class="ex-kind">' + esc(a.trackName(x.p.r)) + " · " + st + "</span>" + CHEVRON + "</span></a></li>";
       });
       h += "</ul></section>";
     });
@@ -148,7 +148,7 @@
     var s = load("gw-practice", {}), mine = s[n], list = orderedPractice(), pos = list.map(function (x) { return x.n; }).indexOf(n);
     var nextX = list[pos + 1], l = a.byId[p.l];
     var h = '<article class="tabpage practice pr-case"><p class="pick-top"><a class="back" href="#practice">All drafts</a></p>';
-    h += '<p class="kicker">Draft ' + (pos + 1) + " of " + list.length + " · " + esc(a.roleInfo(p.r).name) + "</p><h1>" + esc(p.t) + '</h1><p class="lede">' + esc(p.ctx) + "</p>";
+    h += '<p class="kicker">Draft ' + (pos + 1) + " of " + list.length + " · " + esc(a.trackName(p.r)) + "</p><h1>" + esc(p.t) + '</h1><p class="lede">' + esc(p.ctx) + "</p>";
     h += '<div class="draft pr-draft"><div class="draft-h"><span><b>AI draft</b></span></div><div class="draft-b">' + p.draft + "</div></div>";
     h += '<section class="pr-call w" aria-labelledby="pr-h"><h2 id="pr-h">Your call</h2><div class="pr-opts" role="radiogroup" aria-labelledby="pr-h">' +
       Object.keys(CALLS).map(function (k) { return '<button type="button" role="radio" aria-checked="false" data-call="' + k + '">' + CALLS[k][0] + "</button>"; }).join("") + "</div>";
@@ -261,7 +261,7 @@
   }
   function planGroups() {
     var a = A();
-    return [{ k: "core", name: "Core lessons", ids: a.coreIds }].concat(GW.roles.map(function (r) { return { k: r.id, name: r.name + " track", ids: a.trackOf(r.id) }; })).concat([{ k: "capstone", name: "Capstone", ids: ["team-adoption"] }]);
+    return [{ k: "core", name: "Core lessons", ids: a.coreIds }].concat(GW.tracks.map(function (t) { return { k: t.id, name: t.name + " track", ids: a.trackOf(t.id) }; })).concat([{ k: "capstone", name: "Capstone", ids: ["team-adoption"] }]);
   }
   function renderTeam(arg) {
     var a = A();
@@ -359,7 +359,7 @@
   /* ================= progress page: tracks with certificates, team and QR ================= */
   function tracks() {
     var a = A(), roles = a.roles(), path = a.routeFor(roles), out = [{ k: "core", name: "Core lessons", ids: a.coreIds }];
-    roles.forEach(function (r) { if (r !== "general") out.push({ k: r, name: a.roleInfo(r).name + " track", ids: a.trackOf(r) }); });
+    a.uniq(roles.filter(function (r) { return r !== "general"; }).map(a.trackIdOf)).forEach(function (t) { out.push({ k: t, name: a.trackName(t) + " track", ids: a.trackOf(t) }); });
     out.push({ k: "path", name: "Your whole path", ids: path });
     return out;
   }
