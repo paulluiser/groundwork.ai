@@ -398,90 +398,91 @@
       if (pick === "general") picked = ["general"];
       else { picked = picked.filter(function (x) { return x !== "general"; }); if (picked.length < MAXR) picked.push(pick); }
     }
-    function card(r) {
-      var t = r === GENERAL ? "general" : trackIdOf(r.id);
-      return '<button type="button" class="role-card' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '" data-find="' + esc((r.name + " " + trackName(t) + " " + ROLE_SHORT[t]).toLowerCase()) + '"><span class="rc-top"><b>' + esc(r.name) + '</b><span class="rc-badge"></span></span>' + (r === GENERAL ? "" : '<span class="rc-t">' + esc(trackName(t)) + " track</span>") + '<span class="rc-s">' + esc(ROLE_SHORT[t]) + "</span><em></em></button>";
+    // Compact picker: one row of role chips per family, a short sticky summary beside it.
+    function chip(r) {
+      var t = r === GENERAL ? "" : trackName(trackIdOf(r.id));
+      return '<button type="button" class="rchip' + (r === GENERAL ? " gen" : "") + '" role="checkbox" aria-checked="false" data-r="' + r.id + '"' + (t ? ' title="' + esc(t) + ' track"' : "") +
+        ' data-find="' + esc((r.name + " " + t).toLowerCase()) + '"><span class="rchip-n" aria-hidden="true"></span>' + esc(r.name) + "</button>";
     }
-    var h = '<div class="picker">';
+    var h = '<div class="pk">';
     h += '<p class="pick-top"><a class="back" href="' + (first ? "#welcome" : "#home") + '">Back</a></p>';
-    h += "<h1>Choose your roles</h1>";
-    h += '<p class="lede">Pick up to three. Your first pick is your main role and adds its full track.</p>';
-    h += '<div class="pick-layout"><div class="pick-main" role="group" aria-label="Roles, choose up to three">';
-    h += '<div class="pick-gen">' + card(GENERAL) + '<p>Not sure yet? Start with General.</p></div>';
-    h += '<div class="pick-find"><h2 class="pick-h">Or pick your roles</h2><div class="w"><label class="sr-only" for="pick-q">Find a role</label><input type="search" id="pick-q" placeholder="Find a role, e.g. data, cloud, security" autocomplete="off"></div></div>';
+    h += '<header class="pk-head"><div><h1>Choose your roles</h1><p>Up to three. Your first pick is your main role.</p></div>';
+    h += '<div class="w pk-find"><label class="sr-only" for="pick-q">Find a role</label><input type="search" id="pick-q" placeholder="Find a role" autocomplete="off"></div></header>';
+    h += '<div class="pk-layout"><div class="pk-main" role="group" aria-label="Roles, choose up to three">';
+    h += '<div class="pk-fam pk-gen"><h2>Not sure yet</h2><div class="pk-chips">' + chip(GENERAL) + "</div></div>";
     GW.families.forEach(function (f) {
-      var rs = GW.roles.filter(function (r) { return r.family === f.id; });
-      h += '<section class="pick-fam" data-fam="' + f.id + '"><h3 class="pick-fh">' + esc(f.name) + ' <span>' + rs.length + '</span></h3><div class="role-grid pick">' + rs.map(card).join("") + "</div></section>";
+      h += '<div class="pk-fam" data-fam="' + f.id + '"><h2>' + esc(f.name) + '</h2><div class="pk-chips">' + GW.roles.filter(function (r) { return r.family === f.id; }).map(chip).join("") + "</div></div>";
     });
-    h += '<p class="gloss-empty pick-none" hidden>No roles match. Try a shorter word, or pick General.</p></div>';
-    h += '<aside class="pick-side" aria-labelledby="ps-h"><h2 id="ps-h" tabindex="-1">Your path</h2><div id="pick-chosen"></div><div id="pick-path"></div></aside></div>';
-    h += '<div class="pick-bar"><p id="pick-sum" aria-live="polite"></p><a class="btn small ghost pick-review" href="#ps-h">Review<span class="rv-long"> your path</span></a><button class="btn small pill dark" id="pick-go"></button></div></div>';
+    h += '<p class="gloss-empty pick-none" hidden>No roles match. Try a shorter word.</p></div>';
+    h += '<aside class="pk-side" aria-labelledby="ps-h"><h2 id="ps-h" tabindex="-1">Your path</h2><div id="pick-chosen"></div><div id="pick-path"></div><p class="pk-note" id="pk-note" aria-live="polite"></p><button class="btn pill dark pk-go" id="pk-go2"></button></aside></div>';
+    h += '<div class="pick-bar pk-bar"><p id="pick-sum" aria-live="polite"></p><a class="btn small ghost pick-review" href="#ps-h">Review</a><button class="btn small pill dark" id="pick-go"></button></div></div>';
     var view = $("#view"); view.innerHTML = h;
 
     function paint() {
       var gen = picked[0] === "general";
-      $$(".role-card", view).forEach(function (b) {
-        var id = b.getAttribute("data-r"), i = picked.indexOf(id), n = id === "general" ? 0 : trackOf(id).length;
+      $$(".rchip", view).forEach(function (b) {
+        var i = picked.indexOf(b.getAttribute("data-r"));
         b.setAttribute("aria-checked", String(i > -1));
-        $(".rc-badge", b).textContent = i < 0 ? "" : gen ? "Selected" : i === 0 ? "Main" : "Added";
-        $("em", b).textContent = id === "general" ? "" : i === 0 ? "Adds " + plural(n, "lesson") + ": the full track" : i > 0 ? (trackIdOf(id) === trackIdOf(picked[0]) ? "Shares your main track" : "Adds its first lesson") : "";
+        $(".rchip-n", b).textContent = i < 0 ? "" : gen ? "✓" : String(i + 1);
       });
-      var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view), go = $("#pick-go", view);
-      if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Nothing chosen yet. Pick the roles closest to your work.</p>';
-      else if (gen) chosen.innerHTML = '<ol class="ps-list"><li><b>General</b><span>Neutral path</span><button type="button" class="linkish" data-remove="general" aria-label="Remove General">Remove</button></li></ol>';
-      else chosen.innerHTML = '<ol class="ps-list">' + picked.map(function (id, i) {
+      var chosen = $("#pick-chosen", view), pathBox = $("#pick-path", view), sum = $("#pick-sum", view);
+      if (!picked.length) chosen.innerHTML = '<p class="ps-empty">Pick the roles closest to your work.</p>';
+      else chosen.innerHTML = '<ol class="pk-list">' + picked.map(function (id, i) {
         var nm = esc(roleInfo(id).name);
-        return "<li><b>" + nm + "</b>" + (i === 0 ? "<span>Main role</span>" : '<button type="button" class="linkish" data-main="' + id + '" aria-label="Make ' + nm + ' your main role">Make main</button>') + '<button type="button" class="linkish" data-remove="' + id + '" aria-label="Remove ' + nm + '">Remove</button></li>';
+        return '<li><span class="pk-i">' + (gen ? "✓" : i + 1) + "</span><b>" + nm + "</b>" + (i === 0 || gen ? "" : '<button type="button" class="linkish" data-main="' + id + '" aria-label="Make ' + nm + ' your main role">Make main</button>') + '<button type="button" class="pk-x" data-remove="' + id + '" aria-label="Remove ' + nm + '">×</button></li>';
       }).join("") + "</ol>";
       if (picked.length) {
-        var ids = routeFor(picked), extra = ids.slice(coreLast, -1), main = roleInfo(picked[0]);
+        var ids = routeFor(picked), extra = ids.slice(coreLast, -1);
         var track = gen ? [] : extra.filter(function (id) { return byId[id].rid === trackIdOf(picked[0]); }), also = extra.filter(function (id) { return track.indexOf(id) < 0; });
-        var p = '<ul class="ps-route"><li><b>' + plural(coreLast, "core lesson") + "</b><span>How models work and how to work with them, for everyone</span></li>";
-        if (track.length) p += "<li><b>" + esc(trackName(trackIdOf(main.id))) + " track: " + plural(track.length, "lesson") + "</b><span>" + track.map(function (id) { return esc(byId[id].title); }).join(" · ") + "</span></li>";
-        if (also.length) p += "<li><b>" + (picked.length === 1 ? "Neighbouring role: " : "Your other roles: ") + plural(also.length, "lesson") + "</b><span>" + also.map(function (id) { return esc(byId[id].role + ": " + byId[id].title); }).join(" · ") + "</span></li>";
-        p += "<li><b>Capstone: 1 lesson</b><span>" + esc(byId["team-adoption"].title) + "</span></li></ul>";
-        p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[gen ? "general" : trackIdOf(main.id)] + "</p></div>";
+        var row = function (k, n) { return "<li><span>" + k + "</span><b>" + n + "</b></li>"; };
+        var p = '<ul class="pk-route">' + row("Core lessons", coreLast);
+        if (track.length) p += row(esc(trackName(trackIdOf(picked[0]))) + " track", track.length);
+        also.forEach(function (id) { p += row(esc(trackName(byId[id].rid)) + ", first lesson", 1); });
+        p += row("Capstone", 1) + '</ul><p class="pk-total"><b>' + plural(ids.length, "lesson") + "</b>, about " + hours(ids) + "</p>";
         pathBox.innerHTML = p;
         sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + "</span>";
       } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role"; }
-      go.disabled = !picked.length;
-      go.textContent = first ? "Start the course" : "Save roles";
+      $("#pk-note", view).textContent = note;
+      [$("#pick-go", view), $("#pk-go2", view)].forEach(function (go) { go.disabled = !picked.length; go.textContent = first ? "Start the course" : "Save roles"; });
       $(".pick-review", view).hidden = !picked.length;
     }
     paint();
 
     $("#pick-q", view).addEventListener("input", function (e) {
       var q = e.target.value.toLowerCase().trim(), any = false;
-      $$(".pick-fam", view).forEach(function (f) {
+      $$(".pk-fam[data-fam]", view).forEach(function (f) {
         var shown = 0;
-        $$(".role-card", f).forEach(function (c) { var hit = !q || c.getAttribute("data-find").indexOf(q) > -1; c.hidden = !hit; if (hit) shown++; });
+        $$(".rchip", f).forEach(function (c) { var hit = !q || c.getAttribute("data-find").indexOf(q) > -1; c.hidden = !hit; if (hit) shown++; });
         f.hidden = !shown; if (shown) any = true;
       });
+      $(".pk-gen", view).hidden = !!q;
       $(".pick-none", view).hidden = any;
     });
-    $(".pick-main", view).addEventListener("click", function (e) {
-      var b = e.target.closest(".role-card"); if (!b) return;
+    $(".pk-main", view).addEventListener("click", function (e) {
+      var b = e.target.closest(".rchip"); if (!b) return;
       var id = b.getAttribute("data-r"), i = picked.indexOf(id); note = "";
       if (i > -1) picked.splice(i, 1);
       else if (id === "general") picked = ["general"];
       else {
         picked = picked.filter(function (x) { return x !== "general"; });
-        if (picked.length >= MAXR) note = "You can choose up to three roles. Remove one to add another.";
+        if (picked.length >= MAXR) note = "Up to three roles. Remove one to add another.";
         else picked.push(id);
       }
       paint();
     });
     $(".pick-review", view).addEventListener("click", function (e) { e.preventDefault(); var hd = $("#ps-h", view); hd.scrollIntoView({ block: "start" }); hd.focus({ preventScroll: true }); });
-    $(".pick-side", view).addEventListener("click", function (e) {
+    $(".pk-side", view).addEventListener("click", function (e) {
       var m = e.target.closest("[data-main]"), r = e.target.closest("[data-remove]"); note = "";
       if (m) { var id = m.getAttribute("data-main"); picked.splice(picked.indexOf(id), 1); picked.unshift(id); paint(); var nb = $('[data-remove="' + id + '"]', view); if (nb) nb.focus(); }
       else if (r) { picked.splice(picked.indexOf(r.getAttribute("data-remove")), 1); paint(); $("#ps-h", view).focus(); }
     });
-    $("#pick-go", view).addEventListener("click", function () {
+    function goOn() {
       if (!picked.length) return;
       roles = picked.slice(); persist();
       var go = resumeTo || "home"; resumeTo = null; location.hash = go;
-    });
+    }
+    $("#pick-go", view).addEventListener("click", goOn);
+    $("#pk-go2", view).addEventListener("click", goOn);
   }
 
   /* ---------- course home (signed in) ---------- */
