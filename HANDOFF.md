@@ -148,7 +148,17 @@ Each lesson contains `<div class="activity">` blocks with a `data-w` widget and 
 - `decide`: a run of situations with one choice each. Uses `steps`, each with `title`, `sit`, `opts: [[choice, feedback]]` and correct index `a`. Feedback for the correct option starts with "Right."
 - Others such as `tokens`, `sampler`, `rerank`, `matrix` and `scenario` are specific to their lessons.
 
-**Exercises tab:** the app finds every `.activity` block itself. The tab shows each exercise's tag, title and widget type, and links to `#lesson` with `data-scroll="ex-N"`.
+**Exercise theme:** inside a lesson every `.activity` is framed as its own block, never as lesson text: a dark band labelled "Exercise N of M" (amber `--ex-hue`) plus the widget kind, a dotted "workbench" body (`--ex-bg`, `--ex-dot`), and an "End of exercise" footer. The `--ex-*` tokens sit at the top of the lesson-overview block in `style.css`.
+
+**Exercises tab:** the app finds every `.activity` block itself. It opens on a dashboard (progress for the current scope, an "Up next" card in the exercise theme, and kind filters grouped into four families by `EX_FAM`), then a list in the style of a problem set with To do / Done filters. An exercise counts as done when its lesson is complete. Rows link to `#lesson` with `data-scroll="ex-N"`.
+
+### Lesson overview and figures
+- **Overview:** each lesson opens on a landing block before the reading: eyebrow (lesson, part, track), title, path step, lede, Start / Go to the exercises buttons, four stats (minutes, sections, exercises, quiz questions), "You'll learn" (ticks as you read) and a clickable **Lesson plan** (`planLesson()` in `app.js`). The plan tags each section Reading, Example, Exercise, Quiz or Task and splits the lesson's minutes by word count plus exercise time. The old "In this lesson" strip is gone, and the side column holds only "On this page".
+- **Interactive figures** (`assets/figures.js` engine, `assets/figures-data.js` specs): one per lesson, inserted after the first paragraph of the section named in `at`. There are nine kinds chosen to fit the topic: flow, cycle, timeline, spectrum, matrix, zones, stack, compare and hotspots. Figures are part of the reading and styled as white cards, not like exercises. Matrix quadrants `q` are ordered top-left, top-right, bottom-left, bottom-right. Numbers in figures are illustrative and labelled as such.
+
+### Use case guides
+- Every use case has a guide in `assets/use-case-guides*.js`, keyed by its title in `use-cases.js`: `s` steps, `y` do, `n` don't, `t` tip, `k` limits, `p` an optional starter prompt. A use case's title is its key, so rename both together.
+- Cards link to `#usecase/<slug of title>`. The page is registered in `GW.pages` (extras.js) and rendered by `renderUseCase()` in `app.js`, with steps, a copyable prompt, "Before you rely on it", Do / Don't / Tip / Limits in a sticky side column, and next or previous within the same track.
 
 ### Practice, review, teams and certificates (extras.js)
 - **Pages:** `extras.js` registers routes in `GW.pages` (`#practice`, `#practice/N`, `#review`, `#team`, `#team=<link data>`, `#certificate/<track>`). `route()` in `app.js` checks `GW.pages` before its own pages. Each entry has `render(arg)`, `title(arg)`, the tab to highlight, and `open: true` if it works without roles (only the team page).

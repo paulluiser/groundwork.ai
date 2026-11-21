@@ -457,6 +457,7 @@
     practice: { tab: "exercises", render: function (arg) { if (arg) return renderPracticeCase(parseInt(arg, 10)); renderPracticeList(); }, title: function (arg) { var p = arg && GW.practice[parseInt(arg, 10) - 1]; return p ? p.t : "You decide"; } },
     review: { tab: "exercises", render: function () { revSession = null; renderReview(); }, title: function () { return "Review terms"; } },
     team: { tab: "progress", open: true, render: renderTeam, title: function () { var t = load("gw-team", null); return t ? t.n : "Team plan"; } },
-    certificate: { tab: "progress", render: renderCertificate, title: function () { return "Certificate"; } }
+    certificate: { tab: "progress", render: renderCertificate, title: function () { return "Certificate"; } },
+    usecase: { tab: "usecases", render: function (arg) { return A().renderUseCase(arg); }, title: function (arg) { return A().useCaseTitle(arg); } }
   };
 })();

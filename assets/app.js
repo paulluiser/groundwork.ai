@@ -540,6 +540,8 @@
 
   /* ---------- exercises tab: every hands-on activity, grouped by lesson ---------- */
   var EX_KIND = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call", sim: "Simulation" };
+  // four families keep the Exercises filters short
+  var EX_FAM = {}; [["Spot the problem", "claims contrast coverage injection"], ["Sort and decide", "sort decide matrix scenario agreement"], ["Simulations", "tokens sampler context rerank agent sim evalsim codetest"], ["Write and apply", "builder checklist"]].forEach(function (f) { f[1].split(" ").forEach(function (w) { EX_FAM[w] = f[0]; }); });
   var exIndex = null, exScope = load("gw-exscope", "path");
   function exercises() {
     if (exIndex) return exIndex;
@@ -548,30 +550,43 @@
       var c = GW.content[l.id]; if (!c) return;
       c.html.split('<div class="activity">').slice(1).forEach(function (chunk, i) {
         var m = function (re, d) { var r = chunk.match(re); return r ? r[1] : d; };
-        exIndex.push({ lesson: l, n: i + 1, tag: m(/class="tag">([^<]*)</, "Practice"), title: m(/class="ttl">([^<]*)</, "Exercise"), kind: EX_KIND[m(/data-w="([a-z-]+)"/, "")] || "" });
+        exIndex.push({ lesson: l, n: i + 1, tag: m(/class="tag">([^<]*)</, "Practice"), title: m(/class="ttl">([^<]*)</, "Exercise"), w: m(/data-w="([a-z-]+)"/, ""), kind: EX_KIND[m(/data-w="([a-z-]+)"/, "")] || "" });
       });
     });
     return exIndex;
   }
+  // Exercises tab: a dashboard (progress, up next, kinds) over a filterable problem list, in the exercise theme.
+  var exStatus = "all", exKind = "all";
   function renderExercises() {
     var path = routeFor(roles), all = exercises();
-    var list = exScope === "path" ? all.filter(function (e) { return path.indexOf(e.lesson.id) > -1; }) : all;
-    var lessonsWith = [];
-    list.forEach(function (e) { if (lessonsWith.indexOf(e.lesson) < 0) lessonsWith.push(e.lesson); });
-    var h = '<div class="tabpage"><header class="tp-head"><h1>Exercises</h1><p class="lede">Every hands-on activity in the course. Each one gives you feedback as you go.</p>';
-    h += '<div class="seg" role="group" aria-label="Which exercises to show"><button type="button" data-exscope="path" aria-pressed="' + (exScope === "path") + '">Your path</button><button type="button" data-exscope="all" aria-pressed="' + (exScope === "all") + '">All lessons</button></div>';
-    h += '<p class="ex-count" aria-live="polite">' + plural(list.length, "exercise") + " in " + plural(lessonsWith.length, "lesson") + "</p></header>";
-    if (GW.ext) h += GW.ext.exercisesHtml();
-    lessonsWith.forEach(function (l) {
-      var done = progress[l.id];
-      h += '<section class="ex-group' + (done ? " done" : "") + '" aria-labelledby="exg-' + l.id + '"><h2 class="ex-l" id="exg-' + l.id + '"><span class="ex-ln">Lesson ' + l.num + (done ? ' <b class="ex-done">Completed</b>' : "") + "</span>" + esc(l.title) + '</h2><ul class="ex-list">';
-      list.filter(function (e) { return e.lesson === l; }).forEach(function (e) {
-        h += '<li><a class="ex-row" href="#' + l.id + '" data-scroll="ex-' + e.n + '"><b>' + e.title + '</b><span class="ex-end">' + (e.kind ? '<span class="ex-kind">' + esc(e.kind) + "</span>" : "") + '<svg width="8" height="12" viewBox="0 0 8 12" aria-hidden="true"><path d="M2 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></li>';
-      });
-      h += "</ul></section>";
-    });
+    all.forEach(function (e) { e.k = EX_FAM[e.w] || "Write and apply"; });
+    var scoped = exScope === "path" ? all.filter(function (e) { return path.indexOf(e.lesson.id) > -1; }) : all;
+    var done = scoped.filter(function (e) { return progress[e.lesson.id]; }).length;
+    var next = scoped.filter(function (e) { return !progress[e.lesson.id]; })[0];
+    var kinds = {}; scoped.forEach(function (e) { kinds[e.k] = (kinds[e.k] || 0) + 1; });
+    var kindList = Object.keys(kinds).sort(function (a, b) { return kinds[b] - kinds[a] || a.localeCompare(b); });
+    if (exKind !== "all" && !kinds[exKind]) exKind = "all";
+    var list = scoped.filter(function (e) { return (exKind === "all" || e.k === exKind) && (exStatus === "all" || (exStatus === "done") === !!progress[e.lesson.id]); });
+    var chev = '<svg width="8" height="12" viewBox="0 0 8 12" aria-hidden="true"><path d="M2 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    var h = '<div class="tabpage exd"><header class="exd-head"><div><h1>Exercises</h1><p class="lede">Hands-on practice from every lesson. Each one gives feedback as you work.</p></div>';
+    h += '<div class="seg" role="group" aria-label="Which exercises to show"><button type="button" data-exscope="path" aria-pressed="' + (exScope === "path") + '">Your path</button><button type="button" data-exscope="all" aria-pressed="' + (exScope === "all") + '">All lessons</button></div></header>';
+    h += '<div class="exd-dash">';
+    h += '<section class="exd-card exd-prog" aria-label="Progress"><p class="exd-k">Progress</p><p class="exd-big"><b>' + done + '</b><span>of ' + scoped.length + ' done</span></p><div class="exd-bar"><span style="width:' + (scoped.length ? done / scoped.length * 100 : 0) + '%"></span></div><p class="exd-s">Counted when you complete the lesson an exercise belongs to.</p></section>';
+    h += '<section class="exd-card exd-next" aria-label="Up next"><p class="exd-k">Up next</p>' + (next ? "<b>" + next.title + '</b><p class="exd-s">Lesson ' + next.lesson.num + " · " + esc(next.lesson.title) + " · " + esc(next.k) + '</p><a class="btn pill exd-go" href="#' + next.lesson.id + '" data-scroll="ex-' + next.n + '">Start the exercise</a>' : '<b>All done</b><p class="exd-s">Every exercise in this view belongs to a completed lesson.</p>') + "</section>";
+    h += '<section class="exd-card exd-kinds" aria-label="Kinds of exercise"><p class="exd-k">' + plural(kindList.length, "kind") + ' of exercise</p><div class="exd-chips" role="group" aria-label="Filter by kind"><button type="button" data-exkind="all" aria-pressed="' + (exKind === "all") + '">All <i>' + scoped.length + "</i></button>" + kindList.map(function (k) { return '<button type="button" data-exkind="' + esc(k) + '" aria-pressed="' + (exKind === k) + '">' + esc(k) + " <i>" + kinds[k] + "</i></button>"; }).join("") + "</div></section>";
     h += "</div>";
+    if (GW.ext) h += GW.ext.exercisesHtml();
+    h += '<div class="exd-bar2"><div class="seg" role="group" aria-label="Filter by status">' + [["all", "All"], ["todo", "To do"], ["done", "Done"]].map(function (x) { return '<button type="button" data-exstatus="' + x[0] + '" aria-pressed="' + (exStatus === x[0]) + '">' + x[1] + "</button>"; }).join("") + '</div><p class="ex-count" aria-live="polite">' + plural(list.length, "exercise") + "</p></div>";
+    h += '<ol class="exd-list">';
+    list.forEach(function (e) {
+      var d = !!progress[e.lesson.id];
+      h += '<li><a class="exd-row' + (d ? " done" : "") + '" href="#' + e.lesson.id + '" data-scroll="ex-' + e.n + '"><span class="exd-st" aria-label="' + (d ? "Done" : "To do") + '">' + (d ? "✓" : "") + '</span><span class="exd-t"><b>' + e.title + '</b><span>Lesson ' + e.lesson.num + " · " + esc(e.lesson.title) + '</span></span><span class="exd-kd">' + esc(e.kind || e.k) + "</span>" + chev + "</a></li>";
+    });
+    h += "</ol>" + (list.length ? "" : '<p class="gloss-empty">No exercises match these filters.</p>') + "</div>";
     $("#view").innerHTML = h;
+    $$("[data-exkind]").forEach(function (b) { b.addEventListener("click", function () { exKind = b.getAttribute("data-exkind"); renderExercises(); var f = $('[data-exkind="' + exKind + '"]'); if (f) f.focus(); }); });
+    $$("[data-exstatus]").forEach(function (b) { b.addEventListener("click", function () { exStatus = b.getAttribute("data-exstatus"); renderExercises(); var f = $('[data-exstatus="' + exStatus + '"]'); if (f) f.focus(); }); });
   }
 
   /* ---------- use cases tab: concrete ways each role uses AI, rated for fit ---------- */
@@ -606,7 +621,8 @@
       body += '<section class="uc-group" aria-labelledby="ucg-' + r + '"><h2 class="ex-l" id="ucg-' + r + '"><span>' + trackSpan(r) + "</span>" + esc(trackName(r)) + '</h2><div class="uc-grid">';
       items.forEach(function (u) {
         var f = FIT[u.fit], l = byId[u.l];
-        body += '<article class="uc-card" id="uc-' + list.indexOf(u) + '"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
+        var g = GW.ucGuides && GW.ucGuides[u.t];
+        body += '<article class="uc-card" id="uc-' + list.indexOf(u) + '"><span class="fit ' + f[0] + '">' + f[1] + "</span><h3>" + esc(u.t) + "</h3><p>" + esc(u.d) + '</p><p class="uc-check"><b>Check:</b> ' + esc(u.c) + "</p>" + (g ? '<a class="uc-open" href="#usecase/' + slug(u.t) + '">Open the guide<span>' + g.s.length + " steps · do’s and don’ts" + (g.p ? " · starter prompt" : "") + "</span></a>" : "") + (l ? '<a class="uc-link" href="#' + l.id + '"><b>Lesson ' + l.num + "</b> " + esc(l.title) + "</a>" : "") + "</article>";
       });
       body += "</div></section>";
     });
@@ -614,6 +630,29 @@
     $("#uc-count").textContent = plural(count, "use case") + (count ? " across " + plural(nRoles, "role") : "");
     $("#uc-body").innerHTML = body;
   }
+
+  // One use case as a full guide: steps, a prompt to start from, do's and don'ts, a tip and the limits.
+  function renderUseCase(key) {
+    var list = GW.useCases || [], u = list.filter(function (x) { return slug(x.t) === key; })[0];
+    if (!u) { location.replace("#usecases"); return false; }
+    var g = (GW.ucGuides || {})[u.t] || { s: [], y: [], n: [], k: [] }, f = FIT[u.fit], l = byId[u.l];
+    var same = list.filter(function (x) { return x.r === u.r; }), i = same.indexOf(u), prev = same[i - 1], next = same[i + 1];
+    var li = function (a) { return (a || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); };
+    var h = '<article class="ucg"><p class="pick-top"><a class="back" href="#usecases">All use cases</a></p>';
+    h += '<header class="ucg-head"><p class="lo-eye">' + esc(trackName(u.r)) + " · use case " + (i + 1) + " of " + same.length + '</p><h1>' + esc(u.t) + '</h1><p class="lede">' + esc(u.d) + "</p>";
+    h += '<div class="ucg-facts"><div><span>Fit</span><b class="fit ' + f[0] + '">' + f[1] + "</b></div><div><span>Steps</span><b>" + g.s.length + "</b></div>" + (l ? '<div><span>Covered in</span><a href="#' + l.id + '">Lesson ' + l.num + ": " + esc(l.title) + "</a></div>" : "") + "</div></header>";
+    h += '<div class="ucg-grid"><div class="ucg-main"><section aria-labelledby="ucg-s"><h2 id="ucg-s">Step by step</h2><ol class="ucg-steps">' + li(g.s) + "</ol></section>";
+    if (g.p) h += '<section class="draft prompt ucg-prompt" aria-labelledby="ucg-p"><div class="draft-h"><span id="ucg-p">A prompt to start from</span><button type="button" class="copy-btn" id="ucg-copy">Copy</button></div><div class="draft-b">' + esc(g.p) + "</div></section>";
+    h += '<section aria-labelledby="ucg-c"><h2 id="ucg-c">Before you rely on it</h2><p class="ucg-check">' + esc(u.c) + "</p></section></div>";
+    h += '<aside class="ucg-side"><section class="ucg-box do"><h2>Do</h2><ul>' + li(g.y) + '</ul></section><section class="ucg-box dont"><h2>Don’t</h2><ul>' + li(g.n) + "</ul></section>";
+    if (g.t) h += '<section class="ucg-box tip"><h2>Tip</h2><p>' + esc(g.t) + "</p></section>";
+    if (g.k && g.k.length) h += '<section class="ucg-box lim"><h2>Limits</h2><ul>' + li(g.k) + "</ul></section>";
+    h += "</aside></div>";
+    h += '<nav class="pn ucg-pn" aria-label="More use cases">' + (prev ? '<a class="prev" href="#usecase/' + slug(prev.t) + '"><span>Previous</span><b>' + esc(prev.t) + "</b></a>" : "") + (next ? '<a class="next" href="#usecase/' + slug(next.t) + '"><span>Next in ' + esc(trackName(u.r)) + "</span><b>" + esc(next.t) + "</b></a>" : '<a class="next" href="#usecases"><span>End of ' + esc(trackName(u.r)) + "</span><b>All use cases</b></a>") + "</nav></article>";
+    $("#view").innerHTML = h;
+    var cb = $("#ucg-copy"); if (cb) cb.addEventListener("click", function () { copyText(g.p, function (ok) { cb.textContent = ok ? "Copied" : "Couldn't copy"; setTimeout(function () { cb.textContent = "Copy"; }, 1600); }); });
+  }
+  function useCaseTitle(key) { var u = (GW.useCases || []).filter(function (x) { return slug(x.t) === key; })[0]; return u ? u.t : "Use case"; }
 
   /* ---------- glossary page ---------- */
   function renderGlossary() {
@@ -665,14 +704,22 @@
     var l = byId[id], c = GW.content[id], path = routeFor(roles), onPath = path.indexOf(id) > -1;
     var seq = onPath ? path.map(function (x) { return byId[x]; }) : GW.lessons;
     var idx = seq.indexOf(l), prev = seq[idx - 1], next = seq[idx + 1];
+    // Lesson overview first (what you'll learn, the plan, how long), so the reading never starts as a wall of text.
+    var part = GW.parts.filter(function (p) { return p.id === l.part; })[0];
+    var nEx = c.html.split('<div class="activity">').length - 1, nChk = (c.html.match(/class="check"/g) || []).length;
+    var stat = function (v, k) { return '<div class="lo-stat"><b>' + v + "</b><span>" + k + "</span></div>"; };
     var h = '<article class="lesson">';
-    h += '<header class="lesson-head"><h1>' + esc(l.title) + "</h1>";
-    h += '<p class="meta"><span><b>Lesson ' + l.num + "</b></span><span>" + l.minutes + " min</span>" + (roles.length ? (onPath ? "<span>Step " + (idx + 1) + " of " + seq.length + " on your path</span>" : '<span class="path-off">Not on your path</span>') : "") + "</p>";
-    h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details>';
+    h += '<header class="lesson-head lo"><div class="lo-intro">';
+    h += '<p class="lo-eye">Lesson ' + l.num + " · " + esc(part.title) + (l.role ? " · " + esc(trackName(l.rid)) + " track, " + l.step + " of 3" : "") + "</p>";
+    h += "<h1>" + esc(l.title) + "</h1>";
+    h += '<p class="meta">' + (roles.length ? (onPath ? "<span>Step " + (idx + 1) + " of " + seq.length + " on your path</span>" : '<span class="path-off">Not on your path</span>') : "<span>" + l.minutes + " min</span>") + (progress[id] ? '<span class="lo-done">Completed</span>' : "") + "</p>";
     h += '<p class="lede">' + c.lede + "</p>";
-    h += '<div class="lsn-steps" hidden><div class="h"><span>In this lesson</span><b id="ls-cur"></b></div><ol></ol></div>';
-    h += '<div class="outcomes"><h2 class="oc-h">After this lesson you can</h2><ul>' + c.outcomes.map(function (o) { return "<li>" + o + "</li>"; }).join("") + "</ul></div></header>";
-    h += '<div class="lsn-side"><div class="learn"><h2>You\'ll learn</h2><ul>' + c.outcomes.map(function (o) { return '<li><span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>' + o + "</span></li>"; }).join("") + '</ul></div><nav class="toc" aria-label="On this page"><h2 class="toc-h">On this page</h2></nav></div>';
+    h += '<div class="lo-actions"><button type="button" class="btn pill dark" id="lo-start">' + (progress[id] ? "Review the lesson" : "Start the lesson") + "</button>" + (nEx ? '<button type="button" class="btn pill ghost" id="lo-ex">Go to the exercises</button>' : "") + "</div></div>";
+    h += '<div class="lo-stats">' + stat(l.minutes, "minutes") + stat('<span id="lo-nsec">–</span>', "sections") + stat(nEx, nEx === 1 ? "exercise" : "exercises") + stat(nChk, "quiz questions") + "</div>";
+    h += '<div class="lo-grid"><section class="learn lo-card" aria-labelledby="lo-learn"><h2 id="lo-learn">You\'ll learn</h2><ul>' + c.outcomes.map(function (o) { return '<li><span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>' + o + "</span></li>"; }).join("") + "</ul></section>";
+    h += '<section class="lo-card lo-plan" aria-labelledby="lo-planh"><h2 id="lo-planh">Lesson plan</h2><ol></ol></section></div>';
+    h += '<details class="toc-m"><summary>On this page</summary><nav aria-label="On this page, compact"></nav></details></header>';
+    h += '<div class="lsn-side"><nav class="toc" aria-label="On this page"><h2 class="toc-h">On this page</h2></nav></div>';
     var ex = roleExample(id), body = c.html;
     if (ex) body = body.indexOf('<section class="checks">') > -1 ? body.replace('<section class="checks">', ex + '<section class="checks">') : body + ex;
     var srcHtml = "", si = body.indexOf('<section class="sources">');
@@ -684,17 +731,25 @@
     else h += '<a class="next" href="#home"><span>' + (onPath ? "End of your path" : "Finished") + "</span><b>Back to course home</b></a>";
     h += "</div></footer>" + srcHtml + "</article>";
     var view = $("#view"); view.innerHTML = h;
-    $$(".activity", view).forEach(function (a, i) { a.id = "ex-" + (i + 1); });
+    var acts = $$(".activity", view);
+    acts.forEach(function (a, i) {
+      a.id = "ex-" + (i + 1);
+      var hd = $(".activity-h", a), w = $("[data-w]", a), kind = w && EX_KIND[w.getAttribute("data-w")];
+      if (hd) hd.insertAdjacentHTML("afterbegin", '<span class="ex-no">Exercise ' + (i + 1) + " of " + acts.length + "</span>" + (kind ? '<span class="ex-kd">' + esc(kind) + "</span>" : ""));
+      a.insertAdjacentHTML("beforeend", '<p class="activity-f">End of exercise ' + (i + 1) + ". The lesson continues below.</p>");
+    });
 
     // table of contents
     var toc = $(".toc", view), heads = $$(".lesson > h2, .lesson > section > h2", view);
-    var strip = $(".lsn-steps", view), stripOl = $("ol", strip);
-    strip.hidden = heads.length < 2;
+    // the interactive figure follows the first paragraph of its section
+    var fspec = GW.figures && GW.figures[id], figEl = GW.figure ? GW.figure(id) : null, figHead = null;
+    if (figEl) {
+      figHead = heads.filter(function (hd) { var nz = function (x) { return x.replace(/[’']/g, "'"); }; return nz(hd.textContent) === nz(fspec.at); })[0] || heads[0];
+      var after = figHead.nextElementSibling && figHead.nextElementSibling.tagName === "P" ? figHead.nextElementSibling : figHead;
+      after.parentNode.insertBefore(figEl, after.nextSibling);
+    }
+    planLesson(view, l, heads, figHead);
     heads.forEach(function (hd, k) {
-      var li = document.createElement("li"), sb = document.createElement("button");
-      sb.type = "button"; sb.textContent = k + 1; sb.title = hd.textContent; sb.setAttribute("aria-label", "Section " + (k + 1) + ": " + hd.textContent);
-      sb.addEventListener("click", function () { hd.scrollIntoView({ behavior: "smooth", block: "start" }); });
-      li.appendChild(sb); stripOl.appendChild(li);
       if (!hd.id) hd.id = slug(hd.textContent);
       var a = document.createElement("a"); a.href = "#" + id; a.textContent = hd.textContent; a.dataset.target = hd.id;
       a.addEventListener("click", function (e) { e.preventDefault(); hd.scrollIntoView({ behavior: "smooth", block: "start" }); });
@@ -731,8 +786,7 @@
     var readAt = 0;
     function paintReading(k) {
       if (k < 0) return; readAt = Math.max(readAt, k);
-      $$("li", stripOl).forEach(function (li, j) { li.classList.toggle("done", j < k); li.classList.toggle("cur", j === k); });
-      var cur = $("#ls-cur", view); if (cur) cur.textContent = heads[k] ? (k + 1) + " of " + heads.length + ": " + heads[k].textContent : "";
+      $$(".lo-plan li", view).forEach(function (li, j) { li.classList.toggle("done", j < readAt); li.classList.toggle("cur", j === k); });
       var outs = $$(".learn li", view), n = outs.length, H = heads.length;
       outs.forEach(function (li, i) { li.classList.toggle("on", !!progress[id] || readAt + 1 >= Math.ceil((i + 1) * H / n)); });
       if (GW.ext && heads[k]) GW.ext.reading(id, k, heads[k].id);
@@ -751,6 +805,8 @@
       persist(); paintComplete(); renderRail(id); paintReading(readAt);
     });
 
+    $("#lo-start", view).addEventListener("click", function () { if (heads[0]) heads[0].scrollIntoView({ behavior: "smooth", block: "start" }); });
+    if ($("#lo-ex", view)) $("#lo-ex", view).addEventListener("click", function () { acts[0].scrollIntoView({ behavior: "smooth", block: "start" }); });
     enhance(view);
     var fromLink = !!pendingSection;
     if (pendingSection) {
@@ -758,6 +814,25 @@
       if (t) setTimeout(function () { t.scrollIntoView({ block: "start" }); }, 30);
     }
     if (GW.ext) GW.ext.lessonMount(view, id, heads, fromLink || !!pendingScroll);
+  }
+
+  // The lesson plan: every section with what kind of step it is and roughly how long it takes.
+  function planLesson(view, l, heads, figHead) {
+    var rows = heads.map(function (hd) {
+      var nodes = [], n = hd.parentNode.tagName === "SECTION" ? null : hd.nextElementSibling;
+      if (hd.parentNode.tagName === "SECTION") nodes = [hd.parentNode];
+      while (n && n.tagName !== "H2" && !(n.tagName === "SECTION" && n.querySelector(":scope > h2"))) { nodes.push(n); n = n.nextElementSibling; }
+      var words = 0, acts = 0;
+      nodes.forEach(function (x) { words += (x.textContent || "").split(/\s+/).length; acts += x.matches(".activity") ? 1 : x.querySelectorAll(".activity").length; });
+      var t = hd.textContent, kind = acts || /^Practice/.test(t) ? "Exercise" : /^Check your/.test(t) ? "Quiz" : /^Try it/.test(t) ? "Task" : /^Worked example|^Capstone/.test(t) ? "Example" : "Reading";
+      return { hd: hd, kind: kind, w: words / 200 + acts * 4 + (kind === "Quiz" ? 2 : 0) };
+    });
+    var tot = rows.reduce(function (a, r) { return a + r.w; }, 0) || 1;
+    $("#lo-nsec", view).textContent = rows.length;
+    $(".lo-plan ol", view).innerHTML = rows.map(function (r, i) {
+      return '<li class="k-' + r.kind.toLowerCase() + '"><button type="button" data-k="' + i + '"><span class="n">' + (i + 1) + '</span><span class="t">' + esc(r.hd.textContent) + (r.hd === figHead ? ' <i class="fig-dot">Figure</i>' : "") + '</span><span class="kd">' + r.kind + '</span><span class="mn">' + Math.max(1, Math.round(r.w / tot * l.minutes)) + " min</span></button></li>";
+    }).join("");
+    $$(".lo-plan button", view).forEach(function (b) { b.addEventListener("click", function () { rows[+b.getAttribute("data-k")].hd.scrollIntoView({ behavior: "smooth", block: "start" }); }); });
   }
 
   /* ---------- enhancements: checks, terms, widgets ---------- */
@@ -1029,7 +1104,7 @@
     coreIds: coreIds, pathLong: pathLong, hours: hours, exercises: exercises, copyText: copyText, openPop: openPop, closePop: closePop,
     roles: function () { return roles; }, progress: function () { return progress; }, doneOf: doneOf,
     code: function () { return prettyCode(encodeProgress()); }, decode: decodeProgress, resumeLink: resumeLink,
-    codeLessons: CODE_LESSONS, route: route
+    codeLessons: CODE_LESSONS, route: route, renderUseCase: renderUseCase, useCaseTitle: useCaseTitle
   };
   // start once every script (extras.js included) has run
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", route); else route();

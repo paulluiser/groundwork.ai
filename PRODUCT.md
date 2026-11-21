@@ -38,8 +38,8 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
   - Each other role adds the first lesson of its track.
   - General is exclusive and gives the core lessons plus the capstone.
   - A single role also adds the first lesson of its neighbouring role.
-- **Use cases:** about eight per role, each rated good fit, use with care or keep human, with what to check and a link to the lesson that covers it.
-- **Lesson parts:** each lesson has a lede, outcomes, worked examples, an interactive exercise, a key idea, pitfalls, a "try it this week" task, three knowledge checks and numbered sources.
+- **Use cases:** about eight per role, each rated good fit, use with care or keep human, with what to check, a link to the lesson that covers it, and a full guide: steps, do's and don'ts, a tip, limits and often a starter prompt.
+- **Lesson parts:** each lesson opens on an overview (what you'll learn, a lesson plan with time per section, counts of exercises and quiz questions), then has a lede, outcomes, worked examples, an interactive figure matched to the topic, interactive exercises in their own visual theme, a key idea, pitfalls, a "try it this week" task, three knowledge checks and numbered sources.
 - **Build:** static HTML, CSS and JS with hash routing and no framework. It deploys as plain static files. Per-user data never leaves the browser except inside a progress code the learner copies themselves.
 - **Motion:** the landing headline retypes its role every 2.4 seconds; content stays visible without scripts, screen readers hear one steady sentence, and reduced motion swaps the role without typing.
 - **Terminology:** "path" means the learner's sequence of lessons, "main role" means the first pick, "track" means a role's three lessons, and "neighbouring role" means the role whose first lesson a single role adds.
