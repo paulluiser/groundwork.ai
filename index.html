@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Loona: AI for software teams</title>
 <meta name="description" content="A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.">
-<meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0B0B0A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FAFAF9">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Loona: AI for software teams">
 <meta property="og:description" content="A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.">
@@ -17,7 +16,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap">
 <script type="importmap">
 { "imports": {
   "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
@@ -26,7 +25,7 @@
 </script>
 <link rel="stylesheet" href="assets/style.css">
 <link rel="stylesheet" href="assets/print.css" media="print">
-<script>try { var t = localStorage.getItem("gw-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
+<script>var t = null; try { t = localStorage.getItem("gw-theme"); document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }</script>
 </head>
 <body>
 <a class="skip" href="#view">Skip to content</a>

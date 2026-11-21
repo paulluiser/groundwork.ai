@@ -280,13 +280,13 @@
     var h = '<div class="saver team">' + (has ? '<p class="pick-top"><a class="back" href="#progress">Progress</a></p>' : "") + '<h1>Team plan</h1><p class="lede">Choose the lessons your team will take, then share the link. Everyone’s progress stays in their own browser. Teammates paste their progress codes into the board to compare.</p>';
     h += '<form class="w tm-form" id="tm-form" novalidate><label for="tm-name">Team name</label><input type="text" id="tm-name" maxlength="60" placeholder="e.g. Payments squad" required>';
     h += '<fieldset class="tm-groups"><legend>Lessons in the plan</legend>' + groups.map(function (g) {
-      return '<label class="tm-g"><input type="checkbox" value="' + g.k + '"' + (g.k === "core" || g.k === "capstone" ? " checked" : "") + "><span><b>" + esc(g.name) + "</b><small>" + a.plural(g.ids.length, "lesson") + ", about " + a.hours(g.ids) + " h</small></span></label>";
+      return '<label class="tm-g"><input type="checkbox" value="' + g.k + '"' + (g.k === "core" || g.k === "capstone" ? " checked" : "") + "><span><b>" + esc(g.name) + "</b><small>" + a.plural(g.ids.length, "lesson") + ", about " + a.hours(g.ids) + "</small></span></label>";
     }).join("") + "</fieldset>";
     h += '<p class="tm-sum" id="tm-sum" aria-live="polite"></p><p class="pc-err" id="tm-err" role="alert"></p><div class="w-row"><button class="btn pill dark" type="submit">Create the plan</button></div></form></div>';
     a.$("#view").innerHTML = h;
     var form = a.$("#tm-form");
     function chosen() { var ks = a.$$("input[type=checkbox]:checked", form).map(function (c) { return c.value; }), ids = []; groups.forEach(function (g) { if (ks.indexOf(g.k) > -1) ids = ids.concat(g.ids); }); return ids; }
-    function sum() { var ids = chosen(); a.$("#tm-sum").textContent = ids.length ? a.plural(ids.length, "lesson") + ", about " + a.hours(ids) + " hours each" : "Choose at least one group of lessons"; }
+    function sum() { var ids = chosen(); a.$("#tm-sum").textContent = ids.length ? a.plural(ids.length, "lesson") + ", about " + a.hours(ids) + " each" : "Choose at least one group of lessons"; }
     form.addEventListener("change", sum); sum();
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -308,7 +308,7 @@
     var a = A(), plan = team.l, has = a.roles().length, mine = a.progress(), myN = plan.filter(function (id) { return mine[id]; }).length;
     var nextId = plan.filter(function (id) { return !mine[id]; })[0];
     var h = '<div class="saver team">' + (has ? '<p class="pick-top"><a class="back" href="#progress">Progress</a></p>' : "") + '<p class="kicker">Team plan</p><h1>' + esc(team.n) + "</h1>";
-    h += '<p class="lede">' + a.plural(plan.length, "lesson") + ", about " + a.hours(plan) + " hours each. Progress stays in each person’s browser. The board below is built from the codes you paste in, and only you can see it.</p>";
+    h += '<p class="lede">' + a.plural(plan.length, "lesson") + ", about " + a.hours(plan) + " each. Progress stays in each person’s browser. The board below is built from the codes you paste in, and only you can see it.</p>";
     if (!has) h += '<div class="notice">To start, choose your roles. The team’s lessons are open to everyone, whatever roles you pick.<div class="w-row"><a class="btn pill dark" href="#role">Choose your roles</a></div></div>';
     else h += '<div class="prog-top"><div class="prog-sum">' + a.moon(myN / plan.length, 28) + "<p><b>You: " + myN + " of " + plan.length + " done</b>" + (nextId ? '<span>Up next: <a href="#' + nextId + '">' + esc(a.byId[nextId].title) + "</a></span>" : "<span>You’ve finished the plan</span>") + "</p></div>" + (nextId ? '<a class="btn pill dark" href="#' + nextId + '">Continue</a>' : "") + "</div>";
     h += '<section class="tm-board"><h2>Board</h2>';
@@ -409,7 +409,7 @@
     a.$("#view").innerHTML = h;
     var cv = a.$("#ct-canvas"), name = a.$("#ct-name"), date = LONGDATE.format(new Date());
     function draw() { drawCert(cv, name.value.trim(), t, date); }
-    (document.fonts && document.fonts.load ? Promise.all([document.fonts.load("600 80px Geist"), document.fonts.load("400 24px Geist"), document.fonts.load("400 20px 'Geist Mono'")]) : Promise.resolve()).then(draw, draw);
+    (document.fonts && document.fonts.load ? Promise.all([document.fonts.load("600 80px 'Geist Mono'"), document.fonts.load("400 20px 'Geist Mono'")]) : Promise.resolve()).then(draw, draw);
     name.addEventListener("input", function () { save("gw-name", name.value.trim()); draw(); });
     a.$("#ct-dl").addEventListener("click", function () {
       if (!name.value.trim()) { a.$("#ct-msg").textContent = "Add your name first."; name.focus(); return; }
@@ -424,7 +424,7 @@
   }
   function drawCert(cv, who, t, date) {
     var a = A(), c = cv.getContext("2d"), W = cv.width, H = cv.height;
-    var INK = "#F4F3F0", INK2 = "#CFCCC6", MUTED = "#9A968F", ACC = "#4CC38A", F = "Geist, ui-sans-serif, system-ui, sans-serif", M = "'Geist Mono', ui-monospace, monospace";
+    var INK = "#F4F3F0", INK2 = "#CFCCC6", MUTED = "#9A968F", ACC = "#4CC38A", F = "'Geist Mono', ui-monospace, monospace", M = "'Geist Mono', ui-monospace, monospace";
     c.fillStyle = "#0B0B0A"; c.fillRect(0, 0, W, H);
     c.strokeStyle = "rgba(244,243,240,.14)"; c.lineWidth = 2; c.strokeRect(48, 48, W - 96, H - 96);
     // mark and name

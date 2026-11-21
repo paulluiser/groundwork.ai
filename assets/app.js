@@ -51,7 +51,7 @@
     return "";
   }
   var NUM = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
-  function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); return NUM.format(Math.round(m / 60 * 2) / 2); }
+  function hours(ids) { var m = ids.reduce(function (a, id) { return a + byId[id].minutes; }, 0); var h = NUM.format(Math.round(m / 60 * 2) / 2); return h + (h === "1" ? " hour" : " hours"); }
   // Loona's signature: progress drawn as a moon phase, new (nothing done) to full (all done). Used only for progress.
   function moon(f, size, label) {
     f = Math.max(0, Math.min(1, f || 0)); size = size || 18;
@@ -399,7 +399,7 @@
         p += "<li><b>Capstone: 1 lesson</b><span>" + esc(byId["team-adoption"].title) + "</span></li></ul>";
         p += '<div class="role-ex"><div class="role-ex-h"><span class="tag">' + (gen ? "Example" : "Example from lesson 2") + "</span><b>" + esc(gen ? "For any role" : main.name) + "</b></div><p>" + GW.roleEx.context[main.id] + "</p></div>";
         pathBox.innerHTML = p;
-        sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + " hours</span>";
+        sum.innerHTML = note ? esc(note) : "<b>" + esc(pathName(picked)) + "</b><span>" + plural(ids.length, "lesson") + ", about " + hours(ids) + "</span>";
       } else { pathBox.innerHTML = ""; sum.textContent = note || "Choose at least one role"; }
       go.disabled = !picked.length;
       go.textContent = first ? "Start the course" : "Save roles";
@@ -447,7 +447,7 @@
     if (notice) { h += '<p class="notice" role="status">' + esc(notice) + "</p>"; notice = ""; }
     h += '<section class="dash2"><p class="kicker">Your path: ' + esc(pathLong(roles)) + "</p>";
     h += "<h1>" + (!next ? "Path complete" : n ? "You're on step " + pos + " of " + path.length : "Start your path") + "</h1>";
-    h += '<div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + " done" + (left.length ? ", about " + hours(left) + " hours left" : "") + "</span></div>";
+    h += '<div class="pbar" aria-label="Progress on your path"><span class="pbar-track"><i style="width:' + Math.round(100 * n / path.length) + '%"></i></span><span class="pbar-t">' + n + " of " + path.length + " done" + (left.length ? ", about " + hours(left) + " left" : "") + "</span></div>";
     if (next) {
       var nl = byId[next];
       h += '<a class="upnext" href="#' + next + '"><span class="un-k">Up next: lesson ' + nl.num + ", " + nl.minutes + '\u00a0min</span><b>' + esc(nl.title) + '</b><span class="un-s">' + esc(nl.summary) + '</span><span class="btn pill dark">' + (n ? "Continue lesson" : "Start lesson") + "</span></a>";

@@ -2,7 +2,6 @@
  * floor: 0 FAIL · fixed: 10a, 34, 48, 54, 63, 67, 38i, 29, 26b · built: the project · redesign: apple-style system per the user's request · v2.0.0 */
 /* Hallmark · waive 7b · the page is white by design and the frame is black · the course palette is white 60%, black 30%, cobalt 10%, set by the user */
 /* Hallmark · waive 24b · lesson pages keep their existing reading rhythm of 6, 10 and 18px steps · respacing every course lesson is out of scope for this landing pass */
-/* Hallmark · waive 1 · headings and reading use the platform system font, SF Pro on Apple devices · the user asked for the course to look designed by Apple */
 /* Hallmark · dismissed 29 · the translucent top bar and tab bar were asked for by the user, who wants the course to feel designed by Apple; both fall back to solid white under reduced transparency */
 /* Hallmark · dismissed F7 · the shared tint panel is the lesson system for asides, outcomes and exercise results across 21 lessons */
 /* Hallmark · dismissed F15 · lesson grid, course map and picker are different screens with their own column gaps */
@@ -11,8 +10,8 @@
    on phones the tabs move to a bottom tab bar. One ~72-character reading column, contents in the right margin.
    Colour: white page, #F5F5F7 grouped surfaces, near-black #1D1D1F type and fills, cobalt for links, actions, progress and "correct".
    States are coded by shape as well as colour: solid = confirmed, outlined = check it, dashed = uncertain, black = wrong.
-   Type: the platform system font (SF Pro on Apple devices) with size-specific tracking; ui-monospace for code only.
-   Light and dark themes. Design system v2 (end of file) re-points every token: neutral surfaces, one green accent, Geist. */
+   Type: Geist Mono for all text (see the design system v2 tokens near the end of the file).
+   Light and dark themes. Design system v2 (end of file) re-points every token: neutral surfaces, one green accent, Geist Mono. */
 :root {
   color-scheme: light dark;
   --white: #FFFFFF;
@@ -1476,7 +1475,7 @@ html { scroll-padding-bottom: 24px; }
 
 /* =====================================================================
    Design system v2: neutral surfaces, near-black ink, one green accent,
-   Geist type, hairline borders, quiet depth. This layer re-points the
+   Geist Mono type, hairline borders, quiet depth. This layer re-points the
    tokens above and restyles components; it wins by coming last.
    ===================================================================== */
 :root {
@@ -1524,8 +1523,8 @@ html { scroll-padding-bottom: 24px; }
   --shadow-lg: 0 2px 4px rgba(17, 17, 16, .04), 0 24px 48px -16px rgba(17, 17, 16, .24);
   --fig-1: #E6E5E2; --fig-2: #F0EFEC; --fig-3: #D6D4CF; --fig-4: #C4C1BB;
 
-  --font-head: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-body: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --t-xs: 12.5px; --t-sm: 14px; --t-base: 16px; --t-lede: 18px;
   --t-h3: 18px; --t-h2: 22px; --t-h1: 34px;
@@ -1978,7 +1977,7 @@ body.bare .signin-btn:hover { background: var(--tint); border-color: var(--mute-
   --lx-glass: rgba(20, 20, 19, .62); --lx-glass-2: rgba(28, 28, 26, .74); --lx-ground: rgba(11, 11, 10, .5);
   --lx-radius: 14px; --lx-radius-lg: 14px; --lx-maxw: 1180px;
   --lx-shadow: 0 24px 48px -16px rgba(0, 0, 0, .8);
-  --lx-font: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --lx-font: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --lx-white-04: rgba(244, 243, 240, .04); --lx-white-05: rgba(244, 243, 240, .05); --lx-white-06: rgba(244, 243, 240, .06);
   --lx-white-09: rgba(244, 243, 240, .09); --lx-white-10: rgba(244, 243, 240, .1); --lx-white-40: rgba(244, 243, 240, .4);
   --lx-shade-55: rgba(0, 0, 0, .55); --lx-shade-60: rgba(0, 0, 0, .6); --lx-shade-25: rgba(0, 0, 0, .25);
@@ -2121,7 +2120,7 @@ html.lenis, html.lenis body { height: auto; }
   .lx-btn, .lx-card { transition: none; }
 }
 
-/* ---------- Loona wordmark: a crescent and the name in Geist, drawn in currentColor so it follows every theme ---------- */
+/* ---------- Loona wordmark: a crescent and the name in Geist Mono, drawn in currentColor so it follows every theme ---------- */
 .brand { gap: 8px; color: var(--ink); text-decoration: none; }
 .brand .brand-mark { width: 22px; height: 22px; display: block; fill: currentColor; }
 .brand .brand-word { font-family: var(--font-head); font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1; color: inherit; }
@@ -2306,3 +2305,6 @@ body.on-landing .brand { color: var(--lx-ink); }
 .cert .w label, .tm-share .w label, .tm-form > label { display: block; }
 .cert .w input, .team input[type="text"] { font-family: var(--font-body); }
 .uc-find input { font-family: var(--font-body); font-size: 16px; }
+
+/* Geist Mono is wide: the phone tab bar's labels get a smaller size and tighter tracking so five fit */
+@media (max-width: 760px) { .tabs a { font-size: 10px; letter-spacing: -.04em; } .tabs a span { white-space: nowrap; } }

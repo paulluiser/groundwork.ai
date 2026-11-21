@@ -47,7 +47,7 @@ The site shows the version in small text at the bottom of the lesson sidebar. To
 
 ## Design system
 
-The visual rules live in the design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist and Geist Mono, hairline borders and soft depth, in light and dark themes.
+The visual rules live in the design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist Mono for all text, hairline borders and soft depth. Light is the default theme; dark only when someone switches to it.
 
 - In code, the system is the last section of `assets/style.css` ("Design system v2"). It re-points every colour token for both themes and restyles components. Change values there, not in the older sections above it.
 - The logo is the original artwork in `assets/brand/` (ink and reversed versions, plus the G mark for small spaces). Don't redraw it.
