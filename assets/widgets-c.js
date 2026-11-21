@@ -53,7 +53,7 @@
     var list = box.querySelector(".sort-list"), res = box.querySelector(".result"), done = 0, right = 0;
     claims.forEach(function (c) {
       var d = document.createElement("div"); d.className = "sort-item";
-      var sw = c.fg ? '<span style="display:inline-block;padding:6px 12px;border-radius:6px;margin:0 0 8px;font-family:var(--font-body);font-size:15px;background:' + c.bg + ";color:" + c.fg + ';border:1px solid var(--line)">Sample text Aa</span>' : "";
+      var sw = c.fg ? '<span style="display:inline-block;padding:6px 12px;border-radius:6px;margin:0 0 8px;font-family:var(--font-body);font-size:var(--t-sm);background:' + c.bg + ";color:" + c.fg + ';border:1px solid var(--line)">Sample text Aa</span>' : "";
       d.innerHTML = sw + "<p>“" + esc(c.t) + '”</p><div class="w-row"><button class="chip" data-v="1">I\'d accept it</button><button class="chip" data-v="0">I\'d doubt it</button></div><div class="why" hidden></div>';
       d.addEventListener("click", function (e) {
         var b = e.target.closest(".chip"); if (!b || d.dataset.done) return;

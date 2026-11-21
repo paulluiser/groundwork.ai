@@ -20,7 +20,8 @@ colors:
 typography:
   sans: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
   mono: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
-  scale: { display: "clamp(40px, 5.4vw, 64px)/1.02 600 -0.04em", h1: "34px/1.12 600 -0.03em", h2: "22px 600 -0.018em", h3: "17-18px 600", lede: "18px/1.6", body: "16px/1.6", small: "14px", caption: "12-13px" }
+  scale: { display: "clamp(36px, 5.4vw, 64px) 600 -0.02em", h1: "clamp(28px, 3.2vw, 40px) 600 -0.02em", h2: "24px 600 -0.01em", h3: "20px 600", lede: "18px", base: "16px", sm: "14px", caption: "13px", xs: "12px", micro: "11px" }
+  leading: { tight: 1.1, snug: 1.3, text: 1.5, body: 1.6 }
 radius: { sm: "6px", md: "10px", lg: "14px", full: "999px" }
 depth: "Borders. Shadows only on layers that float: dialogs, pop-ups, the hero card."
 ---
@@ -43,7 +44,9 @@ Dials, from the design-engineering suite:
 
 - Geist Mono for everything: display, body, labels, numbers and code (changed 21 November 2026 at the project lead's request; Geist sans is no longer loaded). Reason: the course is for software teams, and a monospace face makes it read like the tools they already use. Hierarchy comes from size, weight (400 to 600) and colour. Mono is wide, so the phone tab bar labels drop to 10px with tight tracking to fit five.
 - Sentence case for every heading, tab, badge and button. No tracked capitals.
-- Three weights: 400, 500 and 600. Hierarchy comes from size and colour, not from bold. No negative letter spacing under 16px.
+- **One scale, defined once** (`--t-micro` 11, `--t-xs` 12, `--t-caption` 13, `--t-sm` 14, `--t-base` 16, `--t-lede` 18, `--t-h3` 20, `--t-h2` 24, `--t-h1` and `--t-display` fluid) in the Design system v2 `:root`. Every `font-size` in `style.css` uses a token; never write a px size. Leading uses `--lh-tight`, `--lh-snug`, `--lh-text` and `--lh-body`. On phones lede, h3 and h2 step down one notch. The two deliberate exceptions are the landing headline (its height is tuned to its line-height) and the 10px phone tab labels.
+- **Three weights: 400, 500 and 600.** Geist Mono is loaded at exactly these, so 700 would be a browser-faked bold; `b`, `strong`, `th` and `dt` are set to 600. 400 is for text, 500 for UI and labels, 600 for headings and emphasis.
+- **Tracking:** h1 and display -0.02em, h2 -0.01em, everything else 0. Monospace shouldn't be tightened at text sizes. Inline code is the text size (everything is already mono); code blocks use `--t-caption`.
 - Headings, captions, buttons and short status lines end without a period; only multi-sentence paragraphs keep them.
 
 ## Colour
