@@ -8,6 +8,7 @@
   "use strict";
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var KIND = { flow: "Step through", cycle: "Loop", timeline: "Timeline", spectrum: "Scale", matrix: "Map", zones: "Trust map", stack: "Fit the limit", compare: "Compare", hotspots: "Annotated" };
+  var KIC = { flow: "flow", cycle: "cycle", timeline: "timeline", spectrum: "sliders", matrix: "grid", zones: "shield", stack: "layers", compare: "columns", hotspots: "pin" };
   var R = {};
 
   // shared: a detail panel with previous / next, for the kinds you step through
@@ -167,7 +168,7 @@
     var f = GW.figures && GW.figures[id]; if (!f || !R[f.kind]) return null;
     f.id = f.id || "fg-" + id;
     var fig = document.createElement("figure"); fig.className = "fig fig-" + f.kind; fig.setAttribute("aria-labelledby", f.id + "-t");
-    fig.innerHTML = '<figcaption class="fig-h"><span class="fig-tag">Interactive figure · ' + KIND[f.kind] + '</span><b id="' + f.id + '-t">' + esc(f.title) + "</b>" + (f.sub ? "<span class=\"fig-sub\">" + esc(f.sub) + "</span>" : "") + '</figcaption><div class="fig-b"></div>' + (f.note ? '<p class="fig-note">' + f.note + "</p>" : "");
+    fig.innerHTML = '<figcaption class="fig-h"><span class="fig-tag">' + (GW.icon ? GW.icon(KIC[f.kind]) : "") + "Interactive figure · " + KIND[f.kind] + '</span><b id="' + f.id + '-t">' + esc(f.title) + "</b>" + (f.sub ? "<span class=\"fig-sub\">" + esc(f.sub) + "</span>" : "") + '</figcaption><div class="fig-b"></div>' + (f.note ? '<p class="fig-note">' + f.note + "</p>" : "");
     try { R[f.kind](fig.querySelector(".fig-b"), f); } catch (e) { console.error(e); return null; }
     return fig;
   };

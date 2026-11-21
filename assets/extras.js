@@ -380,7 +380,7 @@
     var box = view.querySelector(".qr-box"); if (!box) return;
     box.addEventListener("toggle", function () {
       if (!box.open || box.dataset.done) return;
-      var el = box.querySelector("#qr"); el.innerHTML = '<p class="fine">Loading…</p>';
+      var el = box.querySelector("#qr"); el.innerHTML = '<div class="ld-wrap">' + GW.skeleton("square") + '<span class="ld-over">' + GW.loader("Loading the QR code") + "</span></div>";
       qrLoad = qrLoad || new Promise(function (ok, no) {
         if (window.qrcode) return ok();
         var s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s);
@@ -403,12 +403,12 @@
     if (!full) { h += '<p class="gloss-empty">' + (t ? "Finish every lesson in this track first: " + t.ids.filter(function (id) { return done[id]; }).length + " of " + t.ids.length + " done." : "That track isn’t on your path.") + '</p><a class="btn pill dark" href="#progress">Back to progress</a></div>'; a.$("#view").innerHTML = h; return; }
     h += '<p class="lede">' + esc(t.name) + ", " + a.plural(t.ids.length, "lesson") + '. Add your name as you want it to appear, then download the image.</p>';
     h += '<div class="w"><label for="ct-name">Your name</label><input type="text" id="ct-name" maxlength="48" autocomplete="name" value="' + esc(load("gw-name", "") || "") + '"></div>';
-    h += '<canvas class="cert-canvas" id="ct-canvas" width="1600" height="1000" role="img" aria-label="Certificate preview"></canvas>';
+    h += '<div class="ld-wrap cert-wrap" id="ct-wrap"><canvas class="cert-canvas" id="ct-canvas" width="1600" height="1000" role="img" aria-label="Certificate preview"></canvas><span class="ld-over">' + GW.loader("Drawing your certificate", "lg") + "</span></div>";
     h += '<div class="w-row"><button type="button" class="btn pill dark" id="ct-dl">Download the image</button><span class="fine" id="ct-msg" aria-live="polite"></span></div>';
     h += '<p class="fine">Self-reported: progress is saved in your browser, and the certificate isn’t verified by anyone.</p></div>';
     a.$("#view").innerHTML = h;
     var cv = a.$("#ct-canvas"), name = a.$("#ct-name"), date = LONGDATE.format(new Date());
-    function draw() { drawCert(cv, name.value.trim(), t, date); }
+    function draw() { drawCert(cv, name.value.trim(), t, date); var w = a.$("#ct-wrap"); if (w) w.classList.add("ready"); }
     (document.fonts && document.fonts.load ? Promise.all([document.fonts.load("600 80px 'Geist Mono'"), document.fonts.load("400 20px 'Geist Mono'")]) : Promise.resolve()).then(draw, draw);
     name.addEventListener("input", function () { save("gw-name", name.value.trim()); draw(); });
     a.$("#ct-dl").addEventListener("click", function () {

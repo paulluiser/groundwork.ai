@@ -152,8 +152,18 @@ Each lesson contains `<div class="activity">` blocks with a `data-w` widget and 
 
 **Exercises tab:** the app finds every `.activity` block itself. It opens on a dashboard (progress for the current scope, an "Up next" card in the exercise theme, and kind filters grouped into four families by `EX_FAM`), then a list in the style of a problem set with To do / Done filters. An exercise counts as done when its lesson is complete. Rows link to `#lesson` with `data-scroll="ex-N"`.
 
+### Loading states (assets/loading.js, inline CSS in index.html)
+- **Logo reveal:** on the first load of a browser session (`sessionStorage` `kn-boot`), a full-screen overlay draws the two slashes in turn, then the wordmark. It fades once the app has painted and fonts are in, held for at least about 1.15s. If the app isn't ready by 1.3s the mark switches to the loader loop. A CSS fail-safe hides the overlay after 6s regardless.
+- **Loader:** `GW.loader(label, "lg")`, the two slashes drawing and clearing in a loop. It's used for the QR code and the certificate canvas.
+- **Skeletons:** `GW.skeleton()` or `GW.skeleton("square")`. Shimmering blocks fill `#view` in `index.html` until the first route renders; the QR panel uses the square one.
+- The CSS sits inline in `<head>` so it paints before `style.css`. Reduced motion swaps the drawing for a static mark and a gentle pulse, with no shimmer.
+
+### Icons (assets/icons.js)
+- `GW.icon(name, cls)` returns one line set drawn like the topbar icons: 24px grid, 1.7 stroke, round caps, `currentColor`. They're decorative (`aria-hidden`); the text next to them carries the meaning.
+- **Where they're used:** lesson fact chips and plan kinds; the exercise band; figure tags (one per figure kind); Exercises dashboard cards, kind families and rows; use case fit badges, guide links and guide sections. Add new icons to the `P` map in `icons.js`; don't paste one-off SVGs.
+
 ### Lesson overview and figures
-- **Overview:** each lesson opens on a landing block before the reading: eyebrow (lesson, part, track), title, path step, lede, Start / Go to the exercises buttons, four stats (minutes, sections, exercises, quiz questions), "You'll learn" (ticks as you read) and a clickable **Lesson plan** (`planLesson()` in `app.js`). The plan tags each section Reading, Example, Exercise, Quiz or Task and splits the lesson's minutes by word count plus exercise time. The old "In this lesson" strip is gone, and the side column holds only "On this page".
+- **Overview (compact):** a two-column landing that fits one screen. The left column holds the lesson number badge and part, the title, a row of fact chips with icons (minutes, sections, exercises, quiz questions, path step, completed), the lede, Start / Go to the exercises, then "You'll learn" (two columns, ticks as you read). The right column holds the **Lesson plan** (`planLesson()` in `app.js`): 36px rows, each tagged with an icon and a kind (Reading, Example, Exercise, Quiz or Task) plus minutes, the lesson's time split by word count and exercise time. Layout breakpoints use container queries on `.lesson`, so it stacks when the lesson column is narrow, not just on small screens.
 - **Interactive figures** (`assets/figures.js` engine, `assets/figures-data.js` specs): one per lesson, inserted after the first paragraph of the section named in `at`. There are nine kinds chosen to fit the topic: flow, cycle, timeline, spectrum, matrix, zones, stack, compare and hotspots. Figures are part of the reading and styled as white cards, not like exercises. Matrix quadrants `q` are ordered top-left, top-right, bottom-left, bottom-right. Numbers in figures are illustrative and labelled as such.
 
 ### Use case guides

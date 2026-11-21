@@ -20,8 +20,60 @@
 <link rel="stylesheet" href="assets/style.css">
 <link rel="stylesheet" href="assets/print.css" media="print">
 <script>var t = null; try { t = localStorage.getItem("gw-theme"); document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }</script>
+<script>try { if (!sessionStorage.getItem("kn-boot")) { document.documentElement.classList.add("boot-on"); sessionStorage.setItem("kn-boot", "1"); } } catch (e) { /* no storage: skip the reveal */ }</script>
+<style>
+/* Loading states, inline so they paint before style.css arrives: the logo reveal, the logo loader and skeletons. */
+:root { --ld-bg: #F5F3EE; --ld-ink: #111110; --ld-acc: #17734D; --ld-sk: #E8E4DB; --ld-sk-hi: #F4F1EA; }
+:root[data-theme="dark"] { --ld-bg: #0B0B0A; --ld-ink: #F4F3F0; --ld-acc: #4CC38A; --ld-sk: #1C1C1A; --ld-sk-hi: #2A2926; }
+.boot { display: none; }
+.boot-on .boot { position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center; justify-items: center; gap: 14px; background: var(--ld-bg); animation: boot-kill 0s 6s forwards; }
+.boot-on body { overflow: hidden; }
+.boot svg { width: 72px; height: 72px; overflow: visible; }
+.boot line, .kload line { fill: none; stroke-width: 4.6; stroke-linecap: round; stroke-dasharray: 100 120; }
+.boot .s1, .kload .s1 { stroke: var(--ld-ink); }
+.boot .s2, .kload .s2 { stroke: var(--ld-acc); }
+.boot .s1 { stroke-dashoffset: 100; animation: boot-draw .46s cubic-bezier(.65, 0, .35, 1) .08s forwards; }
+.boot .s2 { stroke-dashoffset: 100; animation: boot-draw .46s cubic-bezier(.65, 0, .35, 1) .3s forwards; }
+.boot-word { font: 500 22px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: -.02em; color: var(--ld-ink); opacity: 0; transform: translateY(6px); animation: boot-word .4s cubic-bezier(.2, .8, .2, 1) .62s forwards; }
+.boot.wait .s1, .boot.wait .s2 { stroke-dashoffset: 0; animation: k-loop 1.3s cubic-bezier(.65, 0, .35, 1) infinite; }
+.boot.wait .s2 { animation-delay: .22s; }
+.boot.out { opacity: 0; transition: opacity .38s ease; pointer-events: none; }
+.boot.out svg { transform: scale(.94); transition: transform .38s ease; }
+@keyframes boot-draw { to { stroke-dashoffset: 0; } }
+@keyframes boot-word { to { opacity: 1; transform: none; } }
+@keyframes boot-kill { to { visibility: hidden; opacity: 0; } }
+/* the loader: each slash draws, then clears from the top, the green one a beat behind */
+.kload { display: inline-grid; place-items: center; width: 28px; height: 28px; vertical-align: middle; }
+.kload.lg { width: 44px; height: 44px; }
+.kload svg { width: 100%; height: 100%; overflow: visible; }
+.kload line { stroke-width: 4.2; stroke-dashoffset: 100; animation: k-loop 1.3s cubic-bezier(.65, 0, .35, 1) infinite; }
+.kload .s2 { animation-delay: .22s; }
+@keyframes k-loop { 0% { stroke-dashoffset: 100; } 45%, 55% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -100; } }
+/* skeletons: blocks shaped like the coming content, with a slow sheen */
+.sk { display: grid; gap: 12px; max-width: 1040px; margin: 0 auto; padding: 8px 0; }
+.sk-b { display: block; height: 14px; border-radius: 6px; background: linear-gradient(100deg, var(--ld-sk) 30%, var(--ld-sk-hi) 50%, var(--ld-sk) 70%) 0 0 / 300% 100%; animation: sk-sheen 1.6s linear infinite; }
+.sk-b.eye { width: 140px; height: 12px; }
+.sk-b.h1 { width: min(560px, 80%); height: 40px; margin: 4px 0 8px; border-radius: 8px; }
+.sk-b.ln { width: min(620px, 100%); }
+.sk-b.short { width: min(380px, 62%); }
+.sk-b.tag { width: 80px; height: 20px; border-radius: 99px; }
+.sk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 20px; }
+.sk-card { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--ld-sk); border-radius: 14px; }
+.sk-square { width: 100%; aspect-ratio: 1; padding: 0; }
+.sk-square .fill { height: 100%; border-radius: 8px; }
+@keyframes sk-sheen { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .boot .s1, .boot .s2 { stroke-dashoffset: 0; animation: none; }
+  .boot-word { opacity: 1; transform: none; animation: none; }
+  .kload line { stroke-dashoffset: 0; animation: k-pulse 1.4s ease-in-out infinite; }
+  .boot.wait .s1, .boot.wait .s2 { animation: k-pulse 1.4s ease-in-out infinite; }
+  .sk-b { animation: none; }
+  @keyframes k-pulse { 50% { opacity: .35; } }
+}
+</style>
 </head>
 <body>
+<div class="boot" id="boot" aria-hidden="true"><svg viewBox="0 0 32 32"><line class="s1" x1="8" y1="5" x2="15" y2="27" pathLength="100"/><line class="s2" x1="17" y1="5" x2="24" y2="27" pathLength="100"/></svg><span class="boot-word">Kern</span></div>
 <a class="skip" href="#view">Skip to content</a>
 <header class="topbar">
   <button class="tb-btn menu-btn" id="menu-btn" aria-label="Open lesson list" aria-controls="rail">
@@ -49,9 +101,11 @@
 </header>
 <div class="shell">
   <nav class="rail" id="rail" aria-label="Lessons"></nav>
-  <main class="view" id="view" tabindex="-1"></main>
+  <main class="view" id="view" tabindex="-1" aria-busy="true"><div class="sk" aria-hidden="true"><span class="sk-b eye"></span><span class="sk-b h1"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span><div class="sk-grid"><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div></div></div><span class="sr-only">Loading the course</span></main>
 </div>
 
+<script src="assets/loading.js"></script>
+<script src="assets/icons.js"></script>
 <script src="assets/course.js"></script>
 <script src="content/01-how-models-work.js"></script>
 <script src="content/02-context.js"></script>
@@ -114,5 +168,6 @@
 <script src="assets/practice.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/extras.js"></script>
+<script>document.addEventListener("DOMContentLoaded", function () { document.getElementById("view").removeAttribute("aria-busy"); requestAnimationFrame(function () { GW.bootDone(); }); });</script>
 </body>
 </html>
