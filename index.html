@@ -10,16 +10,11 @@
 <meta property="og:title" content="Kern: AI for software teams">
 <meta property="og:description" content="A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="assets/brand/kern-mark.svg" type="image/svg+xml">
-<link rel="icon" href="assets/brand/favicon.png" type="image/png" sizes="64x64">
-<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="assets/style.css">
-<link rel="stylesheet" href="assets/print.css" media="print">
-<script>var t = null; try { t = localStorage.getItem("gw-theme"); document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }</script>
+<link rel="icon" href="./brand/kern-mark.svg" type="image/svg+xml">
+<link rel="icon" href="./brand/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="./brand/apple-touch-icon.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<script>var t = null; try { t = localStorage.getItem("gw-theme"); document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light"); if (t === "dark") document.documentElement.classList.add("dark"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }</script>
 <script>try { if (!sessionStorage.getItem("kn-boot")) { document.documentElement.classList.add("boot-on"); sessionStorage.setItem("kn-boot", "1"); } } catch (e) { /* no storage: skip the reveal */ }</script>
 <style>
 /* Loading states, inline so they paint before style.css arrives: the logo reveal, the logo loader and skeletons. */
@@ -71,103 +66,11 @@
   @keyframes k-pulse { 50% { opacity: .35; } }
 }
 </style>
+
 </head>
 <body>
 <div class="boot" id="boot" aria-hidden="true"><svg viewBox="0 0 32 32"><line class="s1" x1="8" y1="5" x2="15" y2="27" pathLength="100"/><line class="s2" x1="17" y1="5" x2="24" y2="27" pathLength="100"/></svg><span class="boot-word">Kern</span></div>
-<a class="skip" href="#view">Skip to content</a>
-<header class="topbar">
-  <button class="tb-btn menu-btn" id="menu-btn" aria-label="Open lesson list" aria-controls="rail">
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
-  </button>
-  <a class="brand" href="#welcome" aria-label="Kern, about the course"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="s1" x1="8" y1="5" x2="15" y2="27"/><line class="s2" x1="17" y1="5" x2="24" y2="27"/></svg><span class="brand-word">Kern</span></a>
-  <nav class="tabs" id="tabs" aria-label="Course sections" hidden>
-    <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg><span>Lessons</span></a>
-    <a href="#exercises" data-tab="exercises"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/></svg><span>Exercises</span></a>
-    <a href="#usecases" data-tab="usecases"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg><span>Use cases</span></a>
-    <a href="#glossary" data-tab="glossary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19l5.5-14h3L19 19M7.6 13.5h8.8"/></svg><span>Glossary</span></a>
-    <a href="#progress" data-tab="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8h-8z"/></svg><span>Progress</span></a>
-  </nav>
-  <span class="spacer"></span>
-  <a class="tb-btn role-btn" id="role-btn" href="#role" hidden></a>
-  <a class="tb-btn signin-btn" id="signin-btn" href="#progress" hidden>Have a code?</a>
-  <button class="tb-btn" id="search-btn" aria-label="Search the course">
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-    <span class="lbl">Search</span><kbd>/</kbd>
-  </button>
-  <button class="tb-btn theme-btn" id="theme-btn" type="button" aria-label="Switch to dark mode">
-    <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-    <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-  </button>
-</header>
-<div class="shell">
-  <nav class="rail" id="rail" aria-label="Lessons"></nav>
-  <main class="view" id="view" tabindex="-1" aria-busy="true"><div class="sk" aria-hidden="true"><span class="sk-b eye"></span><span class="sk-b h1"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span><div class="sk-grid"><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div></div></div><span class="sr-only">Loading the course</span></main>
-</div>
-
-<script src="assets/loading.js"></script>
-<script src="assets/icons.js"></script>
-<script src="assets/course.js"></script>
-<script src="content/01-how-models-work.js"></script>
-<script src="content/02-context.js"></script>
-<script src="content/03-failure-modes.js"></script>
-<script src="content/03b-choosing-models.js"></script>
-<script src="content/04-asking-well.js"></script>
-<script src="content/05-checking-work.js"></script>
-<script src="content/06-tools-agents.js"></script>
-<script src="content/07-data-security.js"></script>
-<script src="content/08-product.js"></script>
-<script src="content/08-2-product-discovery.js"></script>
-<script src="content/08-3-product-ai-features.js"></script>
-<script src="content/09-design.js"></script>
-<script src="content/09-2-design-research.js"></script>
-<script src="content/09-3-design-ai-ux.js"></script>
-<script src="content/10-engineering.js"></script>
-<script src="content/10-2-engineering-agents.js"></script>
-<script src="content/10-3-engineering-review.js"></script>
-<script src="content/11-qa.js"></script>
-<script src="content/11-2-qa-automation.js"></script>
-<script src="content/11-3-qa-ai-features.js"></script>
-<script src="content/11b-security.js"></script>
-<script src="content/11b-2-security-threat-models.js"></script>
-<script src="content/11b-3-security-detection.js"></script>
-<script src="content/11c-data-analytics.js"></script>
-<script src="content/11c-2-data-analysis.js"></script>
-<script src="content/11c-3-data-quality.js"></script>
-<script src="content/11d-technical-writing.js"></script>
-<script src="content/11d-2-docs-for-ai.js"></script>
-<script src="content/11d-3-docs-maintenance.js"></script>
-<script src="content/12-delivery.js"></script>
-<script src="content/12-2-delivery-flow.js"></script>
-<script src="content/12-3-delivery-rituals.js"></script>
-<script src="content/12b-project-management.js"></script>
-<script src="content/12b-2-pm-planning.js"></script>
-<script src="content/12b-3-pm-vendors.js"></script>
-<script src="content/12c-engineering-management.js"></script>
-<script src="content/12c-2-em-measuring.js"></script>
-<script src="content/12c-3-em-people.js"></script>
-<script src="content/13-operations.js"></script>
-<script src="content/13-2-ops-iac.js"></script>
-<script src="content/13-3-ops-llm.js"></script>
-<script src="content/13b-customer-support.js"></script>
-<script src="content/13b-2-support-knowledge.js"></script>
-<script src="content/13b-3-support-assistant.js"></script>
-<script src="content/14-team-adoption.js"></script>
-<script src="assets/role-examples.js"></script>
-<script src="assets/use-cases.js"></script>
-<script src="assets/use-case-guides.js"></script>
-<script src="assets/use-case-guides-b.js"></script>
-<script src="assets/use-case-guides-c.js"></script>
-<script src="assets/widgets.js"></script>
-<script src="assets/widgets-b.js"></script>
-<script src="assets/widgets-c.js"></script>
-<script src="assets/widgets-d.js"></script>
-<script src="assets/widgets-e.js"></script>
-<script src="assets/figures.js"></script>
-<script src="assets/figures-data.js"></script>
-<script src="assets/version.js"></script>
-<script src="assets/practice.js"></script>
-<script src="assets/app.js"></script>
-<script src="assets/extras.js"></script>
-<script>document.addEventListener("DOMContentLoaded", function () { document.getElementById("view").removeAttribute("aria-busy"); requestAnimationFrame(function () { GW.bootDone(); }); });</script>
+<div id="root"><div class="sk" aria-busy="true" style="padding:96px 16px 0"><span class="sk-b eye"></span><span class="sk-b h1"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span><div class="sk-grid"><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div><div class="sk-card"><span class="sk-b ln tag"></span><span class="sk-b ln"></span><span class="sk-b ln"></span><span class="sk-b ln short"></span></div></div><span class="sr-only">Loading the course</span></div></div>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

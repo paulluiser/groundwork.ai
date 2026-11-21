@@ -28,7 +28,7 @@ depth: "Borders. Shadows only on layers that float: dialogs, pop-ups, the hero c
 
 # Kern design
 
-The live reference is the design system artifact (made when the course was called Groundwork). In code, the system is the "Design system v2" section at the end of `assets/style.css`, followed by the "Design engineering pass". Change values there.
+The live reference is the design system artifact (made when the course was called Groundwork). In code, Kern's tokens live in `src/legacy/legacy.css` ("Design system v2"), and `src/index.css` maps them onto Tailwind and shadcn tokens. New UI uses shadcn components and Tailwind utilities on those tokens; never hard-code a colour or a px font size.
 
 ## Design read
 

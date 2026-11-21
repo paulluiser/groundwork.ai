@@ -1,8 +1,8 @@
 # Kern: project handoff
 
-*Last updated 20 November 2026 (practice, review, team plans, certificates, offline support and lesson helpers added).*
+*Last updated 22 November 2026: moved to React, Tailwind CSS and shadcn/ui on the `react-shadcn` branch. The plain HTML/CSS/JS version is tagged `pre-react` (commit 40d7e29).*
 
-Kern is a free, self-paced course for software teams on understanding AI and using it well at work. It is a static website (HTML, CSS and plain JavaScript) with no framework, no build step, no server and no accounts. It is meant to be public and hosted on Vercel.
+Kern is a free, self-paced course for software teams on understanding AI and using it well at work. It is a React single-page app built with Vite, styled with Tailwind CSS v4 and shadcn/ui, with no server and no accounts. It is meant to be public and hosted on Vercel.
 
 ## Current state at a glance
 
@@ -11,78 +11,70 @@ Kern is a free, self-paced course for software teams on understanding AI and usi
 | Core course (lessons 1–8) and capstone (45) | Done |
 | Role tracks: 12 three-lesson tracks (36 lessons) | Done. All 36 written, sources checked |
 | Roles: 33, each using one of the 12 tracks | Done (21 new roles share existing tracks; no specialist lessons yet) |
-| Use cases tab | Done. 96 use cases, 8 per role |
+| Use cases tab | Done. 96 use cases, each with a step-by-step guide |
 | Tabs: Lessons, Exercises, Use cases, Glossary, Progress | Done |
-| Progress codes (no accounts) | Done. v2 format; old v1 codes still restore |
-| Apple-style redesign | Done. Checked at 1280px and 375px |
-| Standalone website conversion | Done. `index.html` is a complete page |
-| Vercel deployment | Not done yet |
-| Old claude.ai artifact | Still live (private, version 7, older content). Retire it once Vercel is live |
+| Progress codes (no accounts) | Done. v2/v3 format; old v1 codes still restore |
+| React + Tailwind + shadcn | On the `react-shadcn` branch. Every page ported; lesson text, exercises and figures run their original code |
+| Vercel deployment | `main` deploys the pre-React site; the branch gets a preview deployment once pushed |
+
+## Rolling back
+
+The last plain HTML/CSS/JS version is the git tag `pre-react`. To go back: redeploy that commit in Vercel, or `git revert` the merge. The React version keeps the same localStorage keys (`gw-*`), progress-code format, `#hash` links and `sw.js` path, so nothing learners saved is lost either way. Its service worker cache is named `kern-v2`; if you roll back, bump the old `sw.js` cache name (to `kern-v3`) so devices drop the React files.
 
 ## Running it locally
 
-Serve the folder with any static file server:
-
 ```bash
-python3 -m http.server 8765
+npm install
+npm run dev        # http://localhost:8766 with hot reload
+npm run build      # type-check and build to dist/
+npm run preview    # serve dist/ on 8766, the way Vercel will
 ```
 
-Then open http://localhost:8765. The `.claude/launch.json` file runs the same server on port 8766 for the Claude desktop app's preview (8765 is often taken by another local server).
+`.claude/launch.json` has two entries for the Claude desktop app's preview: `kern` (dev server) and `kern-build` (the built site, needed to test the service worker).
 
 ## Deploying to Vercel
 
-1. Import the GitHub repository in Vercel.
-2. Framework preset: **Other**. No build command. Output directory: the repository root.
-3. `vercel.json` already sets basic security headers and a revalidating cache policy. The files have no content hashes in their names, so they must not be cached for long.
-
-Routing uses `#` fragments (`#home`, `#exercises`, `#how-models-work`), so no rewrites are needed.
+`vercel.json` sets the framework to Vite, the build command to `npm run build` and the output directory to `dist`, plus security headers and `no-cache` on `sw.js`. Routing uses `#` fragments (`#home`, `#how-models-work`, `#usecase/…`), so no rewrites are needed. Built files have content hashes in their names, so they can be cached; `index.html` and `sw.js` revalidate.
 
 ### Versioning
 
-Every commit carries a version in the form `<number>.<YYYYMMDD>.<HHMM>`, for example `3.20261119.1345`. The number is the commit's position on `main`, and the date and time are UTC+8. Before each commit:
+Every commit carries a version in the form `<number>.<YYYYMMDD>.<HHMM>`. Before each commit run `./scripts/bump-version.sh` (it rewrites `src/legacy/version.js` and prints the version), and start the commit message with it. The version shows at the bottom of the lesson list.
 
-1. Run `./scripts/bump-version.sh`. It rewrites `assets/version.js` and prints the version.
-2. Start the commit message with that version, for example `3.20261119.1345: Add version stamp`.
+## Architecture
 
-The site shows the version in small text at the bottom of the lesson sidebar. To check which commit is live, open `<site>/assets/version.js` or look at the sidebar, then find that commit with `git log --grep "^<version>"`.
-
-## Design system
-
-The visual rules live in the design system (a private Claude artifact owned by the project lead): neutral surfaces, near-black ink, one green accent for progress, Geist Mono for all text, hairline borders and soft depth. Light is the default theme; dark only when someone switches to it.
-
-- In code, the system is the last section of `assets/style.css` ("Design system v2"). It re-points every colour token for both themes and restyles components. Change values there, not in the older sections above it.
-- The logo is the original artwork in `assets/brand/` (ink and reversed versions, plus the G mark for small spaces). Don't redraw it.
-- Lessons use the four-zone layout: top bar, course tree, reading column, and a right panel with "You'll learn" (ticks as you read) and "On this page".
-- Simulations use the `sim` widget in `assets/widgets-e.js`, configured in a lesson file through `GW.trackCfg`. Lesson 16 has the first one. Use one only where a process is clearer to watch than to read.
+- **Theme.** `src/index.css` imports Tailwind, then the original stylesheet `src/legacy/legacy.css` inside a CSS layer (`@layer theme, base, legacy, components, utilities`). Tailwind utilities and shadcn components win over it; it still styles lesson text, exercises and figures. shadcn's colour tokens (`background`, `card`, `primary`, `muted`, `border`, `ring` …) are mapped in `@theme inline` onto Kern's own tokens (`--bg`, `--white`, `--ink`, `--tint`, `--line`, `--focus`), so both share one palette in light and dark. Kern extras are `brand` (the green), `brand-tint`, `ink-2`, `warning` and the `ex-*` exercise colours. Geist Mono comes from `@fontsource/geist-mono` (400, 500, 600) and is the only font. Tailwind's text sizes are replaced by Kern's scale (`text-2xs` 11 … `text-2xl` 24, `text-h1`, `text-display`).
+- **Dark mode** follows `data-theme` on `<html>` (saved as the plain string `gw-theme`), through a custom `dark` variant. Light is the default.
+- **Course data** stays as it was: `src/legacy/course.js`, `content/*.js`, use cases and guides, practice drafts, role examples, figures. `src/legacy/load.ts` imports them in their original order onto `window.GW`.
+- **Logic** (`src/lib/kern.ts`) is ported line for line from the old `app.js`: roles and paths, storage keys, progress codes (`CODE_ROLES` and `CODE_LESSONS` are append-only), the exercise and search indexes. `src/lib/store.tsx` holds roles and progress in React state and writes the same keys.
+- **Pages** are in `src/pages/`, built from shadcn components (`src/components/ui/`) and lucide icons. `src/App.tsx` is the hash router and keeps the old link formats: `#lesson-id/section-or-ex-N`, `#resume=CODE`, `#team=…`, `#usecase/slug`, `#glossary/term`, `#certificate/track`, `#practice/N`.
+- **Lessons** (`src/pages/lesson.tsx`): the overview, plan, contents, footer and glossary popover are React. The lesson HTML is rendered once and then enhanced exactly as before (exercise framing, figures via `GW.figure`, knowledge checks, glossary terms, widgets via `GW.widgets`, citations, copy buttons). That code mutates the DOM, so the app doesn't use React StrictMode.
+- **Loading.** `index.html` holds the first-load logo reveal and a skeleton inline, so they paint before the bundle; `src/main.tsx` fades the reveal out.
+- **Offline.** `public/sw.js` (same path as before, cache `kern-v2`) precaches the page, bundle, stylesheet and icons it finds in `index.html`, and is network-first after that.
 
 ## File structure
 
 ```
-index.html              Full page: top bar, tabs, rail, <main id="view">, script tags in load order
-vercel.json             Headers for Vercel
-manifest.webmanifest    Install details for the offline app (name, colours, icons in assets/brand/)
-sw.js                   Service worker: caches the whole course for offline reading (see Offline below)
-assets/
-  style.css             The whole design system. Hallmark stamp and waivers at the top; tokens on :root
-  course.js             Manifest: GW.parts, GW.lessons (45), GW.roles (12), GW.glossary
-  app.js                Routing, path logic, progress codes, all pages (landing, picker, tabs, lessons), search. Exposes GW.app for extras.js
-  practice.js           GW.practice: the 12 "You decide" drafts, one per role, with the reviewer's call
-  extras.js             Practice, term review, team plans, certificates, QR code, keyboard shortcuts, lesson helpers (registers GW.pages and GW.ext)
-  print.css             Print styles for lessons, loaded with media="print"
-  role-examples.js      GW.roleEx: per-role examples shown in the core lessons
-  use-cases.js          GW.useCases: currently empty (the tab is hidden while it's empty)
-  widgets*.js           Interactive exercises. widgets-e.js holds "decide" and merges GW.trackCfg into GW.cfg
-  favicon.svg           The brand mark
-content/
-  NN-<id>.js            One lesson each, calling GW.lesson({ id, lede, outcomes, html })
-  NN-2-<id>.js, NN-3-<id>.js   The second and third lessons of a role track
-PRODUCT.md              Product context: users, purpose, principles, constraints
-DESIGN.md               Design system ("Clear Glass, One Pencil"), as YAML front matter plus prose
-.impeccable/design.json A copy of DESIGN.md in machine-readable form, used by the Impeccable design tool
-.hallmark/              Notes from the Hallmark design tool
+index.html              Shell: meta, logo reveal and skeleton (inline), #root
+package.json            Scripts and dependencies (React 18, Vite 6, Tailwind 4, shadcn on Radix)
+components.json         shadcn settings (new-york style, lucide icons)
+vite.config.ts          @ alias, relative base, single bundle
+vercel.json             Vite build settings and headers
+public/                 sw.js, manifest.webmanifest, brand/ icons (copied as-is)
+src/
+  main.tsx              Mounts the app, fades the logo reveal, registers the service worker
+  App.tsx               Hash router, header, search, shortcuts, redirects
+  index.css             Tailwind, layers, theme tokens, type scale, base resets for lesson text
+  lib/kern.ts           Course logic and progress codes (same keys and formats as before)
+  lib/store.tsx         Roles, progress, theme and hash state
+  components/ui/        shadcn components (button, card, badge, tabs, dialog, command, sheet, popover …)
+  components/shell.tsx  Header, phone tab bar, lesson list, search dialog, shortcuts dialog
+  components/brand.tsx  The Kern mark and the five-slash progress meter
+  pages/                landing, role-picker, home, lesson, exercises, use-cases, glossary, progress,
+                        practice, review, team, certificate
+  legacy/               The original course data and interactive pieces: course.js, content/, widgets*.js,
+                        figures*.js, use-cases.js, use-case-guides*.js, practice.js, role-examples.js,
+                        icons.js, version.js, legacy.css, print.css, load.ts
 ```
-
-**Script order matters.** `course.js` loads first, then the content files, then `role-examples.js` and `use-cases.js`, then `widgets.js` through `widgets-e.js`, and `app.js` last. Content files run before the widgets, which is why the role-track lessons register their exercise configs in `GW.trackCfg`. `widgets-e.js` copies those into `GW.cfg`.
 
 ## How it works
 

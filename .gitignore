@@ -2,3 +2,5 @@
 _preview/
 .vercel/
 mockups/
+node_modules/
+dist/

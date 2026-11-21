@@ -2,13 +2,13 @@
    picked up without editing this file. Pages and files come from the network first, so a deploy shows up at
    once; the cache is the fallback when offline. Fonts and CDN libraries are served from the cache and
    refreshed in the background. */
-var CACHE = "kern-v1";
+var CACHE = "kern-v2";   // v2: the React build. A new name clears the old cached files on activate.
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (cache) {
     return fetch("./", { cache: "no-cache" }).then(function (res) {
       return res.clone().text().then(function (html) {
-        var files = ["./", "manifest.webmanifest", "assets/brand/icon-192.png"], re = /(?:src|href)="((?:assets|content)\/[^"#?]+)"/g, m;
+        var files = ["./", "manifest.webmanifest", "brand/icon-192.png"], re = /(?:src|href)="(?:\.\/)?((?:assets|brand)\/[^"#?]+)"/g, m;
         while ((m = re.exec(html))) if (files.indexOf(m[1]) < 0) files.push(m[1]);
         return cache.put("./", res).then(function () { return cache.addAll(files.slice(1)); });
       });
