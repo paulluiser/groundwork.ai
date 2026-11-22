@@ -57,7 +57,7 @@ export default function Landing() {
     [Globe, "No account needed", "Progress saves in your browser. A short code carries it to another device."],
   ] as const;
   const mins = lessons.map((l) => l.minutes), lo = Math.min(...mins), hi = Math.max(...mins);
-  const stats = [[lessons.length, `Lessons, ${lo} to ${hi} minutes each`], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
+  const stats = [[lessons.length, `Lessons, ${lo} to ${hi} minutes each`], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"]];
 
   return (
     <main id="view" tabIndex={-1} className="outline-none">
@@ -66,13 +66,12 @@ export default function Landing() {
           <span className="sr-only">Learn the basics of AI and its use cases for every role on a software team</span>
           <span aria-hidden="true">Learn the basics of AI and its use cases for<br /><RotatingRole /><span className="kern-cursor" /></span>
         </h1>
-        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-tint px-3 py-1 text-sm font-medium text-brand">For beginners · no AI background needed</p>
-        <p className="mt-4 max-w-xl text-lg text-muted-foreground">A free starter course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
+        <p className="mt-6 max-w-xl text-lg text-muted-foreground">A free starter course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg"><a href={go}>{goTxt}<ArrowRight /></a></Button>
           <Button asChild size="lg" variant="outline"><a href="#progress">I've started before</a></Button>
         </div>
-        <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · beginner level · no account</p>
+        <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · no account</p>
       </section>
 
       <section className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-16 pt-8 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] lg:gap-16">
@@ -111,7 +110,7 @@ export default function Landing() {
             </div>
           </CardContent>
         </Card>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-6 pt-4 lg:col-span-2 lg:grid-cols-4">
+        <div className="grid gap-x-8 gap-y-6 pt-4 sm:grid-cols-3 lg:col-span-2">
           {stats.map(([v, l]) => (<div key={l}><div className="text-h1 font-medium tabular-nums">{v}</div><div className="mt-1 text-sm text-muted-foreground">{l}</div></div>))}
         </div>
       </section>
