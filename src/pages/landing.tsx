@@ -71,7 +71,7 @@ export default function Landing() {
     [Lightbulb, `${nUc} use cases, rated`, "Each marked good fit, use with care or keep human, with tools, setup and limits."],
     [ShieldCheck, "Data and agents, safely", "What a model must never see, and limits for tools and agents that act for you."],
     [Award, "Assessments and certificates", `A ${SIZE}-question check per track. Score ${PASS * 100}% to earn the certificate.`],
-    [Globe, "No account needed", "Progress saves in your browser. A short code carries it to another device."],
+    [Globe, "No account needed", "Nothing to sign up for. Your progress stays in your browser, and a short code moves it to another device."],
   ] as const;
   const mins = lessons.map((l) => l.minutes), lo = Math.min(...mins), hi = Math.max(...mins);
   const stats = [[lessons.length, `Lessons, ${lo} to ${hi} minutes each`], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"]];
@@ -127,7 +127,7 @@ export default function Landing() {
           <div><p className="flex items-center gap-2 text-lg font-semibold"><Mark />Kern</p><p className="mt-2 max-w-xs text-muted-foreground">A free starter kit for software teams on understanding AI and using it well at work.</p></div>
           <div className="grid content-start gap-1.5"><p className="font-medium">Starter kit</p><a className="py-1 text-muted-foreground hover:text-foreground" href="#home">Lessons</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#exercises">Exercises</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#glossary">Glossary</a></div>
           <div className="grid content-start gap-1.5"><p className="font-medium">Start</p><a className="py-1 text-muted-foreground hover:text-foreground" href="#role">Choose roles</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#progress">Progress code</a></div>
-          <div className="grid content-start gap-1.5"><p className="font-medium">Privacy</p><span className="text-muted-foreground">No accounts</span><span className="text-muted-foreground">Progress stays in your browser</span></div>
+          <div className="grid content-start gap-1.5"><p className="font-medium">Privacy</p><span className="text-muted-foreground">No accounts</span><span className="text-muted-foreground">Progress stays in your browser</span><span className="text-muted-foreground">We use Google analytics to see which lessons help</span></div>
         </footer>
         <p className="mt-8 text-xs text-muted-foreground">© {new Date().getFullYear()} Kern.</p>
       </section>

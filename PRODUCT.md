@@ -22,6 +22,7 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 
 - Intended to be public and free, hosted as a static site on Vercel. There are no accounts and no server.
 - Flow: landing page, then Start (or Continue for a returning learner), then choose roles, then the course. The course has five tabs: Lessons, Exercises, Use cases, Glossary and Progress.
+- Analytics: the site loads a Google tag (Google Tag Manager, GTM-MSJCH87Z, added 22 November 2026) to measure visits. Copy must not claim "no tracking" or "no personal info"; say "no account" and "your progress stays in your browser" instead, and mention analytics where privacy is described.
 - Roles and progress save in the browser (localStorage). To move to another device, the learner copies a 15-character progress code (GW-XXXXX-XXXXX-XXXXX; older nine-character codes still restore) or a resume link from the Progress tab. The code holds their roles and completed lessons.
 - Learners come back to it over days, so the course offers a course home with a progress ring, the "next lesson" on their path, search, and a glossary.
 
@@ -40,7 +41,7 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
   - A single role also adds the first lesson of its neighbouring role.
 - **Use cases:** about eight per role, each rated good fit, use with care or keep human, with what to check, a link to the lesson that covers it, and a full guide: steps, do's and don'ts, a tip, limits and often a starter prompt.
 - **Lesson parts:** each lesson opens on an overview (what you'll learn, a lesson plan with time per section, counts of exercises and quiz questions), then has a lede, outcomes, worked examples, an interactive figure matched to the topic, interactive exercises in their own visual theme, a key idea, pitfalls, a "try it this week" task, three knowledge checks and numbered sources.
-- **Build:** static HTML, CSS and JS with hash routing and no framework. It deploys as plain static files. Per-user data never leaves the browser except inside a progress code the learner copies themselves.
+- **Build:** static HTML, CSS and JS with hash routing and no framework. It deploys as plain static files. Learners' progress and answers stay in the browser except inside a progress code the learner copies themselves; visit analytics go to Google through the Google tag.
 - **Motion:** the landing headline retypes its role every 2.4 seconds; content stays visible without scripts, screen readers hear one steady sentence, and reduced motion swaps the role without typing.
 - **Terminology:** "path" means the learner's sequence of lessons, "main role" means the first pick, "track" means a role's three lessons, and "neighbouring role" means the role whose first lesson a single role adds.
 
