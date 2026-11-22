@@ -1,14 +1,25 @@
 GW.lesson({
   id: "context",
+  reviewed: "2026-11",
   lede: "A model works from two things: what it learned in training, and what is in front of it right now. This lesson is about the second, because it is the part you control.",
   outcomes: [
     "List what goes into the model's context for a typical request.",
     "Explain why assistants seem to forget, and what “memory” features actually do.",
     "Choose the context a task needs and leave out what it doesn't.",
     "Describe how retrieval works, from embeddings and vector search to reranking, and where it breaks.",
-    "Check whether an answer is grounded in its sources."
+    "Check whether an answer is grounded in its sources.",
+    "Build a context pack for a recurring task: what to include, in what order, and what to leave out."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Two hours into a long chat about a billing bug, the assistant suggests a fix that ignores the constraint you explained at the start: invoices can't be regenerated once sent. You scroll up. It's there, in your third message. The assistant agreed with it at the time.</p>
+<p>Nothing is broken. The conversation simply grew, and what the model pays attention to changed. This lesson explains what the model can and can't see, and how to give it the right material at the right time.</p></div>
+<div class="check warmup" data-a="0"><p class="q">In a very long conversation, an assistant starts ignoring something you said early on. What's the best first step?</p><ul>
+<li data-fb="Right. A fresh, focused context usually works better than a long one.">Start a new conversation with a short summary of the key facts.</li>
+<li data-fb="Emphasis may help briefly, but the real problem is a crowded context.">Repeat the instruction in capital letters so it stands out more clearly.</li>
+<li data-fb="A bigger window doesn't guarantee attention to every part of it.">Switch to a model with a larger context window and keep going.</li>
+<li data-fb="It can't choose to remember; what it sees is what's in the window.">Tell it that it made a mistake and ask it to remember better.</li>
+</ul></div>
 <h2>Everything the model sees, every time</h2>
 <p>When you press send, the application assembles one long block of text and passes it to the model. That block is the model's <a class="term" data-t="context">context</a>. The model reads it, generates a reply token by token (lesson 1), and stops. It does not keep running in the background, thinking about your project. When you send the next message, the application assembles the whole block again, now including the previous reply, and the model starts fresh from that.</p>
 <p>A typical context contains these parts, in roughly this order:</p>
@@ -127,26 +138,99 @@ What are the most likely causes? For each, tell me what I could check to confirm
 <div data-w="sort" data-cfg="context-pick"></div>
 </div></div>
 
+<h2>More tokens, less attention</h2>
+<p>Context windows have grown enormously, but using all of one has a cost. Research on long contexts found models use information at the start and end of a long input better than information in the middle.[1] A 2025 study across many current models found the same pattern more broadly: as input length grows, performance drops, even on simple tasks, and the drop starts well before the window is full.[8] The practical rule is to give the model what it needs for this step, clearly labelled, not everything you have.</p>
+<h2>Worked example: a context pack</h2>
+<p>A context pack is a short, reusable bundle of what a model needs for a recurring task. Here's one for reviewing pull requests in a payments service, compared with the usual approach of pasting the diff and asking “any issues?”.</p>
+<div class="worked">
+<div class="wx"><b>Weak: the diff and a question</b><div><pre>Any issues with this PR?
+
+[ 600-line diff ]</pre></div></div>
+<div class="wx strong"><b>Strong: a context pack</b><div><pre>&lt;role&gt;Reviewer for the payments service.&lt;/role&gt;
+&lt;rules&gt;
+- Money is stored in minor units (integers).
+- Invoices can't be changed once status = sent.
+- All writes go through LedgerService.
+&lt;/rules&gt;
+&lt;change_summary&gt;Adds partial refunds.&lt;/change_summary&gt;
+&lt;diff&gt; [ only the 4 changed files ] &lt;/diff&gt;
+&lt;task&gt;List rule violations first, quoting
+the line. Then other risks. Say "none
+found" if there are none.&lt;/task&gt;</pre></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>The rules are the context the model can't guess.</strong> Without them it reviews against typical code, not yours.</li>
+<li><strong>Labelled sections</strong> (here with XML-style tags) help the model tell instructions from material.[9]</li>
+<li><strong>Only the changed files</strong>, not the whole diff with generated files, keeps attention on what matters.</li>
+<li><strong>“Say none found”</strong> gives it permission not to invent problems.</li>
+<li><strong>The pack is reusable.</strong> Save it next to the code; update the rules when they change.</li>
+</ul>
+<h2>Better retrieval: context for each chunk</h2>
+<p>Retrieval systems split documents into chunks and fetch the most relevant ones. A chunk on its own often loses meaning: “Revenue grew 3% on the previous quarter” doesn't say which company or which quarter. One documented improvement is to add a sentence of context to each chunk before indexing it, saying where it comes from; Anthropic reported this cut failed retrievals substantially in its tests, and more when combined with reranking.[7] You don't need to build this yourself, but it explains why well-titled, self-contained documentation gives far better AI answers than pages that rely on the page above.</p>
+<h2>Your turn: build a context pack</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">A context pack for a task you repeat</span></div><div class="activity-b">
+<p>Pick a task you ask an assistant to help with at least weekly (reviewing, summarising, drafting, analysing). Write the context pack: the rules or facts it can't know, what material you'll paste each time, and the instruction, including what it should say when it doesn't know.</p>
+<div data-w="task" data-key="context-pack">
+<div class="task-model"><p><strong>Task:</strong> weekly summary of support tickets for the product team.</p>
+<p><strong>Facts it can't know:</strong> our product areas (billing, reports, integrations, mobile); “P1” means a customer can't work; enterprise customers are those on the Scale plan.</p>
+<p><strong>Material each week:</strong> the export of tickets closed this week, with area, priority, plan and the first message only.</p>
+<p><strong>Instruction:</strong> “Group tickets by product area. For each area give the count, the two most common problems with ticket IDs, and any P1s. List enterprise tickets separately. Only use the export; if an area has too few tickets to say anything, say so.”</p></div>
+<ul class="task-rubric">
+<li>States facts and definitions the model couldn't know</li>
+<li>Limits the material to what the task needs</li>
+<li>Labels or separates instructions from pasted material</li>
+<li>Asks for traceable output, such as IDs or quoted lines</li>
+<li>Says what to do when there isn't enough information</li>
+</ul>
+</div></div></div>
+<h2>Try it this week</h2>
+<div class="aside"><strong>A 20-minute exercise.</strong> Take your context pack and use it twice: once in the usual long-running chat, and once in a fresh conversation with only the pack and this week's material. Compare the two answers for accuracy and for anything invented.</div>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>The assistant remembers what I told it last week.</dt><dd>Only if the product has a memory feature and saved it. Otherwise each conversation starts empty.</dd>
+<dt>A bigger context window means I can paste everything.</dt><dd>Models attend unevenly to long inputs, and performance drops as length grows. Curate rather than dump.</dd>
+<dt>Retrieval means the answer comes from our documents.</dt><dd>Retrieval supplies documents; the model can still ignore or misread them. Check that answers are grounded in what was retrieved.</dd>
+<dt>Uploading a file means the model read all of it.</dt><dd>Long files may be truncated, chunked or partly retrieved, depending on the product. Ask it to quote the parts it relied on.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>The model sees only what's in its context window: instructions, conversation, documents and tool results.</li>
+<li>Long contexts get uneven attention; put key facts near the start or end, clearly labelled.</li>
+<li>When a chat drifts, start fresh with a short summary of what matters.</li>
+<li>A reusable context pack holds the rules and facts the model can't guess.</li>
+<li>Retrieval quality depends on self-contained, well-titled documents.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">At the start of a long chat you said “use British spelling”. Two hours later the assistant writes “color”. What is the most likely explanation?</p><ul>
-<li data-fb="Models don't hold grudges or change their minds about rules; they predict from the context they are given.">The model decided the rule was no longer important.</li>
-<li data-fb="Nothing about your account changes mid-conversation in a way that would cause this.">Your account was switched to a different language.</li>
-<li data-fb="As the chat grew, the early instruction was trimmed or summarised away, or diluted by everything since. Restate it, or start a new chat with your key rules at the top.">The instruction is no longer effectively in the context.</li>
+<div class="check" data-a="3"><p class="q">Which belongs in a context pack for reviewing pull requests in your service?</p><ul>
+<li data-fb="The model already knows typical mistakes; it doesn't know your rules.">A general list of the most common programming mistakes.</li>
+<li data-fb="Far too much, and mostly irrelevant to this change.">The full history of every previous review in the repository.</li>
+<li data-fb="Vague exhortations add little; specific rules do.">A reminder to be thorough and to think carefully about everything.</li>
+<li data-fb="Right. These are the facts it can't guess.">The service's rules, like how money is stored and what can't change.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">How does a typical assistant “memory” feature work?</p><ul>
-<li data-fb="Memory is notes inserted into the context. That is why it can be stale or wrong, and why it's worth reviewing.">It saves notes and inserts them into the context of later conversations.</li>
-<li data-fb="Products don't retrain the model for each user; that would be far too slow and expensive.">It retrains the model on your conversations each night.</li>
-<li data-fb="The model doesn't stay active between messages; it is run fresh for every reply.">The model keeps running between chats and remembers everything.</li>
+<div class="check" data-a="1"><p class="q">Why might a model miss a fact placed in the middle of a long document?</p><ul>
+<li data-fb="Nothing is removed; attention is just uneven.">The middle of every document is removed before the model sees it.</li>
+<li data-fb="Right. Research shows weaker use of material in the middle of long inputs.">Models tend to use information at the start and end better.</li>
+<li data-fb="Tokens aren't counted twice.">The middle section is counted twice, so it exceeds the token limit.</li>
+<li data-fb="Position doesn't change how text is classified.">Facts in the middle are treated as examples rather than instructions.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">An internal help bot confidently tells a new hire the travel policy from 2022, which has since changed. Where should you look first?</p><ul>
-<li data-fb="A higher temperature changes how tokens are picked, not which documents are found.">The model's temperature setting.</li>
-<li data-fb="Right. The model answered from what it was given. Check which chunk was retrieved, then fix or retire the outdated document.">What the retrieval step put into the context: likely the old policy page.</li>
-<li data-fb="The bot answered from retrieved text, so its training cutoff isn't the main issue here.">The model's training cutoff date.</li>
+<div class="check" data-a="2"><p class="q">Your chat has drifted and the assistant ignores an early constraint. What helps most?</p><ul>
+<li data-fb="You'll be correcting forever; the context is still crowded.">Keep going and correct it each time it forgets the constraint.</li>
+<li data-fb="It already “sees” the whole conversation; that's the problem.">Ask it to scroll up and re-read the whole conversation carefully.</li>
+<li data-fb="Right. A short, fresh context restores focus.">Start a new chat with a short summary and the constraint near the top.</li>
+<li data-fb="Same crowded context, different model.">Switch to a different assistant and paste the full transcript there.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">Asked about parental leave in Germany, a help bot's vector search ranks the UK leave policy first, because the wording is almost identical. Which step is designed to fix this?</p><ul>
-<li data-fb="Right. A reranker reads the question and each chunk together, so it can notice that the chunk is about the UK, not Germany.">Reranking the candidates before they go into the context.</li>
-<li data-fb="A larger window would let more chunks in, including the wrong one; it doesn't decide which is most relevant.">Using a model with a larger context window.</li>
-<li data-fb="Temperature affects how tokens are picked, not which documents are retrieved.">Lowering the model's temperature.</li>
+<div class="check" data-a="0"><p class="q">A retrieval system returns the chunk “Revenue grew 3% on the previous quarter.” What's the weakness?</p><ul>
+<li data-fb="Right. Chunks that rely on surrounding text lose their meaning.">It doesn't say which company, product or quarter it refers to.</li>
+<li data-fb="Short is fine if the chunk is self-contained.">It's too short to contain any useful information at all.</li>
+<li data-fb="Retrieval works on text; percentages are fine.">Percentages can't be handled by retrieval systems.</li>
+<li data-fb="Format isn't the problem; missing context is.">It should have been written as a table rather than a sentence.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">You upload a 200-page PDF and ask for a summary. How do you check it used the whole document?</p><ul>
+<li data-fb="It can't reliably report what it attended to.">Ask whether it read the whole document, and accept its answer.</li>
+<li data-fb="Right. Quotes you can find show what it actually used.">Ask it to quote passages from several sections, with page numbers.</li>
+<li data-fb="Length says nothing about coverage.">Check that the summary is long enough to cover 200 pages.</li>
+<li data-fb="Two summaries can share the same gaps.">Run the same request a second time and compare the summaries.</li>
 </ul></div>
 </section>
 
@@ -157,6 +241,10 @@ What are the most likely causes? For each, tell me what I could check to confirm
 <li>Anthropic, <a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips" target="_blank" rel="noopener">Long context prompting tips</a>. Practical guidance on placing and labelling long documents.</li>
 <li>Anthropic (2025), <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Effective context engineering for AI agents</a>. Context as a limited resource, and how to curate it for each step.</li>
 <li>Nogueira and Cho (2019), <a href="https://arxiv.org/abs/1901.04085" target="_blank" rel="noopener">Passage Re-ranking with BERT</a>. An early, widely cited demonstration that a second-stage reranker improves search results.</li>
+
+<li>Anthropic (2024), <a href="https://www.anthropic.com/news/contextual-retrieval" target="_blank" rel="noopener">Introducing Contextual Retrieval</a>. Adding context to each chunk before indexing, and its measured effect on retrieval failures.</li>
+<li>Hong, Troynikov and Huber, Chroma (2025), <a href="https://research.trychroma.com/context-rot" target="_blank" rel="noopener">Context Rot: How Increasing Input Tokens Impacts LLM Performance</a>. Performance across 18 models as input length grows.</li>
+<li>Anthropic, <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags" target="_blank" rel="noopener">Use XML tags to structure your prompts</a>. Separating instructions, material and examples.</li>
 </ol></section>
 `
 });

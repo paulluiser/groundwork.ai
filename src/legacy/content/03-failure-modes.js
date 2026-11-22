@@ -1,5 +1,6 @@
 GW.lesson({
   id: "failure-modes",
+  reviewed: "2026-11",
   lede: "AI output goes wrong in a handful of recognisable ways. Each one follows from how models work, and each one has a check that catches it.",
   outcomes: [
     "Name five common failure modes and explain why each happens.",
@@ -8,6 +9,15 @@ GW.lesson({
     "Ask questions in a way that makes agreeable-but-wrong answers less likely."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>In 2023, lawyers in a New York case filed a brief citing six court decisions that did not exist. An assistant had produced them, complete with case names, quotations and page numbers, and confirmed they were real when asked. The court sanctioned the lawyers.[8]</p>
+<p>The lawyers weren't careless people; the citations looked exactly like real ones. This lesson is about recognising the shapes that errors take, so you check in the right places before something like that reaches a customer, a release or a court.</p></div>
+<div class="check warmup" data-a="3"><p class="q">You ask an assistant whether a citation it gave you is real. It says yes. What does that tell you?</p><ul>
+<li data-fb="Asking again isn't checking; it generates another likely answer.">The citation is real, since the assistant has now double-checked it.</li>
+<li data-fb="Consistency with its earlier answer is exactly the risk.">The citation is probably real, because assistants rarely contradict themselves.</li>
+<li data-fb="It may be real or fake; the answer just doesn't tell you which.">The citation is fake, since an assistant that's unsure would refuse to answer.</li>
+<li data-fb="Right. Only the source itself can confirm a citation.">Very little: you need to find the source yourself.</li>
+</ul></div>
 <h2>Fluency is not evidence</h2>
 <p>With people, we use fluency as a rough signal. A colleague who explains something clearly, with specific details and no hesitation, usually knows it. Someone unsure tends to hedge, pause or say “I think”.</p>
 <p>A language model breaks that signal. It produces fluent, specific, unhesitating text whether or not the content is true, because fluency is exactly what next-token prediction is good at (lesson 1). Its tone tells you very little about how likely it is to be right. In the language of forecasting, its confidence is poorly <a class="term" data-t="calibration">calibrated</a>: “definitely” doesn't mean what it would mean from a careful colleague.</p>
@@ -93,21 +103,89 @@ GW.lesson({
 </tbody></table></div>
 <p>What the good checks have in common: they compare against something <em>outside</em> the model. A standard, a test run, your data, a person who knows. Lesson 6 turns this into a method for deciding how much checking a result deserves.</p>
 
+<h2>Why models make things up</h2>
+<p>Research from 2025 offers a clear explanation of why fabrication persists even in capable models. Training and most evaluations reward a correct answer and give nothing for “I don't know”, so a model that guesses scores better on average than one that admits uncertainty. Like a student guessing on a multiple-choice exam, it learns to produce a confident answer rather than to abstain.[7] That's why fabricated details tend to look exactly like real ones: they're the most likely-looking answer to a question the model can't actually answer.</p>
+<h2>Worked example: one answer, three failure types</h2>
+<p>A developer asks: “How do I paginate results with the Acme Payments API in Python?” The assistant replies:</p>
+<div class="draft"><div class="draft-h">AI answer</div><div class="draft-b"><p>Use the <code>acme.Charges.list_all()</code> helper, which handles pagination automatically. Pass <code>page_size=500</code> for best performance; the API's maximum is 1,000. This approach was recommended in the Acme v4 migration guide. As you said, cursor pagination is deprecated, so avoid <code>starting_after</code>.</p></div></div>
+<div class="tbl"><table><thead><tr><th>Phrase</th><th>Failure type</th><th>How to check</th></tr></thead><tbody>
+<tr><td><code>list_all()</code> helper</td><td>Fabrication: a plausible name that may not exist</td><td>Search the SDK source or docs for the exact name</td></tr>
+<tr><td>Maximum of 1,000</td><td>Stale or invented specific</td><td>Check the current API reference; limits change between versions</td></tr>
+<tr><td>“Recommended in the v4 migration guide”</td><td>Invented source</td><td>Open the guide and find the sentence</td></tr>
+<tr><td>“As you said, cursor pagination is deprecated”</td><td>Agreeableness: it accepted your false premise</td><td>Did you say that? Is it true? Check the changelog</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Four sentences, four checkable claims.</strong> The prose around them is fine; the specifics carry the risk.</li>
+<li><strong>The checks are cheap:</strong> a search, a page, a changelog. Two minutes, against an afternoon debugging code that calls a function that doesn't exist.</li>
+<li><strong>The false premise is the subtlest.</strong> If you had wrongly said cursors were deprecated, the assistant would likely have agreed rather than corrected you.[2]</li>
+</ul>
+<h2>Your turn: mark the claims to check</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Find the claims you'd verify before sending this</span></div><div class="activity-b">
+<p>An assistant drafted this reply to a customer: <em>“Thanks for reaching out. Your data is encrypted with AES-256 at rest and in transit, and we're SOC 2 Type II certified as of March. Our 99.99% uptime SLA covers all plans, so the outage last Tuesday qualifies for a service credit, which we've already applied to your account.”</em></p>
+<p>List every claim you'd need to verify, who or what could confirm it, and which one is most dangerous if wrong.</p>
+<div data-w="task" data-key="failure-claims">
+<div class="task-model"><ul>
+<li><strong>AES-256 at rest and in transit:</strong> security team or security documentation. (In transit usually means TLS, so the phrasing may be technically wrong.)</li>
+<li><strong>SOC 2 Type II “as of March”:</strong> compliance owner; the date and report type both need checking.</li>
+<li><strong>99.99% SLA on all plans:</strong> the contract or pricing page; SLAs often differ by plan.</li>
+<li><strong>Outage qualifies for a credit:</strong> the SLA terms and the incident record.</li>
+<li><strong>Credit “already applied”:</strong> the billing system.</li>
+</ul><p><strong>Most dangerous:</strong> “already applied”. It states an action happened. If it didn't, you've misled the customer about money.</p></div>
+<ul class="task-rubric">
+<li>Found at least four separate checkable claims</li>
+<li>Named a source or owner who can confirm each one</li>
+<li>Noticed that a statement about an action taken needs a system record</li>
+<li>Explained which claim is most dangerous and why</li>
+</ul>
+</div></div></div>
+<h2>Try it this week</h2>
+<div class="aside"><strong>A 20-minute exercise.</strong> Take one AI-assisted document you produced recently. Highlight every specific: names, numbers, dates, quotes, sources, API names, and statements that something was done. Check three of them. Note what you found, and how long it took.</div>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Newer models don't hallucinate any more.</dt><dd>They do it less on common questions, but the incentive to guess remains. Rare, recent and very specific facts are still risky.</dd>
+<dt>If I ask “are you sure?”, it will catch its own mistakes.</dt><dd>It may change a correct answer just as easily as a wrong one. Check against a source, not against the model.</dd>
+<dt>Fabrications are obviously strange.</dt><dd>They look exactly like real facts, because they're built from what real facts usually look like.</dd>
+<dt>If it cites a source, the claim is supported.</dt><dd>Citations can be invented, or real but not say what's claimed. Open the source and find the sentence.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Models guess confidently because training rewards answers over “I don't know”.</li>
+<li>Watch the specifics: names, numbers, dates, quotes, sources and claimed actions.</li>
+<li>Agreeableness means a false premise in your question often comes back confirmed.</li>
+<li>Asking the model to double-check isn't verification; a source is.</li>
+<li>Checking a few specifics takes minutes and catches the errors that matter.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">An assistant supports a recommendation with a citation: authors, year, journal and title. What should you do before repeating it?</p><ul>
-<li data-fb="Detail is easy to generate. A complete-looking citation can still be invented.">Nothing; a full citation with authors and year is reliable.</li>
-<li data-fb="It may confirm an invented source, or apologise and invent a new one. Either way you've learned nothing independent.">Ask the assistant whether the citation is real.</li>
-<li data-fb="Right. Confirm the source exists, then confirm it actually supports the claim. Real sources cited for things they don't say are common.">Find the paper and check that it says what the answer claims.</li>
+<div class="check" data-a="2"><p class="q">Why do language models often produce a confident wrong answer instead of saying “I don't know”?</p><ul>
+<li data-fb="There's no such rule; the behaviour comes from training incentives.">They are programmed never to admit uncertainty to users.</li>
+<li data-fb="They don't know answers in that sense; they predict likely text.">They always know the answer but sometimes choose to hide it.</li>
+<li data-fb="Right. A guess scores better on average than “I don't know”.">Training and evaluation reward guessing over abstaining.</li>
+<li data-fb="Context size isn't the cause.">Their context window is too small to hold uncertainty.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">You tell the assistant “I think that's wrong” and it immediately agrees and gives the opposite answer. What have you learned?</p><ul>
-<li data-fb="A quick reversal is consistent with agreeableness, whichever answer was right.">That the second answer is correct.</li>
-<li data-fb="Right. Assistants tend to yield to pushback. Settle it with a source, a test or your data.">Very little about the facts; you need an outside check.</li>
-<li data-fb="Not necessarily; it may have been right and given way to you.">That the first answer was a fabrication.</li>
+<div class="check" data-a="0"><p class="q">Your question includes a false premise. What's the likely result?</p><ul>
+<li data-fb="Right. Agreeableness makes models tend to go along with you.">The assistant accepts the premise and builds an answer on it.</li>
+<li data-fb="Models rarely refuse on these grounds.">The assistant refuses to answer until you correct the premise.</li>
+<li data-fb="It sometimes does, but you can't rely on it.">The assistant always spots and corrects the false premise.</li>
+<li data-fb="It usually becomes confidently specific instead.">The answer becomes deliberately vague so it can't be wrong.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">Which sentence from an AI code review most needs verifying?</p><ul>
-<li data-fb="General style advice; low risk and easy to judge yourself.">“Consider a more descriptive name than <code>data2</code>.”</li>
-<li data-fb="Right: a specific, version-dependent claim about a library, exactly where stale or invented knowledge shows up. Check the changelog.">“Version 4.2 of this library removed the <code>timeout</code> option, so this call will silently ignore it.”</li>
-<li data-fb="Reasonable general advice you can judge on its merits.">“Adding a test for the empty-list case would make this safer.”</li>
+<div class="check" data-a="3"><p class="q">Which part of an AI answer most needs checking?</p><ul>
+<li data-fb="Lower risk; general knowledge is where models are strongest.">The general explanation of how the concept works.</li>
+<li data-fb="Structure rarely matters to correctness.">The headings and the order of the sections in the answer.</li>
+<li data-fb="Pleasantries carry no claims.">The polite opening and closing sentences of the reply.</li>
+<li data-fb="Right. Specifics are where fabrications hide and do damage.">Specific names, numbers, sources and claims that something was done.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">An assistant cites “the v4 migration guide” for a recommendation. What's the right check?</p><ul>
+<li data-fb="A summary can be as invented as the citation.">Ask the assistant to summarise the guide in more detail.</li>
+<li data-fb="Right. Only the source confirms the claim.">Open the guide and find the sentence that says it.</li>
+<li data-fb="Invented titles sound real by design.">Check that the guide's title sounds like a real document.</li>
+<li data-fb="A second model guessing isn't a source either.">Ask a second assistant whether the guide says this.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">A drafted reply says a refund “has already been applied”. Who or what can confirm it?</p><ul>
+<li data-fb="It has no access to your billing system unless connected, and may guess.">The assistant, if you ask it to confirm the refund status.</li>
+<li data-fb="Then the customer has already been misled.">The customer, who will notice if the refund is missing.</li>
+<li data-fb="Right. Claims that an action happened need a system record.">The billing system's record of the transaction.</li>
+<li data-fb="They can approve one, but the record shows whether it happened.">The support team lead who usually approves refunds.</li>
 </ul></div>
 </section>
 
@@ -118,6 +196,9 @@ GW.lesson({
 <li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110#name-retry-after" target="_blank" rel="noopener">RFC 9110: HTTP Semantics, Retry-After</a>.</li>
 <li>AWS Architecture Blog, <a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/" target="_blank" rel="noopener">Exponential Backoff and Jitter</a>.</li>
 <li>GitHub Docs, <a href="https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api" target="_blank" rel="noopener">Rate limits for the REST API</a>.</li>
+
+<li>Kalai, Nachum, Vempala and Zhang, OpenAI (2025), <a href="https://openai.com/index/why-language-models-hallucinate/" target="_blank" rel="noopener">Why language models hallucinate</a>. How training and evaluation that reward guessing produce confident fabrication.</li>
+<li><a href="https://en.wikipedia.org/wiki/Mata_v._Avianca,_Inc." target="_blank" rel="noopener">Mata v. Avianca, Inc.</a> (S.D.N.Y. 2023). The case in which lawyers were sanctioned for filing AI-invented citations.</li>
 </ol></section>
 `
 });

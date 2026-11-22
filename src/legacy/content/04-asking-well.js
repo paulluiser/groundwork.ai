@@ -1,14 +1,25 @@
 GW.lesson({
   id: "asking-well",
+  reviewed: "2026-11",
   lede: "You already know how to write a good brief: a clear ticket, a useful handover, a design request a colleague can act on. Asking an AI well uses the same skill, with one difference: this colleague starts from zero every time.",
   outcomes: [
     "Structure a request around goal, context, constraints, output shape and examples.",
     "Explain why each part changes the result, using what you know about how models work.",
     "Iterate on a first draft with specific feedback instead of starting over.",
     "Ask for structured output when software will read the reply, and check it beyond its format.",
-    "Recognise when no amount of rewording will help, because the information isn't there."
+    "Recognise when no amount of rewording will help, because the information isn't there.",
+    "Turn a request you make often into a reusable template your team can share."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Two people on the same team ask an assistant to “write release notes for this sprint”. One gets a bland list of ticket titles. The other gets notes customers can actually read, grouped by what changed for them, with the internal tickets left out. Same model, same sprint.</p>
+<p>The difference is the request. The second person said who the notes were for, what to leave out, and showed one example of the style they wanted. This lesson is about writing that kind of request on purpose, and saving it so you don't have to write it again.</p></div>
+<div class="check warmup" data-a="2"><p class="q">You want an assistant to write in your team's style. What usually works best?</p><ul>
+<li data-fb="Adjectives mean different things to different readers, models included.">Describe the style with adjectives like “clear, friendly and concise”.</li>
+<li data-fb="It will imitate a typical version of that company, not your team.">Ask it to match the style of a well-known company you admire.</li>
+<li data-fb="Right. Examples show what adjectives can only describe.">Paste one or two short examples of writing in that style.</li>
+<li data-fb="Then you get its default style, which is rarely yours.">Tell it to write in whatever style it thinks is most suitable.</li>
+</ul></div>
 <h2>A request is a brief</h2>
 <p>Lesson 1 showed that a model produces the most plausible continuation of its input. Lesson 2 showed that it knows nothing about your situation beyond that input. Put together: a vague request gets the most typical answer, because typical is all the model has to go on.</p>
 <p>So the craft of asking (often called prompting, from <a class="term" data-t="prompt">prompt</a>) is mostly the craft of briefing. Imagine handing the task to a capable contractor on their first morning: smart, quick, keen to help, and with no idea who your users are, what you have already tried or what “good” looks like here. What would they need to know?</p>
@@ -132,26 +143,115 @@ Example of our tone: "We couldn't reach your bank just now. Your basket is saved
 </div></details>
 </div></div>
 
+<h2>Examples beat adjectives</h2>
+<p>Showing a model one or two examples of the output you want is one of the most reliable ways to steer it.[2] “Friendly but professional” means different things to different people; a two-sentence example doesn't. Vendor guidance from several providers converges on the same handful of habits: be specific about the task and audience, give examples, separate instructions from material, and say what format you want back.[6]</p>
+<h2>Worked example: release notes with one example</h2>
+<div class="worked">
+<div class="wx"><b>Weak request</b><div><pre>Write release notes for this sprint.
+
+[ 23 ticket titles ]</pre></div></div>
+<div class="wx strong"><b>Strong request</b><div><pre>Write release notes for customers (finance
+admins, not developers). Use only the
+tickets below. Leave out tickets tagged
+internal. Group by what changed for the
+customer: New, Improved, Fixed. One
+sentence each, starting with what they can
+now do. If a ticket's effect on customers
+is unclear, list it at the end under
+"Check with team" instead of guessing.
+
+Example of the style:
+"Improved: You can now filter reports by
+cost centre, so month-end checks take
+fewer steps."
+
+[ 23 ticket titles with tags ]</pre></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>Audience</strong> changes the vocabulary: “finance admins” rules out “refactored the export service”.</li>
+<li><strong>“Use only the tickets below”</strong> stops it adding plausible features that didn't ship.</li>
+<li><strong>The example</strong> fixes length, tone and structure in one line.</li>
+<li><strong>“Check with team” instead of guessing</strong> gives it a way to be honest about uncertainty.</li>
+</ul>
+<h2>Templates worth saving</h2>
+<p>Most of the value comes from requests you make every week. Turn each into a template with blanks, keep it where the team can find it, and improve it when a result disappoints. A good template has fixed parts (audience, rules, format, the example) and clearly marked slots for what changes each time. Over a few months, a team's template library becomes a record of what it has learned about getting good results.</p>
+<h2>Your turn: fix a weak prompt</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Rewrite a request a colleague keeps making</span></div><div class="activity-b">
+<p>A colleague asks this every Monday and is never happy with the result: <em>“Summarise these meeting notes.”</em> Rewrite it as a reusable template, with slots marked in square brackets.</p>
+<div data-w="task" data-key="asking-template">
+<div class="task-model"><pre>Summarise the notes below for [people who
+missed the meeting / leadership].
+
+Give, in this order:
+1. Decisions made (one line each, with who
+   made them).
+2. Actions: owner, task, due date. If no
+   owner or date was agreed, write "not
+   agreed" rather than guessing.
+3. Open questions.
+
+Use only what's in the notes. Keep it under
+[200 words]. Don't include discussion that
+didn't lead to a decision or action.
+
+Notes from [meeting name, date]:
+[paste notes]</pre></div>
+<ul class="task-rubric">
+<li>Says who the summary is for</li>
+<li>Specifies the structure of the output</li>
+<li>Limits it to the material provided</li>
+<li>Says what to do when information is missing, instead of guessing</li>
+<li>Marks the parts that change each time as slots</li>
+</ul>
+</div></div></div>
+<h2>Try it this week</h2>
+<div class="aside"><strong>A 30-minute exercise.</strong> Pick the request you make most often. Turn it into a template using the five parts from this lesson, then run it on last week's material and this week's. Share it with one colleague and ask what they'd change.</div>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>There's a magic phrase that makes models perform better.</dt><dd>Tricks come and go between model versions. Clear tasks, context, examples and format work across all of them.</dd>
+<dt>Longer prompts are always better.</dt><dd>Specific beats long. Irrelevant detail can distract a model as much as it helps.</dd>
+<dt>If the output is bad, the model isn't capable enough.</dt><dd>Often the request left out the audience, the rules or an example. Fix the request before switching models.</dd>
+<dt>Prompting is a one-off skill for each request.</dt><dd>The biggest gains come from saving and improving templates for requests you repeat.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Treat a request as a brief: task, context, constraints, format and examples.</li>
+<li>One short example of the output beats a paragraph of adjectives.</li>
+<li>Say what to use, what to leave out, and what to do when it doesn't know.</li>
+<li>Ask for structured output when software will read the answer.</li>
+<li>Save the requests you repeat as templates and improve them over time.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">You ask for “a summary of this meeting transcript” and get a bland paragraph. What single change is most likely to improve it?</p><ul>
-<li data-fb="Role phrases have small effects compared with knowing what the summary is for.">Start the prompt with “You are a world-class executive assistant.”</li>
-<li data-fb="Right. The goal tells the model what to keep: decisions, owners and open questions, rather than an even-handed retelling.">Say who will read it and what they need from it, e.g. “for engineers who missed it: decisions, owners, deadlines”.</li>
-<li data-fb="Temperature affects word choice variety, not what the summary is for.">Raise the temperature to make it more interesting.</li>
+<div class="check" data-a="1"><p class="q">What's the most effective way to get output in your team's house style?</p><ul>
+<li data-fb="Adjectives are open to interpretation.">Describe the style in detail with a list of adjectives.</li>
+<li data-fb="Right. Examples show tone, length and structure at once.">Include one or two short examples of that style.</li>
+<li data-fb="That gets a generic style, not yours.">Ask the model to use a professional business tone.</li>
+<li data-fb="That relies on luck rather than steering.">Run the request several times and pick the best one.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Why does including one example of a finished item often work better than describing the style you want?</p><ul>
-<li data-fb="Examples are just text in the context; the model isn't retrained.">The model is retrained on your example.</li>
-<li data-fb="Examples are useful at any length.">Examples make the reply shorter.</li>
-<li data-fb="Right. Copying a pattern from the context is one of the things models do best, and an example carries tone, format and detail all at once.">Models are very good at continuing a pattern they can see.</li>
+<div class="check" data-a="3"><p class="q">Why add “use only the tickets below” to a release-notes request?</p><ul>
+<li data-fb="Speed isn't the reason.">It makes the response faster to generate.</li>
+<li data-fb="It doesn't affect follow-up questions.">It stops the model asking follow-up questions.</li>
+<li data-fb="The instruction itself doesn't reduce cost meaningfully.">It reduces the cost of the request by limiting tokens.</li>
+<li data-fb="Right. Without it, typical-sounding features can slip in.">It stops it adding plausible features that didn't ship.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">A product manager writes a careful prompt asking for “accurate Q3 churn figures for our enterprise segment”. What's the problem?</p><ul>
-<li data-fb="Right. The model doesn't have your data, so it will produce plausible-looking numbers. Provide the data, or use a tool connected to it.">The model has no access to the figures, so no wording can make the answer accurate.</li>
-<li data-fb="The prompt length is not the issue.">The prompt is too short.</li>
-<li data-fb="Format won't fix missing data.">It should ask for the answer as a table.</li>
+<div class="check" data-a="0"><p class="q">A summary keeps inventing owners and due dates for actions. What's the best fix?</p><ul>
+<li data-fb="Right. Give it an honest alternative to guessing.">Tell it to write “not agreed” when no owner or date was given.</li>
+<li data-fb="Exhortation doesn't give it a way to express uncertainty.">Ask it to try harder to be accurate this time.</li>
+<li data-fb="That loses the most useful part.">Remove actions from the summary entirely.</li>
+<li data-fb="Larger models also fill gaps when the request invites it.">Switch to a larger model and keep the same request.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">An extraction feature uses schema-enforced structured output, so every reply parses. What does that guarantee?</p><ul>
-<li data-fb="The schema controls the shape, not whether the values are true. Values can still be invented or misread.">That every extracted value is correct.</li>
-<li data-fb="Right. The shape is guaranteed; the values still need checking against the input, especially IDs, names and amounts.">That the output has the right fields and types, but not that the values are true.</li>
-<li data-fb="Enforcing a format doesn't change what the model knows about the input.">That the model will never need to use null.</li>
+<div class="check" data-a="2"><p class="q">What makes a good reusable prompt template?</p><ul>
+<li data-fb="Too long, and much of it won't apply.">A long list of every rule anyone has ever suggested.</li>
+<li data-fb="Clever phrases rarely transfer between tasks or models.">A short, clever phrase that works for most requests.</li>
+<li data-fb="Right. Fixed parts carry what you've learned; slots hold what changes.">Fixed parts like audience, rules and format, with clear slots.</li>
+<li data-fb="Good templates mostly work across models.">A version written separately for each new model release.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">When should you ask for a fixed structure like JSON or a table?</p><ul>
+<li data-fb="Length alone doesn't call for structure.">Whenever the answer is longer than a paragraph.</li>
+<li data-fb="Right. Structure lets other tools use the output reliably.">When software or a spreadsheet will read the answer.</li>
+<li data-fb="You decide the format, not the model.">Only when the model offers to provide one itself.</li>
+<li data-fb="Format doesn't make the model more careful.">When you want the model to think more carefully.</li>
 </ul></div>
 </section>
 
@@ -161,6 +261,8 @@ Example of our tone: "We couldn't reach your bank just now. Your basket is saved
 <li>Wei et al. (2022), <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a>. Showing intermediate steps improves multi-step reasoning.</li>
 <li>OpenAI, <a href="https://platform.openai.com/docs/guides/structured-outputs" target="_blank" rel="noopener">Structured Outputs</a>. How an API constrains a model's reply to a supplied JSON Schema, and what that does and doesn't guarantee.</li>
 <li><a href="https://json-schema.org/learn/getting-started-step-by-step" target="_blank" rel="noopener">JSON Schema: getting started</a>. The standard format for describing the fields and allowed values of JSON data.</li>
+
+<li>OpenAI, <a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank" rel="noopener">Prompt engineering guide</a>. Another vendor's guidance, consistent with the habits in this lesson.</li>
 </ol></section>
 `
 });

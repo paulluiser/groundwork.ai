@@ -1,13 +1,24 @@
 GW.lesson({
   id: "checking-work",
+  reviewed: "2026-11",
   lede: "Checking everything thoroughly would cancel out any time AI saves. Checking nothing is how mistakes reach customers. This lesson gives you a way to decide how much checking each result deserves, and what to do once you've checked.",
   outcomes: [
     "Place a task on two axes, the cost of an error and the ease of spotting one, and choose a level of checking.",
     "Use a set of verification techniques that compare output against something outside the model.",
     "Verify a piece of AI-assisted work step by step, including edge cases.",
-    "Decide whether to accept, edit, reject or escalate a result, and own that decision."
+    "Decide whether to accept, edit, reject or escalate a result, and own that decision.",
+    "Write a proportionate check plan for an AI-assisted deliverable before you start."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>It's 5 p.m. You have an AI-drafted quarterly report for leadership, a generated SQL query behind its headline number, and a one-line Slack reply to a customer. You have 30 minutes. You can't check everything equally, and you don't need to.</p>
+<p>The skill this lesson teaches is deciding how much checking each piece deserves, doing the checks that actually catch errors, and noticing when you've stopped checking at all.</p></div>
+<div class="check warmup" data-a="3"><p class="q">Which AI output deserves the most careful check?</p><ul>
+<li data-fb="Low stakes: mistakes are cheap and caught in discussion.">A first draft of an internal brainstorming list for the team.</li>
+<li data-fb="You know the content, so errors are easy to spot.">A rewrite of your own paragraph to make it shorter and clearer.</li>
+<li data-fb="Little harm if the suggestions are poor.">Suggested names for an internal tool nobody outside will see.</li>
+<li data-fb="Right. High cost of error, and hard to notice once accepted.">A number that leadership will use to decide next year's budget.</li>
+</ul></div>
 <h2>The question to ask first</h2>
 <p>Before you ask an AI for anything, ask yourself two questions:</p>
 <ol>
@@ -107,21 +118,89 @@ ORDER BY 1;</pre></li>
 </tbody></table></div>
 <p>Whatever you choose, <strong>you own the result</strong>. “The AI wrote it” isn't a defence a customer, colleague or regulator will accept, any more than “the intern wrote it” would be. That is also why many teams agree on disclosure: saying when work was AI-assisted, so reviewers know where to look harder. Follow your organisation's policy. Lesson 45 covers setting team norms.</p>
 
+<h2>The jagged frontier</h2>
+<p>A field experiment with 758 consultants at Boston Consulting Group found that, on tasks within the model's capabilities, people using AI finished more tasks, faster and to higher quality. On a task chosen to sit just outside those capabilities, people using AI were noticeably less likely to get the right answer than those without it; they trusted fluent output that was wrong.[4] The researchers called the boundary a “jagged frontier”: it isn't obvious from the outside which tasks fall on which side. That's the case for checking in proportion to the stakes, not to how confident the output sounds.</p>
+<p>A 2025 survey of knowledge workers adds a second warning: the more people trusted AI, the less critical thinking they reported applying, while people more confident in their own expertise reported more.[5] Checking is a habit that erodes quietly unless you build it into the work.</p>
+<h2>Worked example: a check plan</h2>
+<p>For the 5 p.m. pile, a check plan takes two minutes to write and decides where the 30 minutes go.</p>
+<div class="tbl"><table><thead><tr><th>Item</th><th>Cost if wrong</th><th>Would we notice?</th><th>Check</th><th>Time</th></tr></thead><tbody>
+<tr><td>Headline number from the generated query</td><td>High: budget decision</td><td>Unlikely</td><td>Reproduce last quarter's known figure with the same query; read the joins and filters; spot-check 10 rows</td><td>15 min</td></tr>
+<tr><td>Report narrative</td><td>Medium</td><td>Partly</td><td>Check every number and named fact against the source; read the conclusions as claims needing evidence</td><td>10 min</td></tr>
+<tr><td>Customer Slack reply</td><td>Medium</td><td>Customer will</td><td>Check any promise, date or policy statement; read it once as the customer</td><td>3 min</td></tr>
+<tr><td>Speaker notes for the meeting</td><td>Low</td><td>Yes, live</td><td>Skim</td><td>2 min</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Half the time goes to one number</strong>, because it's high-stakes and nobody would catch an error later.</li>
+<li><strong>Checks are specific actions</strong>, not “review carefully”: reproduce a known figure, check named facts, read as the recipient.</li>
+<li><strong>Low-stakes items get a skim on purpose.</strong> Proportion is a skill, not a shortcut.</li>
+</ul>
+<h2>Your turn: write a check plan</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Plan the checks for an AI-assisted deliverable</span></div><div class="activity-b">
+<p>Think of something you'll produce with AI help this week. List its parts, and for each: the cost if it's wrong, whether anyone would notice, the specific check you'll do, and roughly how long it takes.</p>
+<div data-w="task" data-key="checking-plan">
+<div class="task-model"><p><strong>Deliverable:</strong> a migration runbook drafted with an assistant.</p>
+<ul>
+<li><strong>Commands:</strong> high cost (production), unlikely to notice until run. Run every command in staging; check flags against the tool's docs. 30 min.</li>
+<li><strong>Rollback steps:</strong> very high cost, only noticed in a crisis. Do a real rollback in staging. 20 min.</li>
+<li><strong>Timings and estimates:</strong> medium. Compare with the last migration's actual timings. 5 min.</li>
+<li><strong>Background explanation:</strong> low. Skim for anything wrong about our setup. 3 min.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Breaks the deliverable into parts rather than checking it as a whole</li>
+<li>Rates the cost of an error and the chance of noticing for each part</li>
+<li>Names a specific check for each part, not just “review”</li>
+<li>Spends the most time on high-cost, hard-to-notice parts</li>
+<li>Gives low-stakes parts a deliberately light check</li>
+</ul>
+</div></div></div>
+<h2>Try it this week</h2>
+<div class="aside"><strong>A 15-minute exercise.</strong> Before your next AI-assisted task, write a check plan in the format above. Afterwards, note which check actually found something. Over a few weeks, you'll learn where your checks pay off.</div>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>If the output looks right, it probably is.</dt><dd>Fluent output looks right whether or not it is. Appearance is the thing AI is best at.</dd>
+<dt>Checking everything thoroughly is the safe approach.</dt><dd>It isn't sustainable, so people end up checking nothing. Proportion keeps checking alive.</dd>
+<dt>Asking a second AI to review is a check.</dt><dd>It can catch some issues, but both can share the same blind spots. Check high-stakes facts against a source.</dd>
+<dt>Experienced people don't need to check.</dt><dd>Expertise makes checks faster and better, not unnecessary. Trust in AI tends to reduce checking for everyone.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Check in proportion to the cost of an error and how likely you are to notice it.</li>
+<li>Use specific checks: known answers, sources, tests, reading as the recipient.</li>
+<li>AI helps most inside its frontier and misleads most just outside it, and the edge isn't visible.</li>
+<li>Spend most of your checking time on high-cost, hard-to-notice parts.</li>
+<li>Write a two-minute check plan before you start, and note which checks pay off.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">A generated spreadsheet formula calculates sales commission for 40 people. It returns sensible-looking numbers. What is the best next step?</p><ul>
-<li data-fb="Plausible-looking is exactly what generated output always is. That's not evidence.">Use it; the numbers look sensible.</li>
-<li data-fb="It may produce useful points to check, but it can't certify the formula.">Ask the assistant to double-check its formula.</li>
-<li data-fb="Right. Pay is high-cost if wrong and testable. Known cases, including thresholds and edge cases, catch errors that eyeballing won't.">Work out three people's commission by hand, including someone exactly at a threshold, and compare.</li>
+<div class="check" data-a="2"><p class="q">You have 30 minutes to check an AI-assisted report. Where should most of the time go?</p><ul>
+<li data-fb="Even spreading leaves the riskiest part under-checked.">Evenly across every section, so nothing is missed.</li>
+<li data-fb="Readers notice prose; decisions rest on numbers.">On the prose, since that's what readers notice first.</li>
+<li data-fb="Right. High cost and low chance of noticing.">On the number a decision rests on, which nobody else will re-check.</li>
+<li data-fb="Looking credible isn't being correct.">On formatting, so the report looks credible.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An AI tool produces an assessment of whether a vendor meets your security requirements. Where does this sit, and what follows?</p><ul>
-<li data-fb="Right. A wrong call is costly and the errors are hard to see. Use the AI to gather documents and draft questions; a qualified person makes and signs the assessment.">High cost, hard to check: a security specialist makes the judgment; the AI can help gather and draft.</li>
-<li data-fb="A wrong security judgment can be very costly.">Low cost, easy to check: accept it if it reads well.</li>
-<li data-fb="The cost of error is high, so this isn't just raw material.">Low cost, hard to check: use it as raw material.</li>
+<div class="check" data-a="0"><p class="q">What did the study of consultants find about tasks just outside the model's capabilities?</p><ul>
+<li data-fb="Right. They trusted fluent output that was wrong.">People using AI were less likely to get the right answer.</li>
+<li data-fb="That held inside the frontier, not outside it.">People using AI were faster and more accurate on every task.</li>
+<li data-fb="It answered fluently, which is the problem.">AI refused to answer when tasks were too hard for it.</li>
+<li data-fb="The drop in accuracy was substantial.">The difference between groups was too small to matter.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">In the MAU example, which check would have caught the bug fastest, without reading SQL?</p><ul>
-<li data-fb="Regeneration could repeat the same mistake consistently.">Asking the assistant to regenerate the query.</li>
-<li data-fb="Right. 1.9 million against roughly 41,000 on the existing dashboard is an immediate red flag.">Comparing the result with the existing dashboard figure.</li>
-<li data-fb="Formatting has nothing to do with correctness.">Checking the query is neatly formatted.</li>
+<div class="check" data-a="3"><p class="q">Which is a specific check rather than a vague one?</p><ul>
+<li data-fb="“Carefully” isn't an action.">Review the query carefully before sending the report.</li>
+<li data-fb="Reasonable-looking is what wrong numbers also do.">Make sure the numbers in the table look reasonable.</li>
+<li data-fb="Its confidence isn't evidence.">Ask the assistant whether it is confident in the result.</li>
+<li data-fb="Right. A known answer tests the method.">Re-run the query for last quarter and match the dashboard.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">A 2025 survey found that greater trust in AI was associated with what?</p><ul>
+<li data-fb="The opposite was reported.">More time spent verifying outputs against sources.</li>
+<li data-fb="Right. Trust tended to reduce reported critical thinking.">Less critical thinking applied to the work.</li>
+<li data-fb="The survey measured reported effort, not accuracy.">Higher measured accuracy on every task.</li>
+<li data-fb="It didn't find that.">Fewer people choosing to use AI tools at work.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Which item can reasonably get only a quick skim?</p><ul>
+<li data-fb="Right. Low cost, and you'll notice errors as you speak.">Speaker notes you'll correct live if something's off.</li>
+<li data-fb="Very high cost, and only noticed in a crisis.">Rollback steps in a production migration runbook.</li>
+<li data-fb="Money and promises to customers need checking.">A refund amount promised in a customer email.</li>
+<li data-fb="High cost, and unlikely to be re-checked by anyone.">A figure in the board pack that drives a budget decision.</li>
 </ul></div>
 </section>
 
@@ -129,6 +208,9 @@ ORDER BY 1;</pre></li>
 <li>Parasuraman and Manzey (2010), <a href="https://doi.org/10.1177/0018720810376055" target="_blank" rel="noopener">Complacency and Bias in Human Use of Automation: An Attentional Integration</a>, Human Factors 52(3). A review of automation bias research.</li>
 <li>NIST (2024), <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf" target="_blank" rel="noopener">AI 600-1: Generative AI Profile</a>. Lists confabulation and over-reliance among the core risks of generative AI, with suggested actions.</li>
 <li>Becker et al., METR (2025), <a href="https://arxiv.org/abs/2507.09089" target="_blank" rel="noopener">Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity</a>. A randomised trial where perceived and measured speed-ups diverged.</li>
+
+<li>Dell'Acqua et al. (2023), <a href="https://www.hbs.edu/faculty/Pages/item.aspx?num=64700" target="_blank" rel="noopener">Navigating the Jagged Technological Frontier</a>. Harvard Business School field experiment with 758 BCG consultants.</li>
+<li>Lee et al., Microsoft Research and Carnegie Mellon (2025), <a href="https://www.microsoft.com/en-us/research/publication/the-impact-of-generative-ai-on-critical-thinking-self-reported-reductions-in-cognitive-effort-and-confidence-effects-from-a-survey-of-knowledge-workers/" target="_blank" rel="noopener">The Impact of Generative AI on Critical Thinking</a>. Survey of 319 knowledge workers (CHI 2025).</li>
 </ol></section>
 `
 });

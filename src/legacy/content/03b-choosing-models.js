@@ -1,13 +1,24 @@
 GW.lesson({
   id: "choosing-models",
+  reviewed: "2026-11",
   lede: "“The AI” is not one thing. Behind every tool sits a particular model, and models differ in what they can do, how fast they answer, what they cost and where your data goes. This lesson gives you the vocabulary and a method for choosing.",
   outcomes: [
     "Explain what frontier, reasoning, multimodal and open-weights models are, in plain words.",
     "Compare models on four practical questions: capability, speed, cost and where data goes.",
     "Choose a sensible kind of model for a task, and say what you gave up to get it.",
-    "Test a model on your own tasks instead of relying on rankings."
+    "Test a model on your own tasks instead of relying on rankings.",
+    "Compare two models on your own examples, with cost, speed and quality side by side."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Your team uses the largest model available for everything: classifying tickets, drafting replies, reviewing code and summarising meetings. The monthly bill has tripled, the ticket classifier takes four seconds per ticket, and someone asks whether a smaller model would do. Nobody knows, because nobody has tried.</p>
+<p>Choosing a model isn't about finding the best one. It's about finding the cheapest, fastest one that passes your tests for each task. This lesson shows how to make that comparison yourself.</p></div>
+<div class="check warmup" data-a="1"><p class="q">A leaderboard ranks Model A above Model B. What does that tell you about your task?</p><ul>
+<li data-fb="Leaderboards measure their own tasks, which may not resemble yours.">Model A will be more accurate on your task as well.</li>
+<li data-fb="Right. Public rankings are a starting point, not an answer.">Not much until you test both on examples from your work.</li>
+<li data-fb="Price and quality aren't reliably linked for a given task.">Model B is cheaper, so it must be the weaker of the two.</li>
+<li data-fb="Rankings usually measure quality, not speed.">Model A will also be faster at answering your requests.</li>
+</ul></div>
 <h2>Many models, not one</h2>
 <p>Lesson 1 described what every language model does: predict the next <a class="term" data-t="token">token</a>, again and again. Every model works that way, but they are not interchangeable. Vendors train families of models in several sizes, release new versions every few months, and retire old ones. The product you use (a chat assistant, a coding tool, a help bot) picks a model for you, and sometimes lets you switch.</p>
 <p>Models differ in ways that matter for your work:</p>
@@ -86,21 +97,94 @@ GW.lesson({
 <p>Vendors update and retire models. A tool you use every day may switch to a newer model without telling you, and its answers will shift: usually better, occasionally worse for your particular task. Products built on a model should name an exact model version, and re-run their tests before moving to a new one (lesson 18).</p>
 <p>Public leaderboards and benchmarks are useful for a first shortlist, but they measure general tasks under conditions that won't match yours. The only reliable comparison is on twenty or thirty real examples of your own work.</p>
 
+<h2>Reading public comparisons</h2>
+<p>Public leaderboards are useful for building a shortlist. Some compare models on quality, speed and price together across many providers;[8] others rank models by human preference in blind side-by-side votes. Each measures something real, and none measures your task. A model that tops a general benchmark can be worse at classifying your support tickets than one half its price. Use rankings to choose two or three candidates, then test those on your own examples.</p>
+<h2>Worked example: testing two models on your task</h2>
+<p>A support team wants to classify incoming tickets into eight categories. They take 100 recent tickets that a senior agent has already labelled, and run two candidate models on all of them with the same prompt.</p>
+<div class="tbl"><table><thead><tr><th>Measure</th><th>Large model</th><th>Small model</th></tr></thead><tbody>
+<tr><td>Matches the agent's label</td><td>94 of 100</td><td>91 of 100</td></tr>
+<tr><td>Errors on “billing” vs “account”</td><td>3</td><td>6</td></tr>
+<tr><td>Median response time</td><td>3.8 seconds</td><td>0.6 seconds</td></tr>
+<tr><td>Cost per 1,000 tickets (from current price sheets)</td><td>$4.10</td><td>$0.30</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>The large model is slightly more accurate</strong>, and almost all the difference is in one confusable pair of categories.</li>
+<li><strong>The small model is six times faster and about 14 times cheaper.</strong> At 30,000 tickets a month, that’s about $123 against $9.</li>
+<li><strong>A better fix may not be a bigger model.</strong> Two clear examples of billing versus account tickets in the prompt might close the gap (lesson 5).</li>
+<li><strong>The decision is now evidence-based:</strong> use the small model with an improved prompt, re-test, and keep the 100-ticket set to check any future change.</li>
+</ul>
+<h2>A simple way to decide</h2>
+<ol class="steps">
+<li><strong>Write down what “good enough” means</strong>For this task, what accuracy, speed and cost would be acceptable? Agree it before testing, so you don't move the goalposts.</li>
+<li><strong>Collect 30 to 100 real examples</strong>With the right answer, or rules for a good answer, for each. Include the hard cases.</li>
+<li><strong>Test the cheapest plausible model first</strong>If it passes, you're done. If not, move up one step and test again.</li>
+<li><strong>Record the result and the date</strong>Models and prices change. Keep the examples, so re-testing takes minutes.</li>
+</ol>
+<h2>Your turn: plan a model comparison</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Plan a fair test for one of your tasks</span></div><div class="activity-b">
+<p>Pick a task your team uses AI for (or wants to). Write the test plan: what “good enough” means, where the examples come from and how many, which two models you'd compare, and what you'd measure.</p>
+<div data-w="task" data-key="choose-plan">
+<div class="task-model"><p><strong>Task:</strong> summarising sprint retros into three actions.</p>
+<p><strong>Good enough:</strong> every action in the summary appears in the notes; at most one real action missed per retro; under 10 seconds; under $0.05 per summary.</p>
+<p><strong>Examples:</strong> 30 past retros with the actions the team actually agreed, written down by the facilitator.</p>
+<p><strong>Models:</strong> the team's current large model and the same provider's smallest model.</p>
+<p><strong>Measure:</strong> invented actions (must be zero), missed actions, time and cost. Re-test whenever either model changes.</p></div>
+<ul class="task-rubric">
+<li>Defines “good enough” with measurable thresholds before testing</li>
+<li>Uses real examples with known right answers or clear rules</li>
+<li>Includes at least one cheaper or smaller candidate</li>
+<li>Measures quality, speed and cost, not quality alone</li>
+<li>Plans to re-test when models or prices change</li>
+</ul>
+</div></div></div>
+<h2>Try it this week</h2>
+<div class="aside"><strong>A 30-minute exercise.</strong> Take ten examples from one AI task you already run. Try them on a smaller, cheaper model with the same prompt. Count how many results you'd accept. If it's nine or ten, you may be paying for capacity you don't need.</div>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>The most capable model is always the safest choice.</dt><dd>It's often slower and far more expensive, and may be no better on simple tasks. Test the cheaper option first.</dd>
+<dt>A reasoning model is better for everything.</dt><dd>Reasoning helps on multi-step problems and costs time and tokens. For classification or rewriting, it's often wasted.</dd>
+<dt>Once we pick a model, the decision is made.</dt><dd>Providers update and retire models. Keep your test examples so you can re-check in minutes.</dd>
+<dt>Benchmarks tell you which model is best.</dt><dd>They tell you which is best at the benchmark. Your examples tell you which is good enough for you.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>There's no single best model; there's the cheapest one that passes your tests for each task.</li>
+<li>Use public rankings to shortlist, then test on 30 to 100 of your own examples.</li>
+<li>Compare quality, speed and cost together, and decide what “good enough” means first.</li>
+<li>A better prompt or a few examples can close the gap more cheaply than a bigger model.</li>
+<li>Keep your test set; re-run it whenever a model, price or prompt changes.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">A teammate wants to switch a simple “rewrite this sentence more politely” feature to a reasoning model, “because it's smarter”. What's the best response?</p><ul>
-<li data-fb="Reasoning models aren't harmful here, but the trade-off is poor.">Agree: reasoning models are better at everything.</li>
-<li data-fb="Right. The task has no multi-step problem to reason through, so you'd pay in waiting time and tokens for little gain. Test both on real examples if in doubt.">Question it: a short rewrite gains little from extended reasoning, and it would be slower and cost more.</li>
-<li data-fb="Reasoning models are available from mainstream vendors, often as a mode of the same model.">Refuse: reasoning models can't be used in products.</li>
+<div class="check" data-a="3"><p class="q">Two models score 94% and 91% on your 100 test tickets. The second is 14 times cheaper. What's the sensible next step?</p><ul>
+<li data-fb="Not if the difference is small and fixable, and the cost is 14 times higher.">Choose the first model, since higher accuracy always wins.</li>
+<li data-fb="Possible, but first see whether the errors can be fixed cheaply.">Choose the second model without any further changes.</li>
+<li data-fb="That adds a guess, not evidence.">Ask a third model to decide which of the two is better.</li>
+<li data-fb="Right. Targeted examples often close a small gap.">Look at where the cheaper model fails, and try fixing it with the prompt.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Which statement about open-weights models is accurate?</p><ul>
-<li data-fb="Most open-weights releases don't include the training data or full training code.">They are always fully open source, including training data.</li>
-<li data-fb="Running it yourself means you also run the security, updates and monitoring.">They remove all operational work, because no vendor is involved.</li>
-<li data-fb="Right. Running it in your own environment keeps data in-house and the version fixed, at the cost of operating it yourself.">You can run them in your own environment, so data stays with you and the version doesn't change unless you change it.</li>
+<div class="check" data-a="0"><p class="q">When is a reasoning model most worth its extra time and cost?</p><ul>
+<li data-fb="Right. That's where step-by-step reasoning pays off.">For multi-step problems like planning or tricky debugging.</li>
+<li data-fb="Usually wasted: a small model often does this well.">For sorting short messages into a handful of fixed categories.</li>
+<li data-fb="A simple language task; reasoning adds little.">For rewriting a paragraph in a friendlier, more casual tone.</li>
+<li data-fb="Visibility doesn't make a task need reasoning.">For any task where the output will be shown to customers.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">A designer asks a multimodal model whether the grey text in a screenshot meets contrast requirements. It says “yes, about 5:1”. What should they do?</p><ul>
-<li data-fb="Right. Reading exact colour values from an image is unreliable. Use the real colour codes and a contrast tool.">Check the actual colour values with a contrast checker.</li>
-<li data-fb="Precise measurement from images is a known weakness, so the number needs checking.">Accept it, because the model can see the image.</li>
-<li data-fb="Another sample gives another estimate, not a measurement.">Ask the model again to make sure.</li>
+<div class="check" data-a="2"><p class="q">How many examples make a reasonable first comparison for one task?</p><ul>
+<li data-fb="Too few, and chosen to flatter rather than test.">Three, chosen to show each model at its best.</li>
+<li data-fb="Overkill for a first decision; you can expand later.">Several thousand, so the result is statistically certain.</li>
+<li data-fb="Right. Enough to see patterns, quick to build.">Thirty to a hundred real ones, including hard cases.</li>
+<li data-fb="The provider doesn't know your task.">However many the model provider suggests in its docs.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Why keep your test examples after choosing a model?</p><ul>
+<li data-fb="No such requirement exists.">Providers require them for billing and usage audits.</li>
+<li data-fb="Right. Re-testing takes minutes instead of days.">Models change, so you can re-check quickly when they do.</li>
+<li data-fb="Possible, but not the main reason to keep them.">They can be used to train the model on your data later.</li>
+<li data-fb="They prove it was good enough, which is what matters.">They prove to leadership that the chosen model was the best.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">Which is the best use of a public model leaderboard?</p><ul>
+<li data-fb="The top model may be overkill and expensive for most tasks.">Choosing the top-ranked model for every task the team has.</li>
+<li data-fb="Rankings measure their own tasks, not yours.">Proving to stakeholders which model is objectively the best.</li>
+<li data-fb="That's when rankings mislead most.">Replacing your own testing when time is short.</li>
+<li data-fb="Right. Shortlist publicly, decide privately.">Building a shortlist of two or three candidates to test yourself.</li>
 </ul></div>
 </section>
 
@@ -112,6 +196,8 @@ GW.lesson({
 <li>Anthropic, <a href="https://docs.claude.com/en/docs/build-with-claude/vision" target="_blank" rel="noopener">Vision</a>. How images are supplied to a model, and its documented limitations.</li>
 <li>NTIA (2024), <a href="https://www.ntia.gov/issues/artificial-intelligence/open-model-weights-report" target="_blank" rel="noopener">Dual-Use Foundation Models with Widely Available Model Weights</a>. A US government report on the benefits and risks of open-weights models.</li>
 <li>Open Source Initiative, <a href="https://opensource.org/ai/open-source-ai-definition" target="_blank" rel="noopener">The Open Source AI Definition</a>. Why releasing weights alone differs from open source.</li>
+
+<li><a href="https://artificialanalysis.ai/" target="_blank" rel="noopener">Artificial Analysis</a>. Independent comparisons of models on quality, output speed and price across providers.</li>
 </ol></section>
 `
 });
