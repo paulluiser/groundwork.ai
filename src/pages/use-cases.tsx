@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Footprints, Lightbulb, Search, ShieldCheck, SquareTerminal, User, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Page } from "@/components/shell";
@@ -33,7 +33,7 @@ export function UseCases() {
   const count = groups.reduce((a, g) => a + g.items.length, 0);
 
   return (
-    <Page wide className="max-w-6xl">
+    <Page wide>
       <header className="mb-6">
         <h1 className="text-h1 font-semibold">Use cases</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one.</p>
@@ -45,29 +45,32 @@ export function UseCases() {
         <p className="mt-3 text-xs text-muted-foreground" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
       </header>
       {!count && <p className="text-sm text-muted-foreground">No use cases match. Try a shorter word or another fit level. <Button variant="link" className="h-auto p-0" onClick={() => { setQ(""); setFit("all"); setScope("all"); }}>Clear the filters</Button></p>}
-      <div className="grid gap-10">
+      <div className="grid gap-8">
         {groups.map((g) => (
-          <section key={g.r}>
-            <p className="text-xs text-muted-foreground">{trackSpan(g.r)}</p>
-            <h2 className="mb-3 text-xl font-semibold">{trackName(g.r)}</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <section key={g.r} aria-labelledby={"uc-" + g.r}>
+            <div className="mb-3 flex items-baseline justify-between gap-3 border-b pb-2">
+              <h2 id={"uc-" + g.r} className="text-lg font-semibold">{trackName(g.r)}</h2>
+              <p className="shrink-0 text-xs text-muted-foreground tabular-nums">{trackSpan(g.r)} · {plural(g.items.length, "use case")}</p>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {g.items.map((u) => {
-                const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l];
+                const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l], href = gd ? "#usecase/" + slug(u.t) : l ? "#" + l.id : undefined;
                 return (
-                  <Card key={u.t} className="gap-3">
-                    <CardHeader className="gap-2"><FitBadge fit={u.fit} /><CardTitle className="leading-snug">{u.t}</CardTitle></CardHeader>
-                    <CardContent className="grid gap-2 text-caption">
-                      <p className="text-ink-2">{u.d}</p>
-                      <p className="text-muted-foreground"><b className="font-semibold text-foreground">Check:</b> {u.c}</p>
-                    </CardContent>
-                    <CardFooter className="mt-auto grid gap-2">
-                      {gd && <Button asChild variant="outline" className="h-auto justify-between py-2"><a href={"#usecase/" + slug(u.t)}><span className="grid text-left"><span className="flex items-center gap-2"><Footprints className="size-4 text-brand" />Open the guide</span><span className="text-xs font-normal text-muted-foreground">{gd.s.length} steps · do's and don'ts{gd.p ? " · starter prompt" : ""}</span></span><ArrowRight className="size-4 text-muted-foreground" /></a></Button>}
-                      {l && <a href={"#" + l.id} className="flex items-start gap-1.5 text-xs text-muted-foreground hover:text-foreground"><BookOpen className="mt-px size-3.5 shrink-0" /><span><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</span></a>}
-                    </CardFooter>
-                  </Card>
+                  <li key={u.t} className="group relative flex flex-col gap-2 rounded-xl border bg-card p-4 transition-colors has-[a.uc-main:hover]:border-foreground/20 has-[a.uc-main:hover]:bg-accent/40">
+                    <FitBadge fit={u.fit} />
+                    <h3 className="text-sm font-semibold leading-snug">
+                      {href ? <a href={href} className="uc-main rounded-sm outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50">{u.t}</a> : u.t}
+                    </h3>
+                    <p className="text-caption text-ink-2">{u.d}</p>
+                    <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Check:</span> {u.c}</p>
+                    <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3 text-xs text-muted-foreground">
+                      {l ? <a href={"#" + l.id} className="relative z-10 flex min-w-0 items-center gap-1.5 hover:text-foreground" title={"Lesson " + l.num + ": " + l.title}><BookOpen className="size-3.5 shrink-0" /><span className="truncate">Lesson {l.num}</span></a> : <span />}
+                      {gd && <span className="flex shrink-0 items-center gap-1 font-medium text-foreground"><Footprints className="size-3.5 text-brand" />Guide<span className="font-normal text-muted-foreground">· {plural(gd.s.length, "step")}</span><ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
+                    </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </section>
         ))}
       </div>
