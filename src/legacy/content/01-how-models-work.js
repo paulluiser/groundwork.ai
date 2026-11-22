@@ -86,7 +86,7 @@ GW.lesson({
   <path class="e" d="M312 45 Q390 45 405 78" marker-end="url(#ah1)"/>
   <path class="e" d="M405 152 Q390 185 312 185" marker-end="url(#ah1)"/>
   <path class="e" d="M178 185 Q120 185 100 152" marker-end="url(#ah1)"/>
-  <g class="stopnote"><rect x="510" y="85" width="122" height="60" rx="8"/><text x="571" y="110" text-anchor="middle">Stop when a</text><text x="571" y="128" text-anchor="middle">stop token or limit</text></g>
+  <g class="stopnote"><rect x="510" y="75" width="122" height="80" rx="8"/><text x="571" y="101" text-anchor="middle">Stop at a</text><text x="571" y="119" text-anchor="middle">stop token</text><text x="571" y="137" text-anchor="middle">or limit</text></g>
   <path class="e dash" d="M482 115 L508 115" marker-end="url(#ah1)"/>
 </svg>
 <figcaption>Each new token becomes part of the input for the next one. A 300-word answer is roughly 400 trips around this loop.</figcaption>
