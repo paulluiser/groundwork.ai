@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, BarChart3, Globe, ShieldCheck, Users, Workflow, Zap } from "lucide-react";
+import { ArrowRight, Award, BarChart3, Globe, Lightbulb, ShieldCheck, Users, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Mark } from "@/components/brand";
 import { exercises, GW, HERO_ROLES, lessons, trackName } from "@/lib/kern";
 import { useStore } from "@/lib/store";
+import { PASS, SIZE } from "@/pages/assessment";
 import { cn } from "@/lib/utils";
 
 // One complete example: an AI draft and the human check, switchable by role.
@@ -44,13 +45,16 @@ export default function Landing() {
   const ready = roles.length > 0, go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
   const nEx = exercises().length, nRoles = GW.roles.length, first = lessons[0];
   const c = HERO[+ex];
+  const nUc = (GW.useCases || []).length;
   const feats = [
-    [Workflow, "How models work", "What a model is doing when it writes, what it can see, and why it can be fluent and wrong at the same time."],
-    [BarChart3, "Check in proportion", "A repeatable way to check AI work, scaled to how costly a mistake would be and how easily you would notice it."],
-    [Users, "Your role, your examples", "Pick up to three roles. Your main role adds a three-lesson track and sets the examples in every core lesson."],
-    [Zap, "Exercises that answer back", nEx + " hands-on exercises, from flagging claims to running code, each with feedback as you go."],
-    [ShieldCheck, "Data and agents, safely", "What a model must never see, and sensible limits for tools and agents that take actions on your behalf."],
-    [Globe, "No account needed", "Progress saves in your browser. A short code or a resume link carries it to any other device."],
+    [Workflow, "How models work", "What a model does when it writes, what it can see, and why it can be fluent and wrong at once."],
+    [Users, "Built around your role", `${nRoles} roles. Your main role adds a three-lesson track and sets the examples in every core lesson.`],
+    [Zap, "Exercises that answer back", `${nEx} hands-on exercises, from sampling a model to flagging claims, with feedback as you go.`],
+    [BarChart3, "Check in proportion", "A repeatable way to check AI work, scaled to what a mistake would cost."],
+    [Lightbulb, `${nUc} use cases, rated`, "Each marked good fit, use with care or keep human, with tools, setup and limits."],
+    [ShieldCheck, "Data and agents, safely", "What a model must never see, and limits for tools and agents that act for you."],
+    [Award, "Assessments and certificates", `A ${SIZE}-question check per track. Score ${PASS * 100}% to earn the certificate.`],
+    [Globe, "No account needed", "Progress saves in your browser. A short code carries it to another device."],
   ] as const;
   const mins = lessons.map((l) => l.minutes), lo = Math.min(...mins), hi = Math.max(...mins);
   const stats = [[lessons.length, `Lessons, ${lo} to ${hi} minutes each`], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
@@ -70,20 +74,21 @@ export default function Landing() {
         <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · no account</p>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-4 pb-16 pt-8 md:px-8">
-        <div className="mb-10 max-w-2xl">
-          <Badge variant="secondary">What you learn</Badge>
-          <h2 className="mt-3 text-h1 font-semibold">One course for working with AI on a software team</h2>
-          <p className="mt-3 text-muted-foreground">Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team. Short lessons, real cases, and nothing to install.</p>
+      <section className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-16 pt-8 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] lg:gap-16">
+        <div className="max-w-md">
+          <p className="text-sm text-brand">What you get</p>
+          <h2 className="mt-2 text-h1 font-semibold">One course for working with AI on a software team</h2>
+          <p className="mt-3 text-muted-foreground">Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="grid gap-x-12 gap-y-7 sm:grid-cols-2">
           {feats.map(([Icon, t, d]) => (
-            <Card key={t} className="gap-3">
-              <CardHeader><div className="mb-2 grid size-9 place-items-center rounded-lg bg-brand-tint text-brand"><Icon className="size-5" /></div><CardTitle>{t}</CardTitle></CardHeader>
-              <CardContent><p className="text-sm text-muted-foreground">{d}</p></CardContent>
-            </Card>
+            <div key={t} className="grid content-start grid-cols-[18px_minmax(0,1fr)] gap-x-3 gap-y-1">
+              <Icon aria-hidden="true" className="mt-[3px] size-[18px] text-brand" strokeWidth={1.75} />
+              <dt className="font-semibold">{t}</dt>
+              <dd className="col-start-2 text-sm text-muted-foreground">{d}</dd>
+            </div>
           ))}
-        </div>
+        </dl>
       </section>
 
       <section className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 md:px-8 lg:grid-cols-2 [&>*]:min-w-0">
@@ -105,8 +110,8 @@ export default function Landing() {
             </div>
           </CardContent>
         </Card>
-        <div className="grid grid-cols-2 gap-4 lg:col-span-2 lg:grid-cols-4">
-          {stats.map(([v, l]) => (<div key={l} className="rounded-xl border bg-card p-5"><div className="text-h1 font-medium tabular-nums">{v}</div><div className="mt-1 text-sm text-muted-foreground">{l}</div></div>))}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6 pt-4 lg:col-span-2 lg:grid-cols-4">
+          {stats.map(([v, l]) => (<div key={l}><div className="text-h1 font-medium tabular-nums">{v}</div><div className="mt-1 text-sm text-muted-foreground">{l}</div></div>))}
         </div>
       </section>
 
