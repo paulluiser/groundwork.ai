@@ -38,10 +38,13 @@ function PathMenu() {
         <DropdownMenuLabel className="font-normal"><span className="block text-xs text-muted-foreground">Your path</span><span className="block text-sm font-medium">{pathLong(roles)}</span></DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild><a href="#role">Change roles</a></DropdownMenuItem>
-        <DropdownMenuItem asChild><a href="#progress">Progress code</a></DropdownMenuItem>
+        <DropdownMenuItem asChild><a href="#progress">Your progress code</a></DropdownMenuItem>
+        <DropdownMenuItem asChild><a href="#glossary">Glossary of terms</a></DropdownMenuItem>
         <DropdownMenuItem asChild><a href="#welcome">About the course</a></DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={(e) => { e.preventDefault(); toggle(); }}>{theme === "dark" ? <Sun /> : <Moon />}{theme === "dark" ? "Light mode" : "Dark mode"}</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <p className="px-2 py-1.5 text-xs text-muted-foreground">Progress saves in this browser.{version && <><br />Version {version}.</>}</p>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -174,13 +177,6 @@ export function LessonRail({ active, onPick }: { active?: string; onPick?: () =>
           </div>
         );
       })}
-      <Separator />
-      <div className="grid gap-1 px-2 text-xs text-muted-foreground">
-        <a href="#progress" className="hover:text-foreground">Your progress code</a>
-        <a href="#glossary" className="hover:text-foreground">Glossary of terms</a>
-        <a href="#welcome" className="hover:text-foreground">About the course</a>
-        <p className="mt-2">Progress saves in this browser.{version && <> Version {version}.</>}</p>
-      </div>
     </div>
   );
 }
