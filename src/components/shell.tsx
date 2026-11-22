@@ -28,7 +28,7 @@ function PathMenu() {
   const main = roleInfo(roles[0])?.name || "General";
   const ini = main.split(/\s+/).filter((w) => /^[A-Za-z]/.test(w) && !/^(and|of|the)$/i.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button type="button" aria-label={"Your path: " + pathLong(roles) + ". Open menu"} className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50">
           <span className="grid size-7 place-items-center rounded-full bg-brand-tint text-2xs font-semibold text-brand">{ini}</span><ChevronDown className="size-3.5 text-muted-foreground" />
