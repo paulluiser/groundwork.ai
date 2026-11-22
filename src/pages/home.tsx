@@ -84,7 +84,7 @@ export default function Home(_: { onSearch?: () => void }) {
       </div>
       <div className="mt-4"><TileRow>
         <Tile href="#exercises" icon={Dumbbell} label="Exercises" value={plural(ex.length, "exercise") + " on your path"} note={exDone ? exDone + " in lessons you’ve completed" : "Hands-on practice from your lessons"} />
-        {GW.useCases?.length > 0 && <Tile href="#usecases" icon={Lightbulb} label="Use cases" value={plural(uc, "use case")} note={mine.length ? "For your roles, with guides" : "With step-by-step guides"} />}
+        {GW.useCases?.length > 0 && <Tile href="#usecases" icon={Lightbulb} label="Use cases" value={plural(uc, "use case")} note={mine.length ? "For your roles, with guides" : "With tools, setup and references"} />}
         <Tile href="#review" icon={Repeat} label="Review terms" value={terms ? plural(terms, "term") + " unlocked" : "Nothing yet"} note="Terms and key ideas, a few cards a day" />
       </TileRow></div>
 

@@ -35,7 +35,7 @@ function UcCard({ u }: { u: UC }) {
       {u.c.length > 44 && <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="relative z-10 -my-1 self-start py-1 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">{open ? "Less" : "More"}</button>}
       <div className="mt-auto flex items-center justify-between gap-3 pt-2">
         <FitBadge fit={u.fit} />
-        {gd && <span className="flex shrink-0 items-center gap-1 text-xs font-medium">Guide<span className="font-normal text-muted-foreground">· {plural(gd.s.length, "step")}</span><ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
+        {gd && <span className="flex shrink-0 items-center gap-1 text-xs font-medium">Guide{GW.ucPlaybook?.[u.t]?.tl?.length ? <span className="font-normal text-muted-foreground">· {plural(GW.ucPlaybook[u.t].tl.length, "tool")}</span> : null}<ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
       </div>
     </li>
   );
@@ -62,10 +62,10 @@ export function UseCases() {
 
   return (
     <Page>
-      <PageHeader title="Use cases" description="Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one." />
+      <PageHeader title="Use cases" description="Concrete ways people in each role use AI at work, how well each fits, and a practical guide for each one: tools, setup, limits and references." />
       {star && starG && (
         <Spotlight className="mb-12" eyebrow={"Start here · " + trackName(star.r) + " · " + FIT[star.fit].label} title={star.t}
-          action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-spot-fg/70">{plural(starG.s.length, "step")} · do's and don'ts{starG.p ? " · starter prompt" : ""}</span></>}>
+          action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-spot-fg/70">{GW.ucPlaybook?.[star.t]?.tl?.length ? plural(GW.ucPlaybook[star.t].tl.length, "tool") + " · " : ""}setup, limits and references{starG.p ? " · starter prompt" : ""}</span></>}>
           {star.d}
         </Spotlight>
       )}
