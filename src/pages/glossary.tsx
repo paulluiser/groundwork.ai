@@ -42,7 +42,7 @@ export default function Glossary({ term }: { term: string }) {
                 return (
                   <div key={k} className={cn("break-inside-avoid rounded-lg px-3 py-2.5 transition-colors", flash === k && "bg-brand-tint")}>
                     <dt id={"term-" + k} className="scroll-mt-24 text-sm font-semibold">{g[0]}</dt>
-                    <dd className="mt-0.5 text-caption text-ink-2">{g[1]}{l && <a href={"#" + l.id} className="mt-1 flex items-center gap-1 text-xs text-brand underline-offset-4 hover:underline"><BookOpen className="size-3" />Lesson {l.num}: {l.title}</a>}</dd>
+                    <dd className="mt-0.5 text-caption text-ink-2">{g[1]}{l && <a href={"#" + l.id} className="-mb-1.5 mt-0.5 flex min-h-7 items-center gap-1 text-xs text-brand underline-offset-4 hover:underline"><BookOpen className="size-3" />Lesson {l.num}: {l.title}</a>}</dd>
                   </div>
                 );
               })}

@@ -40,9 +40,8 @@ export function PracticeList() {
   return (
     <Page>
       <PageHeader back={["#exercises", "Exercises"]} title="You decide" description="Each draft came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s." />
-      <Spotlight className="mb-8" eyebrow={next ? (done.length ? "Next draft · " : "Start here · ") + trackName(next.p.r) : "All drafts reviewed"} title={next ? next.p.t : "You’ve made a call on every draft"}
-        action={next && <><Button asChild className={onDark}><a href={"#practice/" + next.n}>{done.length ? "Next draft" : "Start with this draft"}<ChevronRight /></a></Button><span className="text-xs text-primary-foreground/70">About 3 minutes</span></>}
-        aside={<div className="flex items-center gap-4 md:flex-col md:items-end"><Meter value={done.length / (list.length || 1)} size={44} /><p className="text-sm text-primary-foreground/75"><b className="text-h1 font-medium text-primary-foreground tabular-nums">{done.length}</b> / {list.length} reviewed{done.length ? <span className="block text-xs">Same call on {same}</span> : null}</p></div>}>
+      <Spotlight className="mb-8" eyebrow={(next ? (done.length ? "Next draft · " : "Start here · ") + trackName(next.p.r) + " · " : "") + done.length + " of " + list.length + " reviewed" + (done.length ? ", same call as the reviewer on " + same : "")} title={next ? next.p.t : "You’ve made a call on every draft"}
+        action={next && <><Button asChild className={onDark}><a href={"#practice/" + next.n}>{done.length ? "Next draft" : "Start with this draft"}<ChevronRight /></a></Button><span className="text-xs text-spot-fg/70">About 3 minutes</span></>}>
         {next?.p.ctx}
       </Spotlight>
       <div className="grid gap-6">
@@ -74,13 +73,13 @@ export function PracticeCase({ n }: { n: number }) {
     <Page>
       <PageHeader back={["#practice", "All drafts"]} eyebrow={"Draft " + (pos + 1) + " of " + list.length + " · " + trackName(p.r)} title={p.t} description={p.ctx} />
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-      <Card className="gap-0 overflow-hidden py-0"><div className="border-b bg-muted px-4 py-2 text-xs font-medium">AI draft</div><div className="lesson kern-lesson-body px-4 py-3 text-sm" dangerouslySetInnerHTML={{ __html: p.draft }} /></Card>
+      <Card className="gap-0 overflow-hidden py-0"><div className="border-b bg-muted px-4 py-2 text-xs font-medium">AI draft</div><div className="lesson kern-lesson-body px-4 py-3 text-sm [&_*]:max-w-none" dangerouslySetInnerHTML={{ __html: p.draft }} /></Card>
       <div className="lg:sticky lg:top-20">
       {!mine ? (
         <Card className="border-ex-line" style={{ background: "var(--ex-bg)" }}>
           <CardHeader><CardTitle id="pr-h">Your call</CardTitle></CardHeader>
           <CardContent className="grid gap-4">
-            <ToggleGroup type="single" variant="outline" spacing={2} value={call} onValueChange={(v) => v && setCall(v)} aria-labelledby="pr-h" className="flex-wrap justify-start bg-card">
+            <ToggleGroup type="single" variant="outline" spacing={2} value={call} onValueChange={(v) => v && setCall(v)} aria-labelledby="pr-h" className="flex-wrap justify-start">
               {Object.keys(CALLS).map((k) => <ToggleGroupItem key={k} value={k} className="px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{CALLS[k][0]}</ToggleGroupItem>)}
             </ToggleGroup>
             <div className="grid gap-2"><Label htmlFor="pr-note">What would you check or change?</Label><Textarea id="pr-note" value={note} onChange={(e) => setNote(e.target.value)} className="bg-card" aria-describedby="pr-hint" placeholder="For example: which claims you would verify, and how" /></div>
@@ -96,14 +95,14 @@ export function PracticeCase({ n }: { n: number }) {
             <div className="rounded-lg border bg-muted/50 p-3"><p className="text-xs text-muted-foreground">What you wrote</p><p className="mt-1 text-sm">{mine.note}</p></div>
             <div className="grid gap-2">{p.flags.map((f, i) => (<div key={i} className="flex items-start gap-3 text-sm"><span className={cn("shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium", STAMP[f[0]] || STAMP.warn)}>{f[1]}</span><span dangerouslySetInnerHTML={{ __html: f[2] }} /></div>))}</div>
             <p className="text-sm text-ink-2">{p.why}</p>
-            <Button variant="link" className="h-auto justify-self-start p-0" onClick={again}>Try this one again</Button>
+            <Button variant="link" className="h-9 justify-self-start px-0" onClick={again}>Try this one again</Button>
           </CardContent>
         </Card>
       )}
       </div>
       </div>
       <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
-        {l ? <a href={"#" + l.id} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><BookOpen className="size-4" /><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</a> : <span />}
+        {l ? <a href={"#" + l.id} className="flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><BookOpen className="size-4" /><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</a> : <span />}
         <Button asChild variant="secondary"><a href={nextX ? "#practice/" + nextX.n : "#practice"}>{nextX ? "Next draft" : "All drafts"}</a></Button>
       </footer>
     </Page>

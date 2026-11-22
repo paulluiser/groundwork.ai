@@ -67,7 +67,7 @@ function Maker({ onCreate }: { onCreate: (t: Team) => void }) {
               </label>
             ))}</div>
           </fieldset>
-          <p className="text-sm text-muted-foreground" aria-live="polite">{ids.length ? plural(ids.length, "lesson") + ", about " + hours(ids) + " each" : "Choose at least one group of lessons"}</p>
+          <p className="text-sm text-muted-foreground" aria-live="polite">{ids.length ? plural(ids.length, "lesson") + ", about " + hours(ids) + " per person" : "Choose at least one group of lessons"}</p>
           <p className="text-sm text-destructive" role="alert">{err}</p>
           <Button type="submit" className="justify-self-start">Create the plan</Button>
         </form>
@@ -113,13 +113,12 @@ function Board({ team, update }: { team: Team; update: (t: Team | null) => void 
   };
   return (
     <Page>
-      <PageHeader back={has ? ["#progress", "Progress"] : undefined} eyebrow="Team plan" title={team.n} description={plural(plan.length, "lesson") + ", about " + hours(plan) + " each. The board is built from the codes you paste in, and only you can see it."} />
+      <PageHeader back={has ? ["#progress", "Progress"] : undefined} eyebrow="Team plan" title={team.n} description={plural(plan.length, "lesson") + ", about " + hours(plan) + " per person. The board is built from the codes you paste in, and only you can see it."} />
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="grid min-w-0 gap-6">
         {!has ? <Alert><AlertDescription className="flex flex-wrap items-center justify-between gap-3">To start, choose your roles. The team’s lessons are open to everyone, whatever roles you pick.<Button asChild size="sm"><a href="#role">Choose your roles</a></Button></AlertDescription></Alert>
-          : <Spotlight eyebrow={"You · " + myN + " of " + plan.length + " done"} title={nextId ? byId[nextId].title : "You’ve finished the plan"}
-            action={nextId && <Button asChild className={onDark}><a href={"#" + nextId}>Continue</a></Button>}
-            aside={<Meter value={myN / plan.length} size={44} />}>{nextId ? "Up next in the team plan, lesson " + byId[nextId].num + "." : "Every lesson in the team plan is done."}</Spotlight>}
+          : <Spotlight eyebrow={"Up next for you · " + myN + " of " + plan.length + " done"} title={nextId ? byId[nextId].title : "You’ve finished the plan"}
+            action={nextId && <Button asChild className={onDark}><a href={"#" + nextId}>Continue</a></Button>}>{nextId ? "Lesson " + byId[nextId].num + " · " + byId[nextId].minutes + " min" : "Every lesson in the team plan is done."}</Spotlight>}
         <Card className="min-w-0">
           <CardHeader><CardTitle>Board</CardTitle></CardHeader>
           <CardContent className="grid min-w-0 gap-4 [&>*]:min-w-0">
@@ -133,7 +132,7 @@ function Board({ team, update }: { team: Team; update: (t: Team | null) => void 
         <Disclosure title="Add teammates" sub="Paste a name and a progress code per line" defaultOpen={!team.m.length}>
           <Card><CardContent>
             <form onSubmit={add} noValidate className="grid gap-2">
-              <Label htmlFor="tm-lines">Add teammates</Label>
+              <Label htmlFor="tm-lines" className="sr-only">Teammates to add</Label>
               <p className="text-xs text-muted-foreground" id="tm-help">One per line, a name and a progress code, like <code>Priya: KN-7K2Q9-M4TAB-8C1DE</code>. Pasting the same name again updates that person.</p>
               <Textarea id="tm-lines" rows={3} value={lines} onChange={(e) => setLines(e.target.value)} aria-describedby="tm-help tm-add-err" />
               <p className="text-sm text-destructive" id="tm-add-err" role="alert">{err}</p>

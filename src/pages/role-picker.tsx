@@ -66,7 +66,7 @@ export default function RolePicker() {
               <li key={id} className="flex items-center gap-2 text-sm">
                 <span className="grid size-5 place-items-center rounded-full bg-brand text-2xs text-brand-foreground">{gen ? <Check className="size-3" /> : i + 1}</span>
                 <b className="flex-1 font-medium">{roleInfo(id)!.name}</b>
-                {i > 0 && !gen && <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground" onClick={() => makeMain(id)}>Make main</Button>}
+                {i > 0 && !gen && <Button variant="link" size="sm" className="h-7 px-1 text-xs text-muted-foreground" onClick={() => makeMain(id)}>Make main</Button>}
                 <Button variant="ghost" size="icon" className="size-7" aria-label={"Remove " + roleInfo(id)!.name} onClick={() => toggle(id)}><X className="size-4" /></Button>
               </li>
             ))}

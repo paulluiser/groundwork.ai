@@ -50,6 +50,9 @@
   --color-ex-on-2: var(--ex-on-2);
   --color-ex-hue: var(--ex-hue);
   --color-ex-bg: var(--ex-bg);
+  --color-spot: var(--spot);
+  --color-spot-fg: var(--spot-fg);
+  --color-spot-line: var(--spot-line);
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -65,6 +68,7 @@
   --text-lg: 18px;   --text-lg--line-height: 1.55;
   --text-xl: 20px;   --text-xl--line-height: 1.35;
   --text-2xl: 24px;  --text-2xl--line-height: 1.25;
+  --text-h2: clamp(22px, 2.4vw, 28px); --text-h2--line-height: 1.2; --text-h2--letter-spacing: -0.01em;
   --text-h1: clamp(28px, 3.2vw, 40px); --text-h1--line-height: 1.1; --text-h1--letter-spacing: -0.02em;
   --text-display: clamp(36px, 5.4vw, 64px); --text-display--line-height: 1.05; --text-display--letter-spacing: -0.02em;
 }
@@ -112,3 +116,8 @@
 @layer components {
   :is(h1, h2, h3, h4):not(.kern-lesson-body *, .fig *, .activity *) { color: inherit; }
 }
+
+/* Spotlight: the one dark panel per page. It stays dark in both themes (raised a step in dark mode),
+   matching the exercise band, instead of inverting like shadcn's primary. */
+:root { --spot: var(--black); --spot-fg: var(--on-black); --spot-line: transparent; }
+:root[data-theme="dark"] { --spot: #22211E; --spot-fg: #F4F3EE; --spot-line: #3A3833; }

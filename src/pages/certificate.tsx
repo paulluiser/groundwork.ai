@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Download } from "lucide-react";
+import { Download, Lock } from "lucide-react";
+import { Meter } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,14 +45,27 @@ export default function Certificate({ k }: { k: string }) {
   const cv = useRef<HTMLCanvasElement>(null);
   const date = LONGDATE.format(new Date());
   useEffect(() => {
-    if (!full || !cv.current) return;
+    if (!t || !cv.current) return;
     const draw = () => { drawCert(cv.current!, name.trim(), t!, date); setReady(true); };
     (document.fonts ? Promise.all([document.fonts.load("600 80px 'Geist Mono'"), document.fonts.load("400 20px 'Geist Mono'")]) : Promise.resolve()).then(draw, draw);
   }, [name, full]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Page>
-      <PageHeader back={["#progress", "Progress"]} title="Certificate" description={full ? t!.name + ", " + plural(t!.ids.length, "lesson") + ". Add your name as you want it to appear, then download the image." : undefined} />
-      {!full ? (<><p className="text-sm text-muted-foreground">{t ? "Finish every lesson in this track first: " + t.ids.filter((id) => progress[id]).length + " of " + t.ids.length + " done." : "That track isn’t on your path."}</p><Button asChild className="mt-4"><a href="#progress">Back to progress</a></Button></>) : (
+      <PageHeader back={["#progress", "Progress"]} title="Certificate" description={!t ? undefined : full ? t.name + ", " + plural(t.ids.length, "lesson") + ". Add your name as you want it to appear, then download the image." : "Finish every lesson in " + t.name.replace(/^Your /, "your ") + " to make your certificate."} />
+      {!t ? (<p className="text-sm text-muted-foreground">That track isn’t on your path. <a className="underline underline-offset-4" href="#progress">See your tracks</a></p>) : !full ? (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="relative overflow-hidden rounded-xl border">
+            <canvas ref={cv} width={1600} height={1000} className="block h-auto w-full opacity-35 grayscale" role="img" aria-label="Preview of the certificate, locked until the track is done" />
+            <div className="absolute inset-0 grid place-items-center"><span className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium shadow-sm"><Lock className="size-4" />Unlocks when the track is done</span></div>
+          </div>
+          <div className="grid gap-4 rounded-xl border bg-card p-6">
+            <div><p className="text-xs text-muted-foreground">{t.name}</p><p className="mt-1 flex items-center gap-3"><Meter value={t.ids.filter((id) => progress[id]).length / t.ids.length} size={22} /><b className="text-lg font-medium">{plural(t.ids.filter((id) => !progress[id]).length, "lesson")} to go</b></p></div>
+            <ul className="grid gap-1 border-t pt-3">
+              {t.ids.filter((id) => !progress[id]).map((id) => <li key={id}><a href={"#" + id} className="-mx-2 flex min-h-9 items-center justify-between gap-3 rounded-md px-2 text-sm hover:bg-accent"><span className="min-w-0"><span className="mr-2 text-caption text-muted-foreground tabular-nums">{byId[id].num}</span>{byId[id].title}</span><span className="shrink-0 text-xs text-muted-foreground">{byId[id].minutes} min</span></a></li>)}
+            </ul>
+          </div>
+        </div>
+      ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="relative overflow-hidden rounded-xl border lg:order-1">
             <canvas ref={cv} width={1600} height={1000} className="block h-auto w-full" role="img" aria-label="Certificate preview" />

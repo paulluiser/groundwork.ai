@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, BookOpen, ChevronDown, Dumbbell, Keyboard, Lightbulb, Menu, Moon, PieChart, Search, Sun, CaseSensitive, Check } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronDown, ChevronRight, Dumbbell, Keyboard, Lightbulb, Menu, Moon, PieChart, Search, Sun, CaseSensitive, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -44,8 +44,8 @@ export function Header({ tab, bare, lessonId, onSearch }: { tab: string; bare: b
           {!bare && roles.length > 0 && (
             <Button asChild variant="outline" size="sm" className="min-w-0 max-w-[8.5rem] sm:max-w-[16rem]">
               <a href="#role" aria-label={"Your path: " + pathLong(roles) + ". Change roles"}>
-                <span className="hidden text-muted-foreground lg:inline">Path</span>
-                <span className="truncate">{pathName(roles)}</span><ChevronDown className="size-3.5" />
+                <span className="text-muted-foreground sm:hidden lg:inline">Path</span>
+                <span className="hidden truncate sm:inline">{pathName(roles)}</span><ChevronDown className="size-3.5" />
               </a>
             </Button>
           )}
@@ -71,7 +71,7 @@ export function MobileTabs({ tab }: { tab: string }) {
   return (
     <nav aria-label="Course sections" className="fixed inset-x-0 bottom-0 z-40 grid border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
       {tabs.map((t) => (
-        <a key={t.id} href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined} className={cn("flex flex-col items-center gap-1 py-2 text-[10px] text-muted-foreground", tab === t.id && "text-brand")}>
+        <a key={t.id} href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined} className={cn("flex flex-col items-center gap-1 py-2 text-2xs text-muted-foreground", tab === t.id && "text-brand")}>
           <t.icon className="size-5" />{t.label}
         </a>
       ))}
@@ -234,22 +234,33 @@ export function Disclosure({ title, meta, defaultOpen, children, sub }: { title:
   );
 }
 
-/* The one place each page wants the eye to land first: a dark card with a single action. */
-export function Spotlight({ eyebrow, title, children, action, aside, className }: { eyebrow?: ReactNode; title: ReactNode; children?: ReactNode; action?: ReactNode; aside?: ReactNode; className?: string }) {
+/* The one place each page wants the eye to land first: a dark panel with the next action. Counts go in the eyebrow. */
+export function Spotlight({ eyebrow, title, children, action, className, href, tone = "spot" }: { eyebrow?: ReactNode; title: ReactNode; children?: ReactNode; action?: ReactNode; className?: string; href?: string; tone?: "spot" | "ex" }) {
+  const Box = (href ? "a" : "section") as "a";
   return (
-    <section className={cn("grid gap-6 rounded-xl bg-primary p-6 text-primary-foreground md:p-8", aside && "md:grid-cols-[minmax(0,1fr)_auto] md:items-end", className)}>
+    <Box href={href} className={cn("group flex flex-col justify-between gap-6 rounded-xl border p-6 md:p-8", tone === "ex" ? "border-ex-band bg-ex-band text-ex-on" : "border-spot-line bg-spot text-spot-fg", href && "transition-[filter] hover:brightness-110", className)}>
       <div className="min-w-0">
-        {eyebrow && <p className="flex items-center gap-2 text-caption text-primary-foreground/70"><span className="size-1.5 rounded-full bg-brand" />{eyebrow}</p>}
-        <h2 className="mt-3 max-w-3xl text-2xl font-semibold leading-tight">{title}</h2>
-        {children && <div className="mt-2 max-w-2xl text-sm text-primary-foreground/75">{children}</div>}
-        {action && <div className="mt-5 flex flex-wrap items-center gap-3">{action}</div>}
+        {eyebrow && <p className={cn("flex items-center gap-2 text-caption", tone === "ex" ? "text-ex-on-2" : "text-spot-fg/70")}><span className={cn("size-1.5 shrink-0 rounded-full", tone === "ex" ? "bg-ex-hue" : "bg-brand")} />{eyebrow}</p>}
+        <h2 className="mt-3 max-w-3xl text-h2 font-semibold">{title}</h2>
+        {children && <div className={cn("mt-2 max-w-2xl text-sm", tone === "ex" ? "text-ex-on-2" : "text-spot-fg/75")}>{children}</div>}
       </div>
-      {aside}
-    </section>
+      {action && <div className="flex flex-wrap items-center gap-3">{action}</div>}
+    </Box>
   );
 }
-/* Light button for use on the dark spotlight. */
-export const onDark = "bg-primary-foreground text-primary hover:bg-primary-foreground/90";
+/* Light button for the dark spotlight. */
+export const onDark = "bg-spot-fg text-spot hover:bg-spot-fg/90";
+
+/* Shortcut tile: icon, label, one line of value, one line of note, chevron. Same anatomy everywhere. */
+export function Tile({ href, icon: I, label, value, note }: { href: string; icon: typeof Search; label: string; value: ReactNode; note: ReactNode }) {
+  return (
+    <a href={href} className="group flex min-w-0 items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60">
+      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><I className="size-4" /></span>
+      <span className="min-w-0 flex-1"><span className="block text-xs text-muted-foreground">{label}</span><b className="block truncate text-sm font-medium">{value}</b><span className="block truncate text-xs text-muted-foreground">{note}</span></span>
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+    </a>
+  );
+}
 
 /* "Show N more" for long lists. */
 export function ShowMore({ hidden, open, onToggle, noun }: { hidden: number; open: boolean; onToggle: () => void; noun: string }) {

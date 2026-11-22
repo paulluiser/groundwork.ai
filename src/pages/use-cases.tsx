@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { onDark, Page, PageHeader, SectionHead, ShowMore, Spotlight } from "@/components/shell";
 import { byId, copyText, GW, load, plural, save, slug, trackIdOf, trackName, trackSpan, uniq } from "@/lib/kern";
 import { useStore } from "@/lib/store";
@@ -29,10 +30,11 @@ export function UseCases() {
   const order = scope === "mine" && !gen ? mine : mine.concat(GW.tracks.map((t: { id: string }) => t.id).filter((r: string) => !mine.includes(r)));
   const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const hit = (u: UC) => (fit === "all" || u.fit === fit) && words.every((w) => (u.t + " " + u.d + " " + u.c + " " + trackName(u.r)).toLowerCase().includes(w));
-  const groups = order.map((r) => ({ r, items: list.filter((u) => u.r === r && hit(u)) })).filter((g) => g.items.length);
-  const count = groups.reduce((a, g) => a + g.items.length, 0);
+  const starPick = !words.length ? list.find((u) => u.fit === "good" && (!mine.length || u.r === mine[0]) && GW.ucGuides?.[u.t] && hit(u)) : undefined;
+  const groups = order.map((r) => ({ r, items: list.filter((u) => u.r === r && hit(u) && u !== starPick) })).filter((g) => g.items.length);
+  const count = groups.reduce((a, g) => a + g.items.length, 0) + (starPick ? 1 : 0);
 
-  const star = list.find((u) => u.fit === "good" && (!mine.length || u.r === mine[0]) && GW.ucGuides?.[u.t]);
+  const star = starPick;
   const starG: Guide | undefined = star && GW.ucGuides?.[star.t];
   const [more, setMore] = useState<Record<string, boolean>>({});
   const CAP = 4;
@@ -40,23 +42,25 @@ export function UseCases() {
   return (
     <Page>
       <PageHeader title="Use cases" description="Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one." />
-      {star && starG && !words.length && (
+      {star && starG && (
         <Spotlight className="mb-8" eyebrow={"Start here · " + trackName(star.r) + " · " + FIT[star.fit].label} title={star.t}
-          action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-primary-foreground/70">{plural(starG.s.length, "step")} · do's and don'ts{starG.p ? " · starter prompt" : ""}</span></>}>
+          action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-spot-fg/70">{plural(starG.s.length, "step")} · do's and don'ts{starG.p ? " · starter prompt" : ""}</span></>}>
           {star.d}
         </Spotlight>
       )}
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {!gen && <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-ucscope", v); }}><TabsList><TabsTrigger value="mine">Your roles</TabsTrigger><TabsTrigger value="all">All roles</TabsTrigger></TabsList></Tabs>}
-        <Tabs value={fit} onValueChange={(v) => { setFit(v); save("gw-ucfit", v); }} className="max-w-full overflow-x-auto"><TabsList><TabsTrigger value="all">Any fit</TabsTrigger><TabsTrigger value="good">Good fit</TabsTrigger><TabsTrigger value="care">Use with care</TabsTrigger><TabsTrigger value="human">Keep human</TabsTrigger></TabsList></Tabs>
+        <ToggleGroup type="single" spacing={1.5} value={fit} onValueChange={(v) => { if (!v) return; setFit(v); save("gw-ucfit", v); }} className="flex flex-wrap justify-start" aria-label="Filter by fit">
+          {([["all", "Any fit"], ["good", "Good fit"], ["care", "Use with care"], ["human", "Keep human"]] as const).map(([v, t]) => <ToggleGroupItem key={v} value={v} variant="outline" size="sm" className="rounded-full px-3 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{t}</ToggleGroupItem>)}
+        </ToggleGroup>
         <p className="text-xs text-muted-foreground sm:ml-2" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
-        <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a task, e.g. tests, incidents" aria-label="Find a use case" className="pl-9" /></div>
+        <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a use case" aria-label="Find a use case" className="pl-9" /></div>
       </div>
       {!count && <p className="text-sm text-muted-foreground">No use cases match. Try a shorter word or another fit level. <Button variant="link" className="h-auto p-0" onClick={() => { setQ(""); setFit("all"); setScope("all"); }}>Clear the filters</Button></p>}
       <div className="grid gap-8">
         {groups.map((g) => (
           <section key={g.r} aria-labelledby={"uc-" + g.r}>
-            <SectionHead id={"uc-" + g.r} title={trackName(g.r)} meta={trackSpan(g.r) + " · " + plural(g.items.length, "use case")} />
+            <SectionHead id={"uc-" + g.r} title={trackName(g.r)} meta={trackSpan(g.r) + " · " + plural(g.items.length + (starPick && starPick.r === g.r ? 1 : 0), "use case")} />
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {(more[g.r] || words.length ? g.items : g.items.slice(0, CAP)).map((u) => {
                 const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l], href = gd ? "#usecase/" + slug(u.t) : l ? "#" + l.id : undefined;
@@ -69,7 +73,7 @@ export function UseCases() {
                     <p className="text-caption text-ink-2">{u.d}</p>
                     <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Check:</span> {u.c}</p>
                     <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3 text-xs text-muted-foreground">
-                      {l ? <a href={"#" + l.id} className="relative z-10 flex min-w-0 items-center gap-1.5 hover:text-foreground" title={"Lesson " + l.num + ": " + l.title}><BookOpen className="size-3.5 shrink-0" /><span className="truncate">Lesson {l.num}</span></a> : <span />}
+                      {l ? <a href={"#" + l.id} className="relative z-10 -my-2 flex min-h-9 min-w-0 items-center gap-1.5 hover:text-foreground" title={"Lesson " + l.num + ": " + l.title}><BookOpen className="size-3.5 shrink-0" /><span className="truncate">Lesson {l.num}</span></a> : <span />}
                       {gd && <span className="flex shrink-0 items-center gap-1 font-medium text-foreground"><Footprints className="size-3.5 text-brand" />Guide<span className="font-normal text-muted-foreground">· {plural(gd.s.length, "step")}</span><ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
                     </div>
                   </li>
@@ -100,11 +104,11 @@ export function UseCaseGuide({ slug: key }: { slug: string }) {
   return (
     <Page>
       <PageHeader back={["#usecases", "All use cases"]} eyebrow={trackName(u.r) + " · use case " + (i + 1) + " of " + same.length} title={u.t} description={u.d}>
-        <div className="flex flex-wrap gap-2"><FitBadge fit={u.fit} /><Badge variant="outline" className="font-normal"><Footprints />{plural(g.s.length, "step")}</Badge>{l && <Badge asChild variant="outline" className="font-normal"><a href={"#" + l.id}><BookOpen />Lesson {l.num}: {l.title}</a></Badge>}</div>
+        <div className="flex flex-wrap gap-2"><FitBadge fit={u.fit} /><Badge variant="outline" className="font-normal"><Footprints />{plural(g.s.length, "step")}</Badge>{l && <Badge asChild variant="outline" className="min-h-6 font-normal"><a href={"#" + l.id}><BookOpen />Lesson {l.num}: {l.title}</a></Badge>}</div>
       </PageHeader>
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-8">
-          <section><h2 className="mb-4 flex items-center gap-2 text-lg font-semibold"><Footprints className="size-5 text-brand" />Step by step</h2>
+          <section><SectionHead title="Step by step" meta={plural(g.s.length, "step")} />
             <ol className="grid gap-0">{g.s.map((s, k) => (<li key={k} className="relative grid grid-cols-[30px_1fr] gap-4 pb-5 last:pb-0"><span className="z-10 grid size-[30px] place-items-center rounded-full bg-primary text-caption font-medium text-primary-foreground">{k + 1}</span>{k < g.s.length - 1 && <span className="absolute left-[15px] top-8 bottom-1 w-px bg-border" />}<p className="pt-1">{s}</p></li>))}</ol>
           </section>
           {g.p && (
@@ -114,7 +118,7 @@ export function UseCaseGuide({ slug: key }: { slug: string }) {
               <p className="whitespace-pre-wrap p-4 text-caption leading-relaxed">{g.p}</p>
             </Card>
           )}
-          <section><h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><ShieldCheck className="size-5 text-brand" />Before you rely on it</h2><p className="rounded-lg border border-brand-line bg-brand-tint p-4">{u.c}</p></section>
+          <section><SectionHead title="Before you rely on it" /><p className="rounded-lg border border-brand-line bg-brand-tint p-4">{u.c}</p></section>
         </div>
         <aside className="grid gap-3 lg:sticky lg:top-20">
           <Box title="Do" icon={CheckCircle2} tone="do" items={g.y} />

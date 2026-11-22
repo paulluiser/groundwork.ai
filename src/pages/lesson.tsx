@@ -186,9 +186,10 @@ export default function LessonPage({ id, target }: { id: string; target: string 
       <aside className="hidden xl:block"><div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pr-2"><LessonRail active={id} /></div></aside>
       <main id="view" tabIndex={-1} className="min-w-0 outline-none">
         {/* overview */}
-        <header className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,1fr)] lg:gap-8">
-          <div className="grid content-start gap-4">
-            <p className="flex flex-wrap items-center gap-2 text-caption text-muted-foreground"><Badge>Lesson {l.num}</Badge>{part.title}{l.role && <> · {trackName(l.rid!)} track, {l.step} of 3</>}</p>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
+          <header className="grid content-start gap-4">
+            <p className="flex flex-wrap items-center gap-2 text-caption text-muted-foreground"><Badge>Lesson {l.num}</Badge>{part.title}{l.role && <> · {trackName(l.rid!)} track, {l.step} of 3</>}{done && <Badge className="border-brand-line bg-brand-tint font-normal text-brand"><CheckCircle2 />Completed</Badge>}</p>
             <h1 className="text-h1 font-semibold">{l.title}</h1>
             <div className="flex flex-wrap gap-1.5">
               <Badge variant="outline" className="font-normal"><Clock />{l.minutes} min</Badge>
@@ -196,9 +197,8 @@ export default function LessonPage({ id, target }: { id: string; target: string 
               {prep.nEx > 0 && <Badge variant="outline" className="font-normal"><FlaskConical />{plural(prep.nEx, "exercise")}</Badge>}
               {prep.nChk > 0 && <Badge variant="outline" className="font-normal"><HelpCircle />{plural(prep.nChk, "quiz question")}</Badge>}
               {roles.length > 0 && (onPath ? <Badge variant="outline" className="font-normal"><Footprints />Step {idx + 1} of {seq.length}</Badge> : <Badge variant="secondary" className="font-normal">Not on your path</Badge>)}
-              {done && <Badge className="border-brand-line bg-brand-tint font-normal text-brand"><CheckCircle2 />Completed</Badge>}
             </div>
-            <p className="max-w-[40em] text-lg text-ink-2" dangerouslySetInnerHTML={{ __html: prep.c.lede }} />
+            <p className="max-w-[40em] text-base text-ink-2 md:text-lg" dangerouslySetInnerHTML={{ __html: prep.c.lede }} />
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => prep.plan[0] && jump(prep.plan[0].id)}><Play />{done ? "Review the lesson" : "Start the lesson"}</Button>
               {prep.nEx > 0 && <Button variant="outline" onClick={() => jump("ex-1")}><FlaskConical />Go to the exercises</Button>}
@@ -219,32 +219,28 @@ export default function LessonPage({ id, target }: { id: string; target: string 
                 </ul>
               </CardContent>
             </Card>
-          </div>
-          <Card className="gap-2 self-start py-4">
-            <CardHeader className="px-5"><CardTitle className="flex items-center gap-2 text-sm"><ListChecks className="size-4 text-brand" />Lesson plan</CardTitle><CardAction className="text-xs text-muted-foreground">{l.minutes} min</CardAction></CardHeader>
-            <CardContent className="px-3">
-              <ol className="divide-y">
-                {prep.plan.map((s, j) => {
-                  const Icon = KIND_ICON[s.kind];
-                  return (
-                    <li key={s.id}>
-                      <button type="button" onClick={() => jump(s.id)} className="grid w-full grid-cols-[22px_minmax(0,1fr)_auto_40px] items-center gap-2.5 rounded-md px-2 py-2 text-left text-caption hover:bg-accent">
-                        <span className={cn("grid size-5 place-items-center rounded-full border text-2xs tabular-nums text-muted-foreground", j < readAt && "border-brand bg-brand text-brand-foreground", j === cur && "border-2 border-brand text-foreground")}>{j + 1}</span>
-                        <span className="flex min-w-0 items-center gap-1.5">{s.title}{GW.figures?.[id] && slug(GW.figures[id].at.replace(/’/g, "'")) === slug(s.title.replace(/’/g, "'")) && <BarChart3 className="size-3.5 shrink-0 text-brand" aria-label="Has an interactive figure" />}</span>
-                        <span className={cn("flex items-center gap-1 text-xs text-muted-foreground", s.kind === "Exercise" && "font-medium text-foreground", s.kind === "Quiz" && "text-brand")}><Icon className="size-3.5" />{s.kind}</span>
-                        <span className="text-right text-xs text-muted-foreground tabular-nums">{s.min} min</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            </CardContent>
-          </Card>
-        </header>
-
-        {/* reading column and contents */}
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_220px]">
-          <div className="min-w-0">
+          </header>
+            <div className="mt-6 lg:hidden">
+            <Card className="gap-2 py-4">
+              <CardHeader className="px-5"><CardTitle className="flex items-center gap-2 text-sm"><ListChecks className="size-4 text-brand" />Lesson plan</CardTitle><CardAction className="text-xs text-muted-foreground">{l.minutes} min</CardAction></CardHeader>
+              <CardContent className="px-3">
+                <ol className="divide-y">
+                  {prep.plan.map((s, j) => {
+                    const Icon = KIND_ICON[s.kind];
+                    return (
+                        <li key={s.id}>
+                          <button type="button" onClick={() => jump(s.id)} className="grid w-full grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 rounded-md px-2 py-2 text-left text-caption hover:bg-accent">
+                            <span className={cn("mt-px grid size-5 place-items-center rounded-full border text-2xs tabular-nums text-muted-foreground", j < readAt && "border-brand bg-brand text-brand-foreground", j === cur && "border-2 border-brand text-foreground")}>{j + 1}</span>
+                            <span className="min-w-0"><span className="flex items-center gap-1.5">{s.title}{GW.figures?.[id] && slug(GW.figures[id].at.replace(/’/g, "'")) === slug(s.title.replace(/’/g, "'")) && <BarChart3 className="size-3.5 shrink-0 text-brand" aria-label="Has an interactive figure" />}</span><span className={cn("mt-0.5 flex items-center gap-1 text-xs text-muted-foreground", s.kind === "Exercise" && "font-medium text-foreground", s.kind === "Quiz" && "text-brand")}><Icon className="size-3.5" />{s.kind}<span className="font-normal text-muted-foreground">· {s.min} min</span></span></span>
+                          </button>
+                        </li>
+                    );
+                  })}
+                </ol>
+              </CardContent>
+            </Card>
+            </div>
+          <div className="mt-10 min-w-0">
             <Body key={id} id={id} html={prep.body} sources="" onTerm={onTerm} onReady={onReady} />
             <footer className="mt-12 grid gap-6 border-t pt-8">
               <div className="flex flex-wrap items-center justify-between gap-4">
@@ -259,15 +255,29 @@ export default function LessonPage({ id, target }: { id: string; target: string 
             </footer>
             {prep.sources && <div className="lesson kern-lesson-body mt-10" dangerouslySetInnerHTML={{ __html: prep.sources }} />}
           </div>
-          <nav aria-label="On this page" className="hidden lg:block">
-            <div className="sticky top-20 grid gap-0.5 text-caption">
-              <p className="mb-2 text-xs font-medium">On this page</p>
-              {prep.plan.map((s, j) => (
-                <a key={s.id} href={"#" + id + "/" + s.id} onClick={(e) => { e.preventDefault(); jump(s.id); }}
-                  className={cn("border-l-2 py-1.5 pl-3 text-muted-foreground hover:text-foreground", j === cur ? "border-brand bg-brand-tint/60 text-brand" : "border-border")}>{s.title}</a>
-              ))}
+          </div>
+          <aside aria-label="Lesson plan" className="hidden lg:block">
+            <div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto">
+            <Card className="gap-2 py-4">
+              <CardHeader className="px-5"><CardTitle className="flex items-center gap-2 text-sm"><ListChecks className="size-4 text-brand" />Lesson plan</CardTitle><CardAction className="text-xs text-muted-foreground">{l.minutes} min</CardAction></CardHeader>
+              <CardContent className="px-3">
+                <ol className="divide-y">
+                  {prep.plan.map((s, j) => {
+                    const Icon = KIND_ICON[s.kind];
+                    return (
+                        <li key={s.id}>
+                          <button type="button" onClick={() => jump(s.id)} className="grid w-full grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 rounded-md px-2 py-2 text-left text-caption hover:bg-accent">
+                            <span className={cn("mt-px grid size-5 place-items-center rounded-full border text-2xs tabular-nums text-muted-foreground", j < readAt && "border-brand bg-brand text-brand-foreground", j === cur && "border-2 border-brand text-foreground")}>{j + 1}</span>
+                            <span className="min-w-0"><span className="flex items-center gap-1.5">{s.title}{GW.figures?.[id] && slug(GW.figures[id].at.replace(/’/g, "'")) === slug(s.title.replace(/’/g, "'")) && <BarChart3 className="size-3.5 shrink-0 text-brand" aria-label="Has an interactive figure" />}</span><span className={cn("mt-0.5 flex items-center gap-1 text-xs text-muted-foreground", s.kind === "Exercise" && "font-medium text-foreground", s.kind === "Quiz" && "text-brand")}><Icon className="size-3.5" />{s.kind}<span className="font-normal text-muted-foreground">· {s.min} min</span></span></span>
+                          </button>
+                        </li>
+                    );
+                  })}
+                </ol>
+              </CardContent>
+            </Card>
             </div>
-          </nav>
+          </aside>
         </div>
       </main>
 

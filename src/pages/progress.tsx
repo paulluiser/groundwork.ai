@@ -1,12 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Award, ChevronDown, ChevronRight, Copy, Mail, QrCode, Users } from "lucide-react";
+import { ChevronDown, ChevronRight, Copy, Mail, QrCode, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Meter } from "@/components/brand";
-import { Disclosure, onDark, Page, PageHeader, SectionHead, Spotlight } from "@/components/shell";
+import { Disclosure, onDark, Page, PageHeader, SectionHead, Spotlight, Tile } from "@/components/shell";
 import { byId, coreIds, copyText, decodeProgress, lessons, load, pathLong, prettyCode, resumeLink, routeFor, trackIdOf, trackName, trackOf, uniq } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
 
@@ -83,13 +83,12 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
       <PageHeader eyebrow={"Your path: " + pathLong(roles)} title="Progress" description="Everything saves in this browser. Use your code or resume link to carry it to another device." />
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="grid gap-6">
-          <Spotlight eyebrow={next ? "Up next · Lesson " + byId[next].num + " · " + byId[next].minutes + " min" : "Path complete"} title={next ? byId[next].title : "Every lesson on your path is done"}
-            action={<Button asChild className={onDark}><a href={"#" + (next || "home")}>{next ? "Continue learning" : "Back to lessons"}<ChevronRight /></a></Button>}
-            aside={<div className="flex items-center gap-4 md:flex-col md:items-end"><Meter value={n / path.length} size={44} /><p className="text-sm text-primary-foreground/75"><b className="text-h1 font-medium text-primary-foreground tabular-nums">{n}</b> / {path.length} done</p></div>}>
+          <Spotlight eyebrow={(next ? "Up next · Lesson " + byId[next].num + " · " + byId[next].minutes + " min · " : "Path complete · ") + n + " of " + path.length + " done on your path"} title={next ? byId[next].title : "Every lesson on your path is done"}
+            action={<Button asChild className={onDark}><a href={"#" + (next || "home")}>{next ? "Continue learning" : "Back to lessons"}<ChevronRight /></a></Button>}>
             {lessons.filter((l) => progress[l.id]).length} of {lessons.length} lessons completed across the whole library.
           </Spotlight>
           <section>
-            <SectionHead title={<span className="flex items-center gap-2"><Award className="size-5 text-brand" />Tracks and certificates</span>} meta="Finish a track to make a certificate" />
+            <SectionHead title="Tracks and certificates" meta="Finish a track to make a certificate" />
             <Card className="gap-0 overflow-hidden py-0"><ul className="divide-y">
               {tracksFor(roles).map((t) => {
                 const d = t.ids.filter((id) => progress[id]).length, full = d === t.ids.length;
@@ -98,6 +97,7 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
               })}
             </ul></Card>
           </section>
+          <Tile href="#team" icon={Users} label="Learning with a team" value={team ? team.n : "Make a team plan"} note={team ? "Open the team board" : "Share one link, compare with codes"} />
         </div>
         <div className="grid gap-6">
           <Card>
@@ -119,11 +119,6 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
               </Collapsible>
             </CardContent>
           </Card>
-          <a href="#team" className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><Users className="size-4" /></span>
-            <span className="min-w-0 flex-1"><span className="block text-xs text-muted-foreground">Learning with a team</span><b className="block truncate text-sm font-medium">{team ? team.n : "Make a team plan"}</b><span className="block truncate text-xs text-muted-foreground">{team ? "Open the team board" : "Share one link, compare with codes"}</span></span>
-            <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-          </a>
           <Disclosure title="Manage this browser" sub="Restore a different code, or clear your progress" defaultOpen={!!prefill}>
             <Card><CardContent className="grid gap-6">
               {restoreForm}

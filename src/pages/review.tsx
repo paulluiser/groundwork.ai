@@ -50,7 +50,7 @@ export default function Review() {
     <Card aria-live="polite" className="border-ex-line"><CardContent className="grid min-h-80 content-center justify-items-center gap-4 text-center">
       <p className="text-xs text-muted-foreground">Card {s.i + 1} of {s.queue.length}</p>
       <h2 className="text-h1 font-semibold">{g[0]}</h2>
-      {!s.shown ? (<><Button autoFocus onClick={() => setS({ ...s, shown: true })}>Show the meaning</Button><p className="text-xs text-muted-foreground">Press Space to show it.</p></>) : (<>
+      {!s.shown ? (<><Button onClick={() => setS({ ...s, shown: true })}>Show the meaning</Button><p className="text-xs text-muted-foreground">Press Space to show it.</p></>) : (<>
         <p className="max-w-lg text-ink-2">{g[1]}</p>
         {l && <a href={"#" + l.id} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><BookOpen className="size-3.5" /><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</a>}
         <div className="flex flex-wrap justify-center gap-2"><Button variant="secondary" onClick={() => answer(false)}>I didn’t know it</Button><Button autoFocus onClick={() => answer(true)}>I knew it</Button></div>
