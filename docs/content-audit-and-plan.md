@@ -182,3 +182,24 @@ There are no analytics, so measure in ways that respect the no-tracking promise:
 - **Before and after:** a scenario test taken at the start and the end of a track by a small group of volunteers.
 - **Expert review:** one practitioner per role reviews their track against the quality bar.
 - **Optional feedback:** a single "Was this useful?" link per lesson that opens an email or a form, with no tracking.
+
+## Progress (22 November 2026)
+
+Phases 0 to 3 are done for all 45 lessons:
+
+| | Before | After |
+|---|---|---|
+| Words (excluding sources) | 46,018 | 85,808 |
+| Exercises | 57 | 104 (47 new open tasks with model answers and rubrics) |
+| Quiz questions | 133, three options | 270, four options (including 45 warm-up questions) |
+| Right answer is the longest option | 92% | 15% |
+| Lessons with a worked example, misconceptions and recap | Few | All 45 |
+| Lesson times | Fixed, often 2–3× too long | Worked out from each lesson's content |
+| Explanations visible before trying an exercise | 22 exercises | None: they open on request |
+| Last-reviewed date | None | Every lesson |
+
+Every lesson now has an opening situation, a warm-up question, at least one worked example, an open task, a Try it this week exercise, common misconceptions, a recap, five balanced scenario questions and additional sources. The capstone now includes a three-part project: a pilot plan, a reviewed work sample and a team agreement.
+
+Still to do (phase 4): mastery checks before a lesson can be marked complete, track assessments tied to certificates, and recap cards in Review.
+
+Tools: `scripts/expand_lesson.py` applies a lesson spec from `scripts/lesson-specs/`; `scripts/check_lessons.cjs` checks every lesson loads, citations resolve and answers aren't given away by length; `scripts/balance_report.cjs` lists any question whose answer is the longest option.

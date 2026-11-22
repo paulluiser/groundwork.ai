@@ -1,13 +1,24 @@
 GW.lesson({
   id: "customer-support",
+  reviewed: "2026-11",
   lede: "Support teams were among the first to use AI at scale: drafting replies, summarising long threads and answering customers directly. Every reply is a promise made in the company's name, so the work is making sure AI never promises what you can't keep.",
   outcomes: [
     "Use AI to draft replies, summarise tickets and route work, and keep a person on anything that commits the company.",
     "Catch invented refunds, wrong policy and made-up causes in a drafted reply.",
     "Set safe limits for a customer-facing assistant: grounding, handoff and what it may never promise.",
-    "Measure an AI support tool by outcomes for customers, not just speed."
+    "Measure an AI support tool by outcomes for customers, not just speed.",
+    "Review an AI-drafted reply for promises, policies and facts before sending it."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>A customer writes in, upset: their subscription renewed the day after they meant to cancel. The assistant drafts a warm, well-written reply in seconds: an apology, a full refund “processed today”, and a note that “as a goodwill gesture, your next three months are free”.</p>
+<p>Your policy allows a refund within 14 days, which applies. There is no three-months-free gesture, and nobody has processed anything. A tribunal has already held one airline responsible for what its chatbot promised a customer.[1] This lesson is about sending replies that are kind and true.</p></div>
+<div class="check warmup" data-a="2"><p class="q">An AI-drafted reply promises a customer something. What must you check before sending?</p><ul>
+<li data-fb="Tone matters, but promises matter more.">That the tone is warm enough to calm the customer down after a bad experience.</li>
+<li data-fb="Length is secondary.">That the reply is short enough for the customer to read on a phone screen.</li>
+<li data-fb="Right. Every promise is made in the company's name.">That the promise matches policy and has actually been done or approved.</li>
+<li data-fb="Confidence isn't authority.">That the assistant was confident about the promise when it drafted it.</li>
+</ul></div>
 <h2>Where AI meets support work</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -56,6 +67,37 @@ GW.lesson({
 <li><strong>Errors found in review.</strong> Sample AI-drafted and bot replies every week, and log what was wrong.</li>
 </ul>
 
+<h2>Three things to check in every drafted reply</h2>
+<ol class="steps">
+<li><strong>Promises</strong>Refunds, credits, discounts, dates, “we'll call you”. Each needs policy behind it and, if it says it's done, a record that it is.</li>
+<li><strong>Policies and facts</strong>Plan limits, prices, how a feature works, what data you keep. Check against the current help centre or policy page, not the draft.</li>
+<li><strong>What the customer actually asked</strong>Drafts often answer a typical version of the question. Re-read the customer's message and check every question got an answer.</li>
+</ol>
+<p>A large study of support agents found AI assistance raised productivity on average, most of all for newer agents, by spreading the practices of experienced ones.[2] The gains come with a responsibility the tool can't take: the agent is still the one making the promise.</p>
+<h2>Worked example: checking the renewal reply</h2>
+<div class="worked">
+<div class="wx"><b>AI draft</b><div><p>“I'm so sorry about this! I've processed a full refund today, and as a goodwill gesture your next three months are free. Your subscription has also been cancelled.”</p></div></div>
+<div class="wx strong"><b>After checking</b><div><p>“I'm sorry the renewal went through when you'd meant to cancel. Because it's within 14 days, you're entitled to a full refund of €96. I've requested it now; you'll see it on your card within 5–10 working days. I've also cancelled the subscription, so nothing further will be charged. Your data stays available until 30 June if you want to export it.”</p></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>“Processed today” became “requested now”</strong>, with a realistic timescale, because that's what actually happened.</li>
+<li><strong>The three free months disappeared.</strong> No policy allows it; the model invented a typical goodwill gesture.</li>
+<li><strong>The amount and the data question were added</strong>: details the customer will ask about next if they're missing.</li>
+</ul>
+<h2>Your turn: check a drafted reply</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">What would you change before sending?</span></div><div class="activity-b">
+<p>A customer asked whether they can add a fifth user to their Starter plan and whether their data is stored in the EU. The draft says: <em>“Absolutely! You can add as many users as you need on Starter. All our data is stored securely in the EU, and we're fully GDPR certified.”</em> Starter allows 3 users; data is stored in the EU for accounts created after 2024; there's no such thing as GDPR certification. Rewrite it.</p>
+<div data-w="task" data-key="support-reply">
+<div class="task-model"><p>“The Starter plan includes up to 3 users, so adding a fifth would mean moving to the Team plan (up to 25 users, €15 per user per month). I can switch you over if you'd like.</p>
+<p>On data location: accounts created since January 2024 are stored in our EU data centre. Yours was created in 2023, so it's in the US region; we can migrate it to the EU on request. Our data processing terms are here: [link].”</p></div>
+<ul class="task-rubric">
+<li>Corrects the user limit and offers a real option</li>
+<li>Answers the data location question accurately for this customer</li>
+<li>Removes the claim of “GDPR certification”</li>
+<li>Offers a concrete next step</li>
+<li>Answers both questions the customer asked</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Personal data in prompts.</strong> Tickets contain names, addresses and sometimes payment or health details. Use only approved tools (lesson 8).</li>
@@ -67,21 +109,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take five recent tickets your team has already answered. Ask an assistant to draft replies using your real policies. Mark every sentence that commits the company to something, and check each one against policy. Compare with the replies your team actually sent.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>The customer will understand if the AI made a mistake.</dt><dd>Tribunals and customers hold the company to what its replies say, whoever drafted them.</dd>
+<dt>Warmer replies make up for less precise ones.</dt><dd>Kind and precise beat kind and vague. Specifics are what reduce follow-up tickets.</dd>
+<dt>AI drafts are fine for simple questions.</dt><dd>Simple questions about limits, prices and data are exactly where invented specifics slip in.</dd>
+<dt>Faster replies mean better support.</dt><dd>Speed matters, but reopened tickets and corrections cost more than a careful first reply.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Every reply is a promise made in the company's name.</li>
+<li>Check promises against policy and records before sending.</li>
+<li>Check facts against the current help centre, not the draft.</li>
+<li>Make sure every question the customer asked gets an answer.</li>
+<li>Be kind and precise: amounts, dates and next steps.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">A drafted reply says “I've refunded the duplicate charge.” What should the agent do?</p><ul>
-<li data-fb="The draft describes an action; nobody has taken it.">Send it; the customer is owed the refund.</li>
-<li data-fb="Right. Take the action first, or change the sentence to say what will happen and when, according to policy.">Issue the refund first, or reword the reply to match what will actually happen.</li>
-<li data-fb="The refund itself may be right. The sentence just has to be true.">Delete any mention of a refund.</li>
+<div class="check" data-a="0"><p class="q">A draft says a refund was “processed today”. What must be true before sending it?</p><ul>
+<li data-fb="Right. Claims of action need a record.">The refund has actually been processed, or the wording is changed.</li>
+<li data-fb="Not a general requirement.">The customer has been a subscriber for at least a year.</li>
+<li data-fb="Not a real check.">The draft has been approved by the AI tool's confidence check.</li>
+<li data-fb="Tone doesn't make the claim true.">The tone of the reply is apologetic enough for the situation.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Your support bot's deflection rate has doubled. What does that tell you?</p><ul>
-<li data-fb="Not on its own. Deflected customers may have given up or come back.">Customers are getting their answers faster.</li>
-<li data-fb="It might be, but you can't tell from this number.">The bot is giving wrong answers.</li>
-<li data-fb="Right. Check repeat contacts, satisfaction and sampled answers before calling it a win.">Not much yet: check reopen rates, satisfaction and a sample of conversations.</li>
+<div class="check" data-a="3"><p class="q">What did the Air Canada tribunal decision establish?</p><ul>
+<li data-fb="That wasn't the ruling.">Chatbots can't legally answer customer questions in Canada.</li>
+<li data-fb="The tribunal rejected that argument.">Customers must verify chatbot answers before relying on them.</li>
+<li data-fb="The opposite.">Airlines are exempt from responsibility for automated advice.</li>
+<li data-fb="Right. Its chatbot's information was its own.">The company was responsible for what its chatbot told a customer.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">Which limit matters most for a support bot that can call a refund tool?</p><ul>
-<li data-fb="Right. Enforce limits in the tool, where an injected or mistaken instruction can't get round them.">A cap and a human approval step built into the refund tool itself.</li>
-<li data-fb="Instructions help, but a model can be talked out of them. Enforce limits in the tool.">An instruction in the prompt saying not to refund more than £50.</li>
-<li data-fb="Tone matters, but it doesn't limit what the bot can do.">A friendly, apologetic tone.</li>
+<div class="check" data-a="2"><p class="q">Which part of a drafted reply most often contains invented specifics?</p><ul>
+<li data-fb="Low risk.">The greeting and the sign-off at the start and end of the reply.</li>
+<li data-fb="Low risk.">The apology for the inconvenience the customer experienced.</li>
+<li data-fb="Right. Typical numbers and offers get filled in.">Limits, prices, timescales and goodwill gestures.</li>
+<li data-fb="Usually copied correctly.">The customer's name and account details copied from the ticket.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Who gained most from AI assistance in the large support study?</p><ul>
+<li data-fb="Gains were smallest for them.">The most experienced agents, who used it to work much faster.</li>
+<li data-fb="Right. It spread experienced agents' practices.">Newer and less experienced agents.</li>
+<li data-fb="Not what the study measured.">Customers who contacted support outside business hours.</li>
+<li data-fb="Not the finding.">Team leads, who spent less time reviewing tickets.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Why re-read the customer's original message before sending a drafted reply?</p><ul>
+<li data-fb="Right. Check every question got an answer.">Drafts often answer a typical question instead of the one asked.</li>
+<li data-fb="Mirroring style isn't the point.">To copy the customer's tone and writing style back to them.</li>
+<li data-fb="Not the main reason.">Because the assistant can't read long customer messages properly.</li>
+<li data-fb="A separate concern.">To find details that should be removed for privacy reasons.</li>
 </ul></div>
 </section>
 

@@ -15,14 +15,25 @@ GW.trackCfg["kb-drafts"] = {
 };
 GW.lesson({
   id: "support-knowledge",
+  reviewed: "2026-11",
   lede: "Every solved ticket contains knowledge: what the problem looked like, what caused it and what fixed it. Most of it never makes it into the help centre. AI can close that gap, turning tickets into draft articles, spotting gaps and keeping macros current. It can also flood the help centre with plausible articles nobody checked, which then feed your support bot.",
   outcomes: [
     "Turn solved tickets into draft articles, checked by the people who fixed the issue.",
     "Use AI to find gaps, duplicates and stale content in the help centre and macros.",
     "Keep knowledge owned and current, so people and bots answer from the right version.",
-    "Use AI-assisted quality scoring fairly, with people reviewing the scores."
+    "Use AI-assisted quality scoring fairly, with people reviewing the scores.",
+    "Turn a solved ticket into a knowledge article a customer or an AI assistant can rely on."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Your team solved the same SSO login problem 40 times last quarter. Each agent figured it out again, from scratch or from a colleague. An assistant can turn the best of those tickets into a help article in a minute, and your customer-facing bot will start answering from it the same afternoon.</p>
+<p>Which means the article has to be right, and has to say who it applies to. This lesson is about capturing knowledge from tickets quickly, and checking it before it starts answering customers on its own.</p></div>
+<div class="check warmup" data-a="1"><p class="q">An AI turns a solved ticket into a help article. What's the main risk?</p><ul>
+<li data-fb="Length is easy to fix.">The article will be too long for customers to finish reading.</li>
+<li data-fb="Right. Scope and privacy are the common failures.">It generalises one customer's fix to everyone, or keeps their details.</li>
+<li data-fb="Not the main risk.">Search engines won't index articles that were written by AI.</li>
+<li data-fb="Unlikely to be the main risk.">Agents will stop solving new problems themselves.</li>
+</ul></div>
 <h2>Where AI helps with knowledge and quality</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -62,6 +73,35 @@ GW.lesson({
 <li><strong>Watch for bias,</strong> such as penalising agents who write in a second language or handle harder queues.</li>
 </ul>
 
+<h2>Knowledge in the workflow</h2>
+<p>Knowledge-Centered Service (KCS) treats knowledge as a by-product of solving problems: capture it while solving, structure it simply, and improve it every time it's reused.[1] AI makes the capture step much faster. The structure and the checks stay the same: every article states the environment it applies to, the issue in the customer's words, the cause, and the resolution, and is reviewed before it's published or used by a bot.</p>
+<h2>Worked example: from ticket to article</h2>
+<div class="worked">
+<div class="wx"><b>AI draft from one ticket</b><div><p><strong>Fixing SSO login errors</strong></p><p>If you can't log in with SSO, ask your IT admin to update the certificate in Okta for northwind-health.example. Then clear your cache. This fixes SSO errors.</p></div></div>
+<div class="wx strong"><b>Reviewed article</b><div><p><strong>“SAML response invalid” when signing in with SSO (Okta)</strong></p><p><strong>Applies to:</strong> Business and Enterprise workspaces using Okta SAML.</p><p><strong>Issue:</strong> Users see “SAML response invalid” after entering their Okta password.</p><p><strong>Cause:</strong> The signing certificate in Okta was rotated and no longer matches the one in your workspace settings.</p><p><strong>Resolution:</strong> A workspace admin uploads the new certificate under <em>Settings › Security › SSO</em>. Users don't need to clear their cache.</p></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>The customer's domain is gone.</strong> One customer's details never belong in a public article.</li>
+<li><strong>“SSO errors” became one specific error</strong> and one identity provider. The draft would have answered every SSO question with this fix.</li>
+<li><strong>“Clear your cache” was removed</strong>: it was in the ticket but didn't fix anything. Checking against several tickets showed that.</li>
+</ul>
+<h2>Your turn: write an article from a ticket</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Ticket to knowledge article</span></div><div class="activity-b">
+<p>Ticket summary: <em>“Customer (Lena at Brightwave Ltd) couldn't export reports to CSV; button greyed out. Agent found her role was Viewer; exports need Editor. Admin changed her role; export worked.”</em> Write the knowledge article.</p>
+<div data-w="task" data-key="support-article">
+<div class="task-model"><p><strong>“Export to CSV” button is greyed out</strong></p>
+<p><strong>Applies to:</strong> all plans; report exports.</p>
+<p><strong>Issue:</strong> The Export to CSV button on a report is greyed out and can't be clicked.</p>
+<p><strong>Cause:</strong> Exporting reports requires the Editor or Admin role. Users with the Viewer role can see reports but not export them.</p>
+<p><strong>Resolution:</strong> Ask a workspace admin to change your role to Editor under <em>Settings › Members</em>. If you're an admin, you can change it yourself.</p></div>
+<ul class="task-rubric">
+<li>Removes the customer's name and company</li>
+<li>States which plans or setups it applies to</li>
+<li>Describes the issue in the words a customer would use</li>
+<li>Explains the cause, not just the fix</li>
+<li>Gives a resolution a customer can follow, including who can do it</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Volume over quality.</strong> Hundreds of unchecked articles make search worse for customers, agents and bots alike.</li>
@@ -73,21 +113,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take the five most common ticket topics from last month. Check whether each has a current help article. For any that doesn't, draft one with AI from a few solved tickets, and ask the agents who solved them to check it.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>More articles always means better self-service.</dt><dd>Duplicate and overlapping articles confuse customers and bots. Improve and merge as often as you add.</dd>
+<dt>If an article fixed one ticket, it's ready to publish.</dt><dd>Check scope against several tickets; one case can include steps that didn't matter.</dd>
+<dt>Bots only answer from reviewed articles.</dt><dd>They answer from whatever is indexed. Keep drafts out of the bot's sources until reviewed.</dd>
+<dt>AI quality scoring is objective.</dt><dd>Scoring rubrics encode choices. Calibrate AI scores against experienced reviewers before using them.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Capture knowledge while solving; AI makes drafting fast.</li>
+<li>Every article states who it applies to, the issue, the cause and the resolution.</li>
+<li>Remove customer details; check scope against several tickets.</li>
+<li>Review before publishing, and before bots can answer from it.</li>
+<li>Improve articles each time they're reused; merge duplicates.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">Who should check an AI-drafted article made from a solved ticket?</p><ul>
-<li data-fb="Self-checking adds little.">Another AI tool.</li>
-<li data-fb="Right. They know whether the cause and fix in the draft are what actually happened.">The agent who solved the ticket, while the case is fresh.</li>
-<li data-fb="Customers shouldn't be the ones to find the errors.">Nobody; publish it and let customer feedback catch errors.</li>
+<div class="check" data-a="2"><p class="q">What should a knowledge article state first so bots don't misapply it?</p><ul>
+<li data-fb="Useful metadata, not scope.">The name of the agent who wrote the article and the date it was published.</li>
+<li data-fb="Not scope.">A friendly introduction explaining why the article exists.</li>
+<li data-fb="Right. Scope prevents over-general answers.">Which plans, setups or environments it applies to.</li>
+<li data-fb="Helpful later, not first.">A list of related articles the customer might find useful.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">The AI finds a common topic with no help article. How should the gap be filled?</p><ul>
-<li data-fb="General knowledge describes similar products, not yours.">Let the AI write an article from its general knowledge.</li>
-<li data-fb="Gaps don't fix themselves.">Wait until enough customers complain.</li>
-<li data-fb="Right. Real cases and the product are the only reliable sources.">Draft from real solved tickets and the product, and have someone who knows the fix check it.</li>
+<div class="check" data-a="0"><p class="q">An AI draft includes a step from the ticket that didn't fix anything. How would you find out?</p><ul>
+<li data-fb="Right. Steps that never mattered show up as noise.">Compare it with several tickets about the same issue.</li>
+<li data-fb="It may not know.">Ask the assistant which steps were really necessary.</li>
+<li data-fb="Unnecessary steps waste customers' time.">Keep the step, since it can't do any harm to include it.</li>
+<li data-fb="Too late.">Publish it and see whether customers complain about the step.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">AI quality scores show one agent consistently below the team average. What's the best first step?</p><ul>
-<li data-fb="Right. Check the scores and the context before drawing conclusions.">Review a sample of their tickets by hand, and check their queue and context.</li>
-<li data-fb="Scores alone can reflect harder queues or bias in the rubric.">Start a performance process.</li>
-<li data-fb="The pattern may still be worth understanding.">Ignore it; AI scores are unreliable.</li>
+<div class="check" data-a="3"><p class="q">When should a new article become a source for the customer-facing bot?</p><ul>
+<li data-fb="Unreviewed drafts become wrong answers.">As soon as it's drafted, so the bot learns quickly.</li>
+<li data-fb="Views don't make it correct.">After it's been viewed by at least a hundred customers.</li>
+<li data-fb="Not a review.">When the AI's confidence in the article is high enough.</li>
+<li data-fb="Right. Review before it answers customers.">After a person has reviewed and published it.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">What does Knowledge-Centered Service emphasise?</p><ul>
+<li data-fb="KCS captures knowledge while solving.">Writing articles in a separate project after tickets are closed.</li>
+<li data-fb="Right. Knowledge is a by-product of the work.">Capturing and improving knowledge as part of solving problems.</li>
+<li data-fb="KCS spreads ownership across agents.">Having one writer own every article in the knowledge base.</li>
+<li data-fb="Not its goal.">Replacing agents with knowledge bases wherever possible.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Why remove the customer's name from an article drafted from their ticket?</p><ul>
+<li data-fb="Right. Privacy and relevance.">It's personal data that doesn't belong in a public article.</li>
+<li data-fb="Not the reason.">Names make articles too long for search engines to index.</li>
+<li data-fb="Not the reason.">Bots can't process names in articles they answer from.</li>
+<li data-fb="Not the reason.">The customer might want to be credited differently.</li>
 </ul></div>
 </section>
 

@@ -14,14 +14,25 @@ GW.trackCfg["productivity-report"] = {
 };
 GW.lesson({
   id: "em-measuring",
+  reviewed: "2026-11",
   lede: "Sooner or later, someone will ask whether AI tools are making your team faster. The honest answer is usually “it depends, and we're finding out”. This lesson covers what the research actually found, which measures mislead, and how to run a fair trial on your own team.",
   outcomes: [
     "Summarise what major studies found about AI and developer productivity, including where they disagree.",
     "Spot measures that mislead, such as lines of AI code, suggestion acceptance and raw pull request counts.",
     "Use several dimensions of productivity, not one number.",
-    "Design an honest trial on your own team, with a comparison and quality measures."
+    "Design an honest trial on your own team, with a comparison and quality measures.",
+    "Design a small, honest trial of an AI tool with a baseline, a prediction and outcome measures."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Your director forwards a vendor report: teams using the vendor's coding assistant “ship 55% faster”. They'd like to know, by next month, whether your team should buy it. Your team has opinions in both directions and no data.</p>
+<p>A month is enough for a useful answer if the trial is designed before it starts. This lesson walks through designing one, and through reading other people's productivity numbers with the right amount of scepticism.</p></div>
+<div class="check warmup" data-a="3"><p class="q">A vendor says teams using its tool “ship 55% faster”. What's the first question to ask?</p><ul>
+<li data-fb="Price is a separate question.">Whether the tool is also cheaper than its competitors on a per-seat basis.</li>
+<li data-fb="Popularity isn't evidence of effect.">Whether other companies in your industry have already bought the tool.</li>
+<li data-fb="Useful, but first understand the measure.">Whether the claim appears in a peer-reviewed publication of some kind.</li>
+<li data-fb="Right. The measure decides what the number means.">What “faster” measured, on what tasks, compared with what.</li>
+</ul></div>
 <h2>What the research found</h2>
 <p>The studies point in different directions, and the differences are instructive:</p>
 <ul>
@@ -68,6 +79,41 @@ GW.lesson({
 <li><strong>Give it time.</strong> Early weeks include learning. Look at months, not days.</li>
 </ol>
 
+<h2>Worked example: a four-week trial</h2>
+<div class="tbl"><table><thead><tr><th>Element</th><th>Decision</th></tr></thead><tbody>
+<tr><td>Question</td><td>Does the assistant shorten the time from starting a ticket to merging it, without increasing rework?</td></tr>
+<tr><td>Baseline</td><td>Last 8 weeks: median 3.1 days start-to-merge; 12% of merged changes reopened or reverted within 2 weeks</td></tr>
+<tr><td>Prediction, written in advance</td><td>Start-to-merge falls to about 2.5 days, with rework no higher than 12%</td></tr>
+<tr><td>Design</td><td>Half the team uses the tool for 4 weeks, then the other half, so each person is compared with themselves and with colleagues in the same weeks</td></tr>
+<tr><td>Measures</td><td>Start-to-merge, rework rate, review time, plus a weekly two-question survey (perceived speed, perceived quality)</td></tr>
+<tr><td>Decision rule</td><td>Buy if start-to-merge improves and rework doesn't rise; otherwise, stop or narrow to the tasks where it helped</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Measured and perceived speed are both collected</strong>, because they can diverge: one controlled study found developers felt faster while being measured slower.[2]</li>
+<li><strong>Rework is a guardrail.</strong> Faster and worse isn't a win.</li>
+<li><strong>The decision rule is agreed before results</strong>, so the trial can't be argued into the answer someone wanted.</li>
+<li><strong>Frameworks like SPACE</strong> are a reminder to measure more than one dimension: satisfaction, performance, activity, collaboration and efficiency.[4]</li>
+</ul>
+<h2>Your turn: design a trial</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">A trial for an AI tool your team is considering</span></div><div class="activity-b">
+<p>Design a trial for an AI tool your team is considering (or an AI code review assistant). Write: the question, the baseline, your prediction, the design, the measures (including a guardrail), and the decision rule.</p>
+<div data-w="task" data-key="em-trial">
+<div class="task-model"><ul>
+<li><strong>Question:</strong> Does an AI code review assistant reduce time to first review without letting more defects through?</li>
+<li><strong>Baseline:</strong> last 6 weeks: median 9 hours to first review; 4 escaped defects per month.</li>
+<li><strong>Prediction:</strong> time to first review under 5 hours; escaped defects unchanged.</li>
+<li><strong>Design:</strong> enable it on two of four repositories for 4 weeks, then swap.</li>
+<li><strong>Measures:</strong> time to first review, time to merge, escaped defects (guardrail), reviewer survey.</li>
+<li><strong>Decision rule:</strong> adopt if review time falls and defects don't rise; drop if defects rise.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Asks one specific question about an outcome</li>
+<li>Records a baseline before the trial</li>
+<li>Writes a prediction in advance</li>
+<li>Includes a quality guardrail alongside speed</li>
+<li>Agrees a decision rule before seeing results</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Individual leaderboards.</strong> Ranking people by AI usage or output pushes them to game it and damages trust.</li>
@@ -79,21 +125,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 20-minute exercise.</strong> Write down the three measures you'd use to judge whether AI tools help your team, one each from delivery, quality and the team's experience, and what result would make you change course. Share it with your team before anyone looks at the numbers.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Developers know whether AI is making them faster.</dt><dd>Perceived and measured speed can diverge sharply. Measure both.</dd>
+<dt>Lines of code or percentage of AI-written code shows value.</dt><dd>They measure activity and invite gaming. Measure outcomes like lead time and rework.</dd>
+<dt>A positive vendor study means it will work for us.</dt><dd>Effects depend on tasks, codebases and experience. Trial it in your context.</dd>
+<dt>Trials need months and a data team.</dt><dd>Four weeks, a baseline and a written prediction answer most team-level questions.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Ask what a productivity number measured, on what tasks, compared with what.</li>
+<li>Record a baseline and write a prediction before the trial.</li>
+<li>Measure outcomes, with quality as a guardrail, not activity.</li>
+<li>Collect perceived and measured speed; expect them to differ.</li>
+<li>Agree the decision rule before you see results.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">Why might experienced developers feel faster with AI tools while actually taking longer?</p><ul>
-<li data-fb="The trial measured time carefully.">Because the studies measured time incorrectly.</li>
-<li data-fb="Right. Feelings and measured outcomes can diverge, which is why you need both.">Because perceived effort and measured time don't always match.</li>
-<li data-fb="The trial involved experienced users of AI tools too.">Because they had never used AI before.</li>
+<div class="check" data-a="1"><p class="q">Why write a prediction before a trial starts?</p><ul>
+<li data-fb="Not a vendor requirement.">Vendors require a written prediction before they agree to a trial licence.</li>
+<li data-fb="Right. It anchors the honest comparison.">So the result can't be rationalised into whatever someone hoped for.</li>
+<li data-fb="They don't affect speed.">Because predictions make the trial run faster and need fewer participants.</li>
+<li data-fb="That would bias the trial.">So the team knows what result to aim for while using the tool.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">Which is the weakest evidence that an AI tool is helping your team?</p><ul>
-<li data-fb="Right. It measures the tool's activity, not your team's outcomes.">The share of code written by the tool.</li>
-<li data-fb="Lead time with stable quality is reasonable outcome evidence.">Lead time fell while change fail rate stayed level.</li>
-<li data-fb="The team's experience is a valid dimension of productivity.">The team reports less friction in a survey, and wants to keep the tool.</li>
+<div class="check" data-a="0"><p class="q">Which measure is the best guardrail when trialling a coding assistant?</p><ul>
+<li data-fb="Right. It catches faster-but-worse.">Rework: changes reopened or reverted soon after merging.</li>
+<li data-fb="Activity, not quality.">The number of suggestions accepted by developers each day.</li>
+<li data-fb="Activity, and easy to inflate.">Lines of code written per developer per week during the trial.</li>
+<li data-fb="Satisfaction matters, but isn't a quality guardrail.">How many developers say they enjoy using the tool.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">What's the most important thing to decide before an AI tool trial starts?</p><ul>
-<li data-fb="The tool matters less than how you'll judge it.">Which vendor to use.</li>
-<li data-fb="Usage targets distort the result.">The usage target for each engineer.</li>
-<li data-fb="Right. Deciding the criteria first stops the result being argued away.">What results would make you keep or drop the tool.</li>
+<div class="check" data-a="3"><p class="q">What did the METR study find about perceived and measured speed?</p><ul>
+<li data-fb="The opposite.">Developers accurately estimated how much the AI tools had sped them up.</li>
+<li data-fb="The opposite.">Measured speed improved far more than developers expected it to.</li>
+<li data-fb="There was a slowdown.">There was no measurable difference in speed in either direction.</li>
+<li data-fb="Right. Perception and measurement diverged.">Developers felt faster while being measured slower on average.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Why compare people in the same weeks rather than before and after?</p><ul>
+<li data-fb="Time isn't the main reason.">Because before-and-after comparisons take twice as long to run properly.</li>
+<li data-fb="Memory isn't the issue; data is.">Because people forget how long work took before the trial started.</li>
+<li data-fb="Right. Same-period comparisons control for them.">Because other changes over time can be mistaken for the tool's effect.</li>
+<li data-fb="Not the reason.">Because vendors prefer comparisons within the same team at the same time.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">What does the SPACE framework remind managers to do?</p><ul>
+<li data-fb="Right. Satisfaction, performance, activity, collaboration, efficiency.">Measure productivity across several dimensions, not one.</li>
+<li data-fb="SPACE warns against single measures.">Focus measurement on the speed of individual developers above everything.</li>
+<li data-fb="SPACE includes perceptual measures deliberately.">Replace surveys with automated metrics wherever possible.</li>
+<li data-fb="An activity measure, not a goal.">Track the percentage of code written by AI as a primary goal.</li>
 </ul></div>
 </section>
 

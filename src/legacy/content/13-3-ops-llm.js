@@ -26,14 +26,25 @@ GW.trackCfg["llm-ops-calls"] = {
 };
 GW.lesson({
   id: "ops-llm",
+  reviewed: "2026-11",
   lede: "An AI feature in production depends on a model you don't control, costs money per request, and can get worse without throwing a single error. Most of what keeps it healthy is familiar reliability practice. This lesson covers the parts that are new: monitoring quality and cost, designing fallbacks, and handling model changes.",
   outcomes: [
     "Monitor quality, cost and latency for AI features, not just errors.",
     "Design fallbacks and retry behaviour that survive a provider outage.",
     "Treat model and prompt changes like dependency upgrades: tested, gradual and reversible.",
-    "Contain runaway usage with limits and spend alerts."
+    "Contain runaway usage with limits and spend alerts.",
+    "Define the signals that show an AI feature is degrading before users report it."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>The AI search feature has had 99.9% uptime all month. Every request returned 200 OK. Meanwhile, support tickets about “weird answers” tripled, the average answer got 40% longer, and the cost per request doubled after the provider updated the model behind the alias you use.</p>
+<p>Your dashboards were green because they measured whether the feature responded, not whether it worked. This lesson is about operating AI features with signals that notice when quality, cost or behaviour drift.</p></div>
+<div class="check warmup" data-a="3"><p class="q">An AI feature returns 200 OK for every request. What does that tell you about its health?</p><ul>
+<li data-fb="Wrong answers return 200 too.">It's healthy, since errors would show up as failed requests in the logs.</li>
+<li data-fb="Fast wrong answers are still wrong.">It's healthy as long as latency is also within the agreed targets.</li>
+<li data-fb="Not necessarily; you can't tell from this.">It's unhealthy, since AI features always degrade over time.</li>
+<li data-fb="Right. Quality needs its own signals.">Only that it responded, not whether answers are any good.</li>
+</ul></div>
 <h2>What's different about running AI features</h2>
 <div class="tbl"><table>
 <thead><tr><th>Signal</th><th>What to watch</th><th>Why it's different</th></tr></thead>
@@ -78,6 +89,41 @@ GW.lesson({
 <li><strong>Roll out gradually</strong> behind a flag, watching quality signals, with a quick way back.</li>
 </ul>
 
+<h2>Signals for AI features</h2>
+<div class="tbl"><table><thead><tr><th>Signal</th><th>What it catches</th><th>Example alert</th></tr></thead><tbody>
+<tr><td>Eval score on a sample</td><td>Quality drift</td><td>Daily run of 50 eval cases drops below 90% pass</td></tr>
+<tr><td>Tokens per request</td><td>Behaviour and cost changes</td><td>Median output tokens up 30% day over day</td></tr>
+<tr><td>Cost per request and per day</td><td>Price changes, loops, abuse</td><td>Daily spend above 150% of the 7-day average</td></tr>
+<tr><td>Fallback and refusal rate</td><td>Provider problems, prompt issues</td><td>More than 5% of requests use the fallback</td></tr>
+<tr><td>User feedback and edits</td><td>Usefulness</td><td>Thumbs-down rate doubles week over week</td></tr>
+<tr><td>Model version in use</td><td>Silent upgrades</td><td>Any change in the reported model version</td></tr>
+</tbody></table></div>
+<p>OpenTelemetry now defines standard attributes for generative AI calls (model, token counts, operation), which makes these signals easier to collect consistently across services.[3]</p>
+<h2>Worked example: catching a silent model update</h2>
+<p>With the signals above, the search feature's month would have looked different. On day 9, output tokens jumped 38% and the reported model version changed; the daily eval run dropped from 94% to 86%. The alert fires the same morning. The fix is to pin the previous model version, open an investigation, and re-run the full eval set against the new version before switching deliberately (lesson 20).</p>
+<ul class="wx-notes">
+<li><strong>Three independent signals agreed:</strong> tokens, version and eval score.</li>
+<li><strong>Pinning a version</strong> turns a provider's change into your decision.</li>
+<li><strong>The daily eval sample is cheap:</strong> 50 cases a day costs little and catches most quality drift.</li>
+</ul>
+<h2>Your turn: define the signals</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">An operations plan for an AI feature</span></div><div class="activity-b">
+<p>For an AI feature that drafts replies to customer emails, define: four signals you'd monitor, an alert threshold for each, and what the on-call engineer does when each fires.</p>
+<div data-w="task" data-key="ops-llm-signals">
+<div class="task-model"><ul>
+<li><strong>Daily eval sample (40 emails):</strong> alert below 92% pass. Action: compare with yesterday's failures; check model version and prompt changes; pin or roll back.</li>
+<li><strong>Agent edit rate:</strong> alert if heavy edits rise 50% week over week. Action: sample 20 edited drafts; report patterns to the feature owner.</li>
+<li><strong>Cost per day:</strong> alert above 150% of the 7-day average. Action: check for retry loops or abuse; apply rate limits.</li>
+<li><strong>Fallback rate:</strong> alert above 5%. Action: check provider status; confirm fallback (no draft, agent writes) is working.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Includes a quality signal, not just availability</li>
+<li>Includes a cost signal</li>
+<li>Includes a signal from users (edits, feedback)</li>
+<li>Gives each alert a concrete threshold</li>
+<li>Says what on-call does when each alert fires</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Unlimited input size.</strong> One user pasting a whole book into every request can triple your bill.</li>
@@ -89,27 +135,60 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> For one AI feature you run, write down what happens if the provider is down for an hour, and what happens if spend triples overnight. If either answer is “we'd find out”, that's the first thing to fix.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Uptime and latency are enough to monitor an AI feature.</dt><dd>They show it responds, not that it works. Monitor quality, cost and behaviour.</dd>
+<dt>Using the provider's latest model alias keeps you up to date safely.</dt><dd>It means behaviour can change without a release. Pin versions and upgrade deliberately.</dd>
+<dt>Retries make AI features more reliable.</dt><dd>Unbounded retries multiply cost and load during outages. Use deadlines and backoff.[1]</dd>
+<dt>Quality monitoring needs a large evaluation team.</dt><dd>A small daily eval sample and user edit rates catch most drift.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>200 OK isn't health: monitor quality, cost, behaviour and user signals.</li>
+<li>Run a small eval sample daily and alert on drops.</li>
+<li>Watch tokens per request and model version for silent changes.</li>
+<li>Pin model versions and upgrade deliberately after re-running evals.</li>
+<li>Bound retries with deadlines and backoff, and keep a working fallback.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="0"><p class="q">During a provider outage, why is raising the retry count risky?</p><ul>
-<li data-fb="Right. Extra retries add load to a struggling service and slow every request.">It multiplies load on the struggling provider and can turn a partial outage into a full one.</li>
-<li data-fb="Cost matters, but it isn't the main risk.">It costs more per request.</li>
-<li data-fb="Retries don't change model quality.">It makes the model's answers worse.</li>
+<div class="check" data-a="1"><p class="q">Which signal would catch a silent model update first?</p><ul>
+<li data-fb="Updates rarely cause errors.">HTTP error rate on the AI endpoint, measured every minute.</li>
+<li data-fb="Right. Both shift when the model changes.">A change in reported model version and tokens per request.</li>
+<li data-fb="Unaffected by the provider's model.">Server CPU usage on the application tier running the feature.</li>
+<li data-fb="Too slow and indirect.">The number of active users of the feature each day.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Error rates, latency and cost are all normal, but answer quality has dropped. Where should you look first?</p><ul>
-<li data-fb="The infrastructure looks healthy; the cause is elsewhere.">The provider's status page.</li>
-<li data-fb="A fix before knowing the cause is a guess.">Rewrite the system prompt.</li>
-<li data-fb="Right. Quality drops usually trace back to one of these changes.">What changed in content, retrieval, the prompt or the model version.</li>
+<div class="check" data-a="0"><p class="q">Daily cost doubled overnight. What's a likely cause to check first?</p><ul>
+<li data-fb="Right. All increase tokens or requests.">A retry loop, abuse, or longer outputs after a model change.</li>
+<li data-fb="Possible, but check usage first.">The finance team changing how costs are reported this month.</li>
+<li data-fb="Unrelated to request costs.">An increase in the number of engineers on the team.</li>
+<li data-fb="Unrelated.">A new dashboard being added to the monitoring system.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">What's the best protection against a sudden cost spike?</p><ul>
-<li data-fb="Too late; the money is already spent.">Reviewing the monthly invoice carefully.</li>
-<li data-fb="Right. Limits contain the damage; alerts tell you quickly.">Per-account limits on input size and request rate, and hourly spend alerts.</li>
-<li data-fb="Changes quality for everyone without addressing the cause.">Always using the smallest model.</li>
+<div class="check" data-a="3"><p class="q">Why pin the model version an AI feature uses?</p><ul>
+<li data-fb="Not necessarily.">Pinned versions are always cheaper than the provider's latest alias.</li>
+<li data-fb="Not generally required.">Providers require pinning for production use in their terms.</li>
+<li data-fb="They can.">Pinned versions never have outages or capacity problems.</li>
+<li data-fb="Right. Upgrades become deliberate.">So behaviour only changes when you decide, after testing.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">What should happen when the daily eval sample drops below its threshold?</p><ul>
+<li data-fb="By then, harm is done.">Ignore it unless users also start complaining about answers.</li>
+<li data-fb="Untested switches add risk.">Immediately switch to a different provider's model.</li>
+<li data-fb="Right. Find the change and restore known-good behaviour.">Check for model or prompt changes, and pin or roll back.</li>
+<li data-fb="Hides the problem.">Lower the threshold so the alert stops firing.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Why are unbounded retries risky for AI features?</p><ul>
+<li data-fb="Right. Use deadlines and backoff.">They multiply cost and load, especially during provider outages.</li>
+<li data-fb="Not the case.">Providers ban retries in their terms of service.</li>
+<li data-fb="Not the main risk.">Retries always return the same wrong answer.</li>
+<li data-fb="A minor issue.">They make the feature's logs harder to read.</li>
 </ul></div>
 </section>
 
 <section class="sources"><h2>Sources and further reading</h2><ol>
 <li>Google, <a href="https://sre.google/sre-book/addressing-cascading-failures/" target="_blank" rel="noopener">Site Reliability Engineering, chapter 22: Addressing Cascading Failures</a>. Retries, deadlines, load shedding and graceful degradation.</li>
 <li>NIST, <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener">AI Risk Management Framework</a>, including the Generative AI Profile (NIST AI 600-1, 2024).</li>
+
+<li>OpenTelemetry, <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/" target="_blank" rel="noopener">Semantic conventions for generative AI systems</a>. Standard attributes for model, token usage and operations.</li>
 </ol></section>
 `
 });

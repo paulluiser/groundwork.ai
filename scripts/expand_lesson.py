@@ -12,6 +12,7 @@ A spec is a Python file defining SPEC = dict(...) with any of:
   myths       list of (myth, in_practice)
   recap       list of strings
   checks      list of dict(q=..., a=index, opts=[(text, feedback), ...]); replaces the old checks
+  before      optional marker (e.g. "<h2>Where to go") to insert `sections` before instead
   sources     list of HTML strings appended to the sources list; cite them in new HTML as [S1], [S2] ...
 
 Run: python3 scripts/expand_lesson.py path/to/spec.py [more specs...]
@@ -60,7 +61,7 @@ def apply(spec_path):
         raise SystemExit(f"{f.name}: no insertion point among {markers}")
 
     if S.get("sections"):
-        insert_before(["<h2>Pitfalls", "<h2>Try it", '<section class="checks">'], cite(S["sections"]))
+        insert_before(([S["before"]] if S.get("before") else []) + ["<h2>Pitfalls", "<h2>Try it", '<section class="checks">'], cite(S["sections"]))
 
     tail_block = ""
     if S.get("after_try"): tail_block += cite(S["after_try"]) + "\n"

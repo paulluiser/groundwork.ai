@@ -52,7 +52,8 @@ export default function Landing() {
     [ShieldCheck, "Data and agents, safely", "What a model must never see, and sensible limits for tools and agents that take actions on your behalf."],
     [Globe, "No account needed", "Progress saves in your browser. A short code or a resume link carries it to any other device."],
   ] as const;
-  const stats = [[lessons.length, "Short lessons, 20 to 35 minutes"], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
+  const mins = lessons.map((l) => l.minutes), lo = Math.min(...mins), hi = Math.max(...mins);
+  const stats = [[lessons.length, `Lessons, ${lo} to ${hi} minutes each`], [nRoles, "Roles, from software engineer to support"], [nEx, "Exercises that check your answer"], ["0", "Accounts to create"]];
 
   return (
     <main id="view" tabIndex={-1} className="outline-none">

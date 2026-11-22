@@ -26,14 +26,25 @@ GW.trackCfg["people-calls"] = {
 };
 GW.lesson({
   id: "em-people",
+  reviewed: "2026-11",
   lede: "AI changes the people side of engineering management in three places: hiring, when candidates have the same tools your team does; onboarding, when a new starter can ask an assistant anything; and growth, when junior engineers can ship code they don't yet understand. This lesson covers each, and the rules that apply when AI touches decisions about people.",
   outcomes: [
     "Know when AI in hiring and evaluation is regulated, and what that requires.",
     "Redesign interviews to test understanding and judgment when candidates use AI.",
     "Use AI to speed up onboarding without losing the context only people have.",
-    "Keep junior engineers learning, not just shipping."
+    "Keep junior engineers learning, not just shipping.",
+    "Design an interview exercise that assesses judgement when candidates can use AI."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Your take-home coding exercise used to separate candidates clearly. This year, every submission is clean, tested and well documented, and the on-site interviews don't match: two strong take-homes came from candidates who couldn't explain their own code.</p>
+<p>Candidates have the same AI tools your team does. Banning them is hard to enforce and tests something your team doesn't do. This lesson is about assessing what still matters, and about helping new and junior engineers keep learning when an assistant can answer any question.</p></div>
+<div class="check warmup" data-a="2"><p class="q">Candidates now use AI for take-home exercises. What's the most useful response?</p><ul>
+<li data-fb="Hard to enforce, and tests a way of working your team doesn't use.">Ban AI tools and ask candidates to sign a declaration that they didn't use any.</li>
+<li data-fb="Burdens candidates without measuring judgement.">Make the take-home much longer and harder so AI can't complete all of it.</li>
+<li data-fb="Right. Judgement is what still differentiates.">Assess how candidates review, explain and change code, with or without AI.</li>
+<li data-fb="Loses useful signal.">Drop technical assessment entirely and rely on references from past employers.</li>
+</ul></div>
 <h2>Where AI fits in people work</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -74,6 +85,38 @@ GW.lesson({
 <li><strong>Pair with seniors on hard problems,</strong> where judgment matters more than typing.</li>
 </ul>
 
+<h2>Assess judgement, not output</h2>
+<p>When output is cheap, the differentiating skills are the ones this course keeps returning to: knowing what right looks like, checking, explaining trade-offs, and changing course when evidence says so. Interview exercises can target those directly. Ask candidates to review a flawed pull request, extend their own take-home live, explain a design choice and its alternatives, or debug from real logs. Allow AI where your team allows it, and watch how they use it.</p>
+<h2>Worked example: a review-based exercise</h2>
+<div class="tbl"><table><thead><tr><th>Part</th><th>What the candidate does</th><th>What you assess</th></tr></thead><tbody>
+<tr><td>Review (30 min)</td><td>Reviews a 150-line pull request with three planted issues: a security flaw, a missing edge case, an unclear name</td><td>Prioritisation: do they find the security flaw and rank it first?</td></tr>
+<tr><td>Extend (30 min)</td><td>Adds a small feature to the same code, using AI if they wish, sharing their screen</td><td>How they brief the tool, check its output, and test</td></tr>
+<tr><td>Discuss (20 min)</td><td>Explains one decision and an alternative they rejected</td><td>Understanding and trade-off reasoning</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Every part survives AI use</strong>, because it assesses judgement on code in front of them.</li>
+<li><strong>A shared rubric</strong> for each part keeps scoring consistent across interviewers.</li>
+<li><strong>Don't use AI to screen or score candidates</strong> without legal and HR involvement: hiring is a high-risk use under the EU AI Act, and some jurisdictions require bias audits of automated hiring tools.[1][2]</li>
+</ul>
+<h2>Keeping juniors learning</h2>
+<p>An assistant can answer every question a new engineer has, which is useful, and can let them ship without building understanding, which isn't. Practical habits: some tasks done without AI first, explaining AI-assisted changes in their own words in the pull request, pairing on reviews of generated code, and on-call shadowing where the logs, not the assistant, are the source of truth.</p>
+<h2>Your turn: design an interview exercise</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">An exercise that works when candidates use AI</span></div><div class="activity-b">
+<p>Design a 60-minute interview exercise for a mid-level role on your team (or a backend role). Say what the candidate does, whether AI is allowed, and what you assess in each part.</p>
+<div data-w="task" data-key="em-interview">
+<div class="task-model"><ul>
+<li><strong>Debug (25 min):</strong> a failing service with real logs and a short codebase; AI allowed. Assess: do they form hypotheses from evidence, or accept the first suggestion?</li>
+<li><strong>Fix and test (20 min):</strong> fix the bug and add a test that would have caught it. Assess: does the test fail without the fix?</li>
+<li><strong>Explain (15 min):</strong> what caused it, why the fix is right, and what else might break. Assess: understanding beyond the tool's output.</li>
+</ul><p>Scored with a shared rubric; AI use itself is neither rewarded nor penalised, only judgement.</p></div>
+<ul class="task-rubric">
+<li>States clearly whether AI is allowed</li>
+<li>Assesses judgement (review, debugging, trade-offs), not just output</li>
+<li>Includes a part where the candidate explains their reasoning</li>
+<li>Uses a shared rubric for consistent scoring</li>
+<li>Avoids using AI to score candidates</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>“It's only a first pass.”</strong> In hiring, the first pass decides who's never seen.</li>
@@ -85,21 +128,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take your current take-home or interview exercise and try it with an AI assistant. If it does most of the work, redesign the interview around explaining, extending and debugging the result.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Banning AI in interviews keeps assessment fair.</dt><dd>It's hard to enforce and tests a way of working your team doesn't use. Assess judgement instead.</dd>
+<dt>AI screening of CVs removes human bias.</dt><dd>It can learn and scale historical bias, as Amazon's abandoned recruiting tool showed.[3]</dd>
+<dt>Juniors learn faster with AI because they get answers instantly.</dt><dd>They ship faster. Learning needs deliberate practice without shortcuts, and explaining in their own words.</dd>
+<dt>Onboarding docs matter less now that new starters can ask an assistant.</dt><dd>The assistant answers from the docs it's given. Good docs matter more.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>When output is cheap, assess review, explanation, debugging and trade-offs.</li>
+<li>Decide and state whether AI is allowed in each interview part.</li>
+<li>Don't let AI screen or score candidates without HR and legal involvement.</li>
+<li>Give juniors tasks without AI and ask them to explain AI-assisted work.</li>
+<li>Good onboarding docs matter more when assistants answer from them.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="0"><p class="q">HR wants to use a tool that automatically ranks applicants. What should you do first?</p><ul>
-<li data-fb="Right. Hiring tools are high-risk and regulated in some places, and need audits and oversight.">Check the legal requirements with HR and legal, and ask for the vendor's bias audit.</li>
-<li data-fb="Reviewing only the top of the list doesn't fix bias in who was dropped.">Use it, and review only the top candidates carefully.</li>
-<li data-fb="That keeps the risk and removes the audit trail.">Replace it with a general assistant you control.</li>
+<div class="check" data-a="0"><p class="q">Which interview part best assesses judgement when candidates can use AI?</p><ul>
+<li data-fb="Right. Finding and prioritising problems needs judgement.">Reviewing a pull request with planted issues and ranking them.</li>
+<li data-fb="Tests recall, not how they'd work.">Writing a standard algorithm from memory without any tools on a whiteboard.</li>
+<li data-fb="AI can produce most of the output.">Completing a long take-home project over a weekend without supervision.</li>
+<li data-fb="Easily looked up; little signal.">Answering trivia questions about language features and library versions.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">How should interviews change now that candidates use AI?</p><ul>
-<li data-fb="Detectors are unreliable, and the job involves AI anyway.">Use AI-detection tools on submissions.</li>
-<li data-fb="Puzzles test a different skill from the job.">Switch to algorithm puzzles on a whiteboard.</li>
-<li data-fb="Right. Understanding and debugging are what the job needs.">Have candidates explain, extend and debug their work live.</li>
+<div class="check" data-a="2"><p class="q">Why involve HR and legal before using AI to screen CVs?</p><ul>
+<li data-fb="Not the reason.">Because AI tools can't read PDF files reliably enough for screening at volume.</li>
+<li data-fb="Cost isn't the main concern.">Because screening tools are too expensive for most engineering budgets.</li>
+<li data-fb="Right. Legal obligations and bias risks apply.">Hiring is high-risk under the EU AI Act, and some places require bias audits.</li>
+<li data-fb="Not generally required in that form.">Because candidates must approve every tool used in their assessment in advance.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">A junior engineer ships fast but can't explain their code. What's the best approach?</p><ul>
-<li data-fb="Output without understanding fails when something breaks.">Leave it; they're productive.</li>
-<li data-fb="Right. Build understanding through explaining, debugging and some unassisted work.">Ask them to explain their code in review, and agree on some work without AI.</li>
-<li data-fb="Hard to enforce, and throws away a useful tool.">Ban AI tools for junior engineers.</li>
+<div class="check" data-a="3"><p class="q">Which habit best helps a junior engineer learn while using AI?</p><ul>
+<li data-fb="Speed without understanding.">Using AI for every task from the first day, so they ship as quickly as possible.</li>
+<li data-fb="Too restrictive and unrealistic.">Never using AI at all until they've been on the team for a full year.</li>
+<li data-fb="Loses human feedback and context.">Asking the AI to explain the code instead of asking colleagues questions.</li>
+<li data-fb="Right. Explaining builds and shows understanding.">Explaining AI-assisted changes in their own words in the pull request.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">What did Amazon's abandoned recruiting tool illustrate?</p><ul>
+<li data-fb="The opposite lesson.">AI recruiting tools are always more accurate than human recruiters at scale.</li>
+<li data-fb="Right. It downgraded CVs associated with women.">Models trained on past hiring data can learn and repeat its biases.</li>
+<li data-fb="Bias shapes the shortlist itself.">Recruiting tools work well once a human reviews the shortlist they produce.</li>
+<li data-fb="Size doesn't prevent bias.">Only small companies face bias problems with automated screening tools.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Should AI use in a live interview be rewarded or penalised?</p><ul>
+<li data-fb="Right. The rubric scores judgement.">Neither: assess the judgement shown, whatever tools are used.</li>
+<li data-fb="Use alone isn't judgement.">Rewarded, since using AI well is the most important skill for the role.</li>
+<li data-fb="Judgement still shows through review and explanation.">Penalised, since it hides what the candidate really knows and can do.</li>
+<li data-fb="Inconsistent scoring is unfair.">Left to each interviewer to decide in the moment.</li>
 </ul></div>
 </section>
 
