@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Copy, LogOut } from "lucide-react";
+import { Copy, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Meter } from "@/components/brand";
-import { Page } from "@/components/shell";
+import { Disclosure, onDark, Page, PageHeader, Spotlight } from "@/components/shell";
 import { byId, CODE_LESSONS, copyText, coreIds, decodeProgress, GW, hours, lessons, load, plural, prettyCode, save, trackOf } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export default function Team({ link }: { link: string }) {
     save("gw-team", nt); setTeam(nt); go("team", true);
   }, [link]);
   const update = (t: Team | null) => { save("gw-team", t); setTeam(t); };
-  if (bad) return <Page className="max-w-3xl"><h1 className="text-h1 font-semibold">Team plan</h1><p className="mt-4 text-sm text-muted-foreground">That team link doesn’t work. It may have been cut short when it was copied. Ask for the link again.</p><Button className="mt-4" onClick={() => { setBad(false); go("team"); }}>Make your own plan</Button></Page>;
+  if (bad) return <Page><PageHeader title="Team plan" description="That team link doesn’t work. It may have been cut short when it was copied. Ask for the link again." /><Button onClick={() => { setBad(false); go("team"); }}>Make your own plan</Button></Page>;
   return team ? <Board team={team} update={update} /> : <Maker onCreate={update} />;
 }
 
@@ -53,11 +53,10 @@ function Maker({ onCreate }: { onCreate: (t: Team) => void }) {
     onCreate({ n: name.trim(), l: ids, m: [], me: "" });
   };
   return (
-    <Page className="max-w-3xl">
-      {roles.length > 0 && <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#progress"><ArrowLeft />Progress</a></Button>}
-      <h1 className="text-h1 font-semibold">Team plan</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Choose the lessons your team will take, then share the link. Everyone’s progress stays in their own browser. Teammates paste their progress codes into the board to compare.</p>
-      <Card className="mt-6"><CardContent>
+    <Page>
+      <PageHeader back={roles.length > 0 ? ["#progress", "Progress"] : undefined} title="Team plan" description="Choose the lessons your team will take, then share the link. Everyone’s progress stays in their own browser." />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <Card><CardContent>
         <form onSubmit={submit} noValidate className="grid gap-5">
           <div className="grid gap-2"><Label htmlFor="tm-name">Team name</Label><Input id="tm-name" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Payments squad" /></div>
           <fieldset className="grid gap-2"><legend className="mb-2 text-sm font-medium">Lessons in the plan</legend>
@@ -73,6 +72,8 @@ function Maker({ onCreate }: { onCreate: (t: Team) => void }) {
           <Button type="submit" className="justify-self-start">Create the plan</Button>
         </form>
       </CardContent></Card>
+      <Card className="gap-3 bg-muted/50"><CardHeader><CardTitle className="text-sm">How it works</CardTitle></CardHeader><CardContent><ol className="grid list-decimal gap-2 pl-4 text-caption text-ink-2"><li>Name the team and pick the lessons.</li><li>Copy the invite link and send it round.</li><li>Teammates send you their progress code.</li><li>Paste the codes into the board to compare.</li></ol><p className="mt-3 text-xs text-muted-foreground">No accounts. The link carries only the name and lesson list.</p></CardContent></Card>
+      </div>
     </Page>
   );
 }
@@ -111,22 +112,26 @@ function Board({ team, update }: { team: Team; update: (t: Team | null) => void 
     update(t); setLines(badL.map((s) => s.replace(/ \(the code.*$/, "")).join("\n")); setErr(badL.length ? "Added " + added + ". " + why : "");
   };
   return (
-    <Page wide className="max-w-5xl">
-      {has && <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#progress"><ArrowLeft />Progress</a></Button>}
-      <p className="text-caption text-muted-foreground">Team plan</p>
-      <h1 className="mt-1 text-h1 font-semibold">{team.n}</h1>
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{plural(plan.length, "lesson")}, about {hours(plan)} each. Progress stays in each person’s browser. The board below is built from the codes you paste in, and only you can see it.</p>
-      <div className="mt-6 grid gap-6">
+    <Page>
+      <PageHeader back={has ? ["#progress", "Progress"] : undefined} eyebrow="Team plan" title={team.n} description={plural(plan.length, "lesson") + ", about " + hours(plan) + " each. The board is built from the codes you paste in, and only you can see it."} />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid min-w-0 gap-6">
         {!has ? <Alert><AlertDescription className="flex flex-wrap items-center justify-between gap-3">To start, choose your roles. The team’s lessons are open to everyone, whatever roles you pick.<Button asChild size="sm"><a href="#role">Choose your roles</a></Button></AlertDescription></Alert>
-          : <Card><CardContent className="flex flex-wrap items-center gap-4"><Meter value={myN / plan.length} size={28} /><p className="flex-1 text-sm"><b className="font-semibold">You: {myN} of {plan.length} done</b><span className="block text-xs text-muted-foreground">{nextId ? <>Up next: <a className="underline" href={"#" + nextId}>{byId[nextId].title}</a></> : "You’ve finished the plan"}</span></p>{nextId && <Button asChild><a href={"#" + nextId}>Continue</a></Button>}</CardContent></Card>}
-        <Card>
+          : <Spotlight eyebrow={"You · " + myN + " of " + plan.length + " done"} title={nextId ? byId[nextId].title : "You’ve finished the plan"}
+            action={nextId && <Button asChild className={onDark}><a href={"#" + nextId}>Continue</a></Button>}
+            aside={<Meter value={myN / plan.length} size={44} />}>{nextId ? "Up next in the team plan, lesson " + byId[nextId].num + "." : "Every lesson in the team plan is done."}</Spotlight>}
+        <Card className="min-w-0">
           <CardHeader><CardTitle>Board</CardTitle></CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="overflow-x-auto rounded-lg border" tabIndex={0} role="region" aria-label="Team board">
+          <CardContent className="grid min-w-0 gap-4 [&>*]:min-w-0">
+            <div className="relative overflow-x-auto rounded-lg border" tabIndex={0} role="region" aria-label="Team board">
               <table className="w-full text-sm"><thead className="bg-muted text-xs text-muted-foreground"><tr><th scope="col" className="px-3 py-2 text-left font-medium">Name</th><th scope="col" className="px-3 py-2 text-left font-medium">Done</th>{plan.map((id) => <th key={id} scope="col" className="px-1 py-2 font-medium" title={byId[id].title}><abbr title={byId[id].title} className="no-underline">{byId[id].num}</abbr></th>)}</tr></thead>
                 <tbody>{has && row(team.me || "You", progress, true)}{team.m.map((m) => { const d = decodeProgress(m.code); return d.error === undefined ? row(m.name, d.progress, false) : null; })}</tbody></table>
             </div>
-            {team.m.length ? <ul className="grid gap-1 text-sm">{team.m.map((m, i) => <li key={m.name} className="flex items-center justify-between gap-3"><span>{m.name} <code className="ml-1 rounded bg-muted px-1.5 text-xs">{m.code}</code></span><Button variant="link" size="sm" onClick={() => update({ ...team, m: team.m.filter((_, j) => j !== i) })}>Remove</Button></li>)}</ul> : <p className="text-sm text-muted-foreground">No teammates yet. Paste their lines below.</p>}
+            {team.m.length ? <ul className="grid gap-1 text-sm">{team.m.map((m, i) => <li key={m.name} className="flex items-center justify-between gap-3"><span>{m.name} <code className="ml-1 rounded bg-muted px-1.5 text-xs">{m.code}</code></span><Button variant="link" size="sm" onClick={() => update({ ...team, m: team.m.filter((_, j) => j !== i) })}>Remove</Button></li>)}</ul> : <p className="text-sm text-muted-foreground">No teammates yet. Add them below.</p>}
+          </CardContent>
+        </Card>
+        <Disclosure title="Add teammates" sub="Paste a name and a progress code per line" defaultOpen={!team.m.length}>
+          <Card><CardContent>
             <form onSubmit={add} noValidate className="grid gap-2">
               <Label htmlFor="tm-lines">Add teammates</Label>
               <p className="text-xs text-muted-foreground" id="tm-help">One per line, a name and a progress code, like <code>Priya: KN-7K2Q9-M4TAB-8C1DE</code>. Pasting the same name again updates that person.</p>
@@ -134,8 +139,10 @@ function Board({ team, update }: { team: Team; update: (t: Team | null) => void 
               <p className="text-sm text-destructive" id="tm-add-err" role="alert">{err}</p>
               <Button type="submit" className="justify-self-start">Add to the board</Button>
             </form>
-          </CardContent>
-        </Card>
+          </CardContent></Card>
+        </Disclosure>
+      </div>
+      <div className="grid min-w-0 gap-6 lg:sticky lg:top-20">
         {has && (
           <Card>
             <CardHeader><CardTitle>Share your line</CardTitle><CardDescription>Send this to whoever keeps the board. Copy it again after you finish lessons.</CardDescription></CardHeader>
@@ -153,6 +160,7 @@ function Board({ team, update }: { team: Team; update: (t: Team | null) => void 
             <p className="w-full text-sm text-brand" role="status" aria-live="polite">{msg}</p>
           </CardFooter>
         </Card>
+      </div>
       </div>
     </Page>
   );

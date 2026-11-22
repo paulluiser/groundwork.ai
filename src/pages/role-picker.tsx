@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Page } from "@/components/shell";
+import { Page, PageHeader } from "@/components/shell";
 import { byId, coreLast, GENERAL, GW, hours, load, MAXR, pathName, plural, roleInfo, routeFor, save, trackIdOf, trackName, type Role } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -89,16 +89,13 @@ export default function RolePicker() {
   );
 
   return (
-    <Page wide className="max-w-6xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href={first ? "#welcome" : "#home"}><ArrowLeft />Back</a></Button>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div><h1 className="text-h1 font-semibold">Choose your roles</h1><p className="mt-1 text-sm text-muted-foreground">Up to three. Your first pick is your main role.</p></div>
-        <div className="relative w-full sm:w-72">
+    <Page>
+      <PageHeader back={[first ? "#welcome" : "#home", "Back"]} title="Choose your roles" description="Up to three. Your first pick is your main role."
+        actions={<div className="relative w-full sm:w-72">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a role" aria-label="Find a role" className="pl-9" />
-        </div>
-      </header>
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        </div>} />
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div role="group" aria-label="Roles, choose up to three" className="grid">
           {!ql && (<div className="grid gap-2 border-b py-3 sm:grid-cols-[168px_1fr]"><h2 className="pt-1.5 text-caption text-muted-foreground">Not sure yet</h2><div className="flex flex-wrap gap-1.5">{chip(GENERAL)}</div></div>)}
           {shown.map((f: { id: string; name: string; roles: Role[] }) => (

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Page } from "@/components/shell";
+import { onDark, Page, PageHeader, SectionHead, ShowMore, Spotlight } from "@/components/shell";
 import { byId, copyText, GW, load, plural, save, slug, trackIdOf, trackName, trackSpan, uniq } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -32,28 +32,33 @@ export function UseCases() {
   const groups = order.map((r) => ({ r, items: list.filter((u) => u.r === r && hit(u)) })).filter((g) => g.items.length);
   const count = groups.reduce((a, g) => a + g.items.length, 0);
 
+  const star = list.find((u) => u.fit === "good" && (!mine.length || u.r === mine[0]) && GW.ucGuides?.[u.t]);
+  const starG: Guide | undefined = star && GW.ucGuides?.[star.t];
+  const [more, setMore] = useState<Record<string, boolean>>({});
+  const CAP = 4;
+
   return (
-    <Page wide>
-      <header className="mb-6">
-        <h1 className="text-h1 font-semibold">Use cases</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one.</p>
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          {!gen && <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-ucscope", v); }}><TabsList><TabsTrigger value="mine">Your roles</TabsTrigger><TabsTrigger value="all">All roles</TabsTrigger></TabsList></Tabs>}
-          <Tabs value={fit} onValueChange={(v) => { setFit(v); save("gw-ucfit", v); }}><TabsList><TabsTrigger value="all">Any fit</TabsTrigger><TabsTrigger value="good">Good fit</TabsTrigger><TabsTrigger value="care">Use with care</TabsTrigger><TabsTrigger value="human">Keep human</TabsTrigger></TabsList></Tabs>
-          <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a task, e.g. tests, incidents" aria-label="Find a use case" className="pl-9" /></div>
-        </div>
-        <p className="mt-3 text-xs text-muted-foreground" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
-      </header>
+    <Page>
+      <PageHeader title="Use cases" description="Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one." />
+      {star && starG && !words.length && (
+        <Spotlight className="mb-8" eyebrow={"Start here · " + trackName(star.r) + " · " + FIT[star.fit].label} title={star.t}
+          action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-primary-foreground/70">{plural(starG.s.length, "step")} · do's and don'ts{starG.p ? " · starter prompt" : ""}</span></>}>
+          {star.d}
+        </Spotlight>
+      )}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        {!gen && <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-ucscope", v); }}><TabsList><TabsTrigger value="mine">Your roles</TabsTrigger><TabsTrigger value="all">All roles</TabsTrigger></TabsList></Tabs>}
+        <Tabs value={fit} onValueChange={(v) => { setFit(v); save("gw-ucfit", v); }} className="max-w-full overflow-x-auto"><TabsList><TabsTrigger value="all">Any fit</TabsTrigger><TabsTrigger value="good">Good fit</TabsTrigger><TabsTrigger value="care">Use with care</TabsTrigger><TabsTrigger value="human">Keep human</TabsTrigger></TabsList></Tabs>
+        <p className="text-xs text-muted-foreground sm:ml-2" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
+        <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a task, e.g. tests, incidents" aria-label="Find a use case" className="pl-9" /></div>
+      </div>
       {!count && <p className="text-sm text-muted-foreground">No use cases match. Try a shorter word or another fit level. <Button variant="link" className="h-auto p-0" onClick={() => { setQ(""); setFit("all"); setScope("all"); }}>Clear the filters</Button></p>}
       <div className="grid gap-8">
         {groups.map((g) => (
           <section key={g.r} aria-labelledby={"uc-" + g.r}>
-            <div className="mb-3 flex items-baseline justify-between gap-3 border-b pb-2">
-              <h2 id={"uc-" + g.r} className="text-lg font-semibold">{trackName(g.r)}</h2>
-              <p className="shrink-0 text-xs text-muted-foreground tabular-nums">{trackSpan(g.r)} · {plural(g.items.length, "use case")}</p>
-            </div>
+            <SectionHead id={"uc-" + g.r} title={trackName(g.r)} meta={trackSpan(g.r) + " · " + plural(g.items.length, "use case")} />
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {g.items.map((u) => {
+              {(more[g.r] || words.length ? g.items : g.items.slice(0, CAP)).map((u) => {
                 const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l], href = gd ? "#usecase/" + slug(u.t) : l ? "#" + l.id : undefined;
                 return (
                   <li key={u.t} className="group relative flex flex-col gap-2 rounded-xl border bg-card p-4 transition-colors has-[a.uc-main:hover]:border-foreground/20 has-[a.uc-main:hover]:bg-accent/40">
@@ -71,6 +76,7 @@ export function UseCases() {
                 );
               })}
             </ul>
+            {!words.length && <ShowMore hidden={g.items.length - CAP} open={!!more[g.r]} onToggle={() => setMore((m) => ({ ...m, [g.r]: !m[g.r] }))} noun="use cases" />}
           </section>
         ))}
       </div>
@@ -92,13 +98,11 @@ export function UseCaseGuide({ slug: key }: { slug: string }) {
     </Card>
   );
   return (
-    <Page wide className="max-w-6xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#usecases"><ArrowLeft />All use cases</a></Button>
-      <p className="text-caption text-muted-foreground">{trackName(u.r)} · use case {i + 1} of {same.length}</p>
-      <h1 className="mt-1 text-h1 font-semibold">{u.t}</h1>
-      <p className="mt-2 max-w-2xl text-ink-2">{u.d}</p>
-      <div className="mt-5 flex flex-wrap gap-2"><FitBadge fit={u.fit} /><Badge variant="outline" className="font-normal"><Footprints />{plural(g.s.length, "step")}</Badge>{l && <Badge asChild variant="outline" className="font-normal"><a href={"#" + l.id}><BookOpen />Lesson {l.num}: {l.title}</a></Badge>}</div>
-      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <Page>
+      <PageHeader back={["#usecases", "All use cases"]} eyebrow={trackName(u.r) + " · use case " + (i + 1) + " of " + same.length} title={u.t} description={u.d}>
+        <div className="flex flex-wrap gap-2"><FitBadge fit={u.fit} /><Badge variant="outline" className="font-normal"><Footprints />{plural(g.s.length, "step")}</Badge>{l && <Badge asChild variant="outline" className="font-normal"><a href={"#" + l.id}><BookOpen />Lesson {l.num}: {l.title}</a></Badge>}</div>
+      </PageHeader>
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-8">
           <section><h2 className="mb-4 flex items-center gap-2 text-lg font-semibold"><Footprints className="size-5 text-brand" />Step by step</h2>
             <ol className="grid gap-0">{g.s.map((s, k) => (<li key={k} className="relative grid grid-cols-[30px_1fr] gap-4 pb-5 last:pb-0"><span className="z-10 grid size-[30px] place-items-center rounded-full bg-primary text-caption font-medium text-primary-foreground">{k + 1}</span>{k < g.s.length - 1 && <span className="absolute left-[15px] top-8 bottom-1 w-px bg-border" />}<p className="pt-1">{s}</p></li>))}</ol>

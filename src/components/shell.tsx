@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { BookOpen, ChevronDown, Dumbbell, Keyboard, Lightbulb, Menu, Moon, PieChart, Search, Sun, CaseSensitive, Check } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronDown, Dumbbell, Keyboard, Lightbulb, Menu, Moon, PieChart, Search, Sun, CaseSensitive, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Mark, Meter } from "@/components/brand";
 import { GW, byId, hasUseCases, lessons, pathLong, pathName, roleInfo, routeFor, searchIndex, version, type Hit } from "@/lib/kern";
 import { useStore, useTheme } from "@/lib/store";
@@ -25,7 +26,7 @@ export function Header({ tab, bare, lessonId, onSearch }: { tab: string; bare: b
   const tabs = TABS.filter((t) => t.id !== "usecases" || hasUseCases);
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-4 md:px-6">
+      <div className={cn("flex h-14 items-center gap-2", FRAME)}>
         {lessonId && <LessonDrawer active={lessonId} />}
         <a href={roles.length && !bare ? "#home" : "#welcome"} className="mr-2 flex items-center gap-2 rounded-md font-semibold" aria-label="Kern, home">
           <Mark /><span className="hidden text-lg sm:inline">Kern</span>
@@ -182,8 +183,83 @@ export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenC
   );
 }
 
-export function Page({ children, className, wide }: { children: ReactNode; className?: string; wide?: boolean }) {
-  return <main id="view" tabIndex={-1} className={cn("mx-auto w-full px-4 pb-28 pt-8 outline-none md:px-6 md:pb-16", wide ? "max-w-[1440px]" : "max-w-5xl", className)}>{children}</main>;
+/* One frame for every screen: the same width, side margins and top/bottom spacing as the header. */
+export const FRAME = "mx-auto w-full max-w-[1440px] px-4 md:px-8";
+
+export function Page({ children, className }: { children: ReactNode; className?: string; wide?: boolean }) {
+  return <main id="view" tabIndex={-1} className={cn(FRAME, "pb-28 pt-6 outline-none md:pb-16 md:pt-8", className)}>{children}</main>;
 }
+
+/* Page title block: optional back link, eyebrow, title, one line of description, actions on the right. */
+export function PageHeader({ back, eyebrow, title, description, actions, children }: { back?: [string, string]; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
+  return (
+    <header className="mb-6 grid gap-4">
+      {back && <Button asChild variant="ghost" size="sm" className="-ml-2 -mb-2 justify-self-start text-muted-foreground"><a href={back[0]}><ArrowLeft />{back[1]}</a></Button>}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0 max-w-3xl">
+          {eyebrow && <p className="mb-1 text-caption text-muted-foreground">{eyebrow}</p>}
+          <h1 className="text-h1 font-semibold">{title}</h1>
+          {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      </div>
+      {children}
+    </header>
+  );
+}
+
+/* Section heading with a hairline under it: title on the left, quiet meta on the right. */
+export function SectionHead({ title, meta, id, className }: { title: ReactNode; meta?: ReactNode; id?: string; className?: string }) {
+  return (
+    <div className={cn("mb-3 flex items-baseline justify-between gap-3 border-b pb-2", className)}>
+      <h2 id={id} className="text-lg font-semibold">{title}</h2>
+      {meta && <div className="min-w-0 text-right text-xs text-muted-foreground tabular-nums">{meta}</div>}
+    </div>
+  );
+}
+
+/* A section that opens and closes from its heading. */
+export function Disclosure({ title, meta, defaultOpen, children, sub }: { title: ReactNode; meta?: ReactNode; defaultOpen?: boolean; children: ReactNode; sub?: ReactNode }) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} asChild>
+      <section>
+        <CollapsibleTrigger className="group mb-3 flex w-full items-center justify-between gap-3 rounded-md border-b pb-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+          <span className="min-w-0"><span className="block text-lg font-semibold">{title}</span>{sub && <span className="block text-caption text-muted-foreground">{sub}</span>}</span>
+          <span className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground tabular-nums">{meta}<ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" /></span>
+        </CollapsibleTrigger>
+        <CollapsibleContent className={cn(!open && "mb-1")}>{children}</CollapsibleContent>
+      </section>
+    </Collapsible>
+  );
+}
+
+/* The one place each page wants the eye to land first: a dark card with a single action. */
+export function Spotlight({ eyebrow, title, children, action, aside, className }: { eyebrow?: ReactNode; title: ReactNode; children?: ReactNode; action?: ReactNode; aside?: ReactNode; className?: string }) {
+  return (
+    <section className={cn("grid gap-6 rounded-xl bg-primary p-6 text-primary-foreground md:p-8", aside && "md:grid-cols-[minmax(0,1fr)_auto] md:items-end", className)}>
+      <div className="min-w-0">
+        {eyebrow && <p className="flex items-center gap-2 text-caption text-primary-foreground/70"><span className="size-1.5 rounded-full bg-brand" />{eyebrow}</p>}
+        <h2 className="mt-3 max-w-3xl text-2xl font-semibold leading-tight">{title}</h2>
+        {children && <div className="mt-2 max-w-2xl text-sm text-primary-foreground/75">{children}</div>}
+        {action && <div className="mt-5 flex flex-wrap items-center gap-3">{action}</div>}
+      </div>
+      {aside}
+    </section>
+  );
+}
+/* Light button for use on the dark spotlight. */
+export const onDark = "bg-primary-foreground text-primary hover:bg-primary-foreground/90";
+
+/* "Show N more" for long lists. */
+export function ShowMore({ hidden, open, onToggle, noun }: { hidden: number; open: boolean; onToggle: () => void; noun: string }) {
+  if (hidden <= 0) return null;
+  return (
+    <Button variant="outline" size="sm" onClick={onToggle} aria-expanded={open} className="mt-3 w-full text-muted-foreground sm:w-auto">
+      <ChevronDown className={cn("transition-transform", open && "rotate-180")} />{open ? "Show fewer" : `Show ${hidden} more ${noun}`}
+    </Button>
+  );
+}
+
 export function lessonTitle(id: string) { return byId[id]?.title || ""; }
 export function roleNameOf(id: string) { return roleInfo(id)?.name || ""; }

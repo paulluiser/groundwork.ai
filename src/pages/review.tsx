@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Meter } from "@/components/brand";
-import { Page } from "@/components/shell";
+import { Page, PageHeader } from "@/components/shell";
 import { byId, GW, load, plural, save } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 
@@ -47,7 +47,7 @@ export default function Review() {
       <p className="text-sm text-muted-foreground">{s.total ? `You knew ${s.knew} of ${plural(s.total, "card")}. ` : ""}{nextDue ? `More cards are due ${nextDue - t === 1 ? "tomorrow" : "in " + (nextDue - t) + " days"}.` : ""}</p>
       <Button asChild variant="secondary"><a href="#exercises">Back to exercises</a></Button></CardContent></Card>);
   } else body = (
-    <Card aria-live="polite"><CardContent className="grid min-h-64 content-center justify-items-center gap-4 text-center">
+    <Card aria-live="polite" className="border-ex-line"><CardContent className="grid min-h-80 content-center justify-items-center gap-4 text-center">
       <p className="text-xs text-muted-foreground">Card {s.i + 1} of {s.queue.length}</p>
       <h2 className="text-h1 font-semibold">{g[0]}</h2>
       {!s.shown ? (<><Button autoFocus onClick={() => setS({ ...s, shown: true })}>Show the meaning</Button><p className="text-xs text-muted-foreground">Press Space to show it.</p></>) : (<>
@@ -57,13 +57,23 @@ export default function Review() {
         <p className="text-xs text-muted-foreground">Or press 1 or 2.</p></>)}
     </CardContent></Card>
   );
+  const st = load<St>("gw-review", {}), t = today(), known = Object.keys(st).filter((x) => st[x].b >= 3).length;
   return (
-    <Page className="max-w-3xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#exercises"><ArrowLeft />Exercises</a></Button>
-      <h1 className="text-h1 font-semibold">Review terms</h1>
-      <p className="mt-1 text-sm text-muted-foreground">A few cards a day. Say the meaning to yourself, then check it. Terms you know come back less often.</p>
-      <Tabs value={scope} onValueChange={changeScope} className="my-6"><TabsList><TabsTrigger value="done">From lessons you’ve finished</TabsTrigger><TabsTrigger value="all">All terms</TabsTrigger></TabsList></Tabs>
-      {body}
+    <Page>
+      <PageHeader back={["#exercises", "Exercises"]} title="Review terms" description="A few cards a day. Say the meaning to yourself, then check it. Terms you know come back less often."
+        actions={<Tabs value={scope} onValueChange={changeScope}><TabsList><TabsTrigger value="done">From finished lessons</TabsTrigger><TabsTrigger value="all">All terms</TabsTrigger></TabsList></Tabs>} />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div>{body}</div>
+        <Card className="gap-0 py-0"><CardContent className="grid gap-4 p-6">
+          <p className="text-xs text-muted-foreground">Today</p>
+          <div className="flex items-center gap-4"><Meter value={s.total ? Math.min(s.i, s.total) / s.total : 1} size={36} /><p className="text-sm"><b className="text-h1 font-medium tabular-nums">{Math.min(s.i, s.total)}</b> <span className="text-muted-foreground">of {plural(s.total, "card")}</span></p></div>
+          <dl className="grid grid-cols-2 gap-3 border-t pt-4 text-xs">
+            <div><dt className="text-muted-foreground">Terms in review</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{s.pool}</dd></div>
+            <div><dt className="text-muted-foreground">Well known</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{known}</dd></div>
+          </dl>
+          <p className="border-t pt-4 text-xs text-muted-foreground">Keys: Space shows the meaning, 1 if you didn’t know it, 2 if you did.</p>
+        </CardContent></Card>
+      </div>
     </Page>
   );
 }

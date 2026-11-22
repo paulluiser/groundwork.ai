@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Page } from "@/components/shell";
+import { Page, PageHeader } from "@/components/shell";
 import { byId, load, plural, save } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 import { tracksFor } from "@/pages/progress";
@@ -49,17 +49,16 @@ export default function Certificate({ k }: { k: string }) {
     (document.fonts ? Promise.all([document.fonts.load("600 80px 'Geist Mono'"), document.fonts.load("400 20px 'Geist Mono'")]) : Promise.resolve()).then(draw, draw);
   }, [name, full]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <Page className="max-w-4xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#progress"><ArrowLeft />Progress</a></Button>
-      <h1 className="text-h1 font-semibold">Certificate</h1>
-      {!full ? (<><p className="mt-4 text-sm text-muted-foreground">{t ? "Finish every lesson in this track first: " + t.ids.filter((id) => progress[id]).length + " of " + t.ids.length + " done." : "That track isn’t on your path."}</p><Button asChild className="mt-4"><a href="#progress">Back to progress</a></Button></>) : (
-        <div className="mt-2 grid gap-5">
-          <p className="text-ink-2">{t!.name}, {plural(t!.ids.length, "lesson")}. Add your name as you want it to appear, then download the image.</p>
-          <div className="grid max-w-sm gap-2"><Label htmlFor="ct-name">Your name</Label><Input id="ct-name" maxLength={48} autoComplete="name" value={name} onChange={(e) => { setName(e.target.value); save("gw-name", e.target.value.trim()); }} /></div>
-          <div className="relative overflow-hidden rounded-xl border">
+    <Page>
+      <PageHeader back={["#progress", "Progress"]} title="Certificate" description={full ? t!.name + ", " + plural(t!.ids.length, "lesson") + ". Add your name as you want it to appear, then download the image." : undefined} />
+      {!full ? (<><p className="text-sm text-muted-foreground">{t ? "Finish every lesson in this track first: " + t.ids.filter((id) => progress[id]).length + " of " + t.ids.length + " done." : "That track isn’t on your path."}</p><Button asChild className="mt-4"><a href="#progress">Back to progress</a></Button></>) : (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="relative overflow-hidden rounded-xl border lg:order-1">
             <canvas ref={cv} width={1600} height={1000} className="block h-auto w-full" role="img" aria-label="Certificate preview" />
             {!ready && <div className="absolute inset-0 animate-pulse bg-muted" role="status"><span className="sr-only">Drawing your certificate</span></div>}
           </div>
+          <div className="grid gap-4 rounded-xl border bg-card p-6 lg:order-2">
+          <div className="grid gap-2"><Label htmlFor="ct-name">Your name</Label><Input id="ct-name" maxLength={48} autoComplete="name" value={name} onChange={(e) => { setName(e.target.value); save("gw-name", e.target.value.trim()); }} /></div>
           <div className="flex flex-wrap items-center gap-3">
             <Button onClick={() => {
               if (!name.trim()) { setMsg("Add your name first."); document.getElementById("ct-name")?.focus(); return; }
@@ -68,6 +67,7 @@ export default function Certificate({ k }: { k: string }) {
             <span className="text-sm text-muted-foreground" aria-live="polite">{msg}</span>
           </div>
           <p className="text-xs text-muted-foreground">Self-reported: progress is saved in your browser, and the certificate isn’t verified by anyone.</p>
+          </div>
         </div>
       )}
     </Page>

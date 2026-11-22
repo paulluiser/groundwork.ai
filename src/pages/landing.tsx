@@ -69,7 +69,7 @@ export default function Landing() {
         <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · no account</p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 md:px-6">
+      <section className="mx-auto max-w-[1440px] px-4 py-16 md:px-8">
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <Badge variant="secondary">What you learn</Badge>
           <h2 className="mt-3 text-h1 font-semibold">One course for working with AI on a software team</h2>
@@ -85,7 +85,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:px-6 lg:grid-cols-2">
+      <section className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 md:px-8 lg:grid-cols-2 [&>*]:min-w-0">
         <div>
           <Badge variant="secondary">See it in practice</Badge>
           <h2 className="mt-3 text-h1 font-semibold">What checking AI work looks like</h2>
@@ -109,7 +109,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-10 md:px-6">
+      <section className="mx-auto max-w-[1440px] px-4 pb-10 md:px-8">
         <Card className="items-center bg-primary py-12 text-center text-primary-foreground">
           <CardHeader className="w-full items-center"><Badge className="mx-auto bg-brand text-brand-foreground">Ready when you are</Badge><CardTitle className="mt-3 text-h1">Start with lesson 1</CardTitle>
             <CardDescription className="mx-auto max-w-lg text-primary-foreground/75">It takes {first.minutes} minutes and needs no background. Choose your roles first, or start with General and add roles later.</CardDescription></CardHeader>

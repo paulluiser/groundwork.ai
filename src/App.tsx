@@ -81,7 +81,12 @@ function Router() {
   }, [head, arg, isLesson, roles.length]);
 
   // scroll position
-  useEffect(() => { if (!hash.includes("/")) window.scrollTo(0, 0); }, [head, arg]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!hash.includes("/")) window.scrollTo(0, 0);
+    // Move focus to the new page, so the link that was clicked doesn't keep its focus ring and screen readers start at the content.
+    const a = document.activeElement as HTMLElement | null;
+    if (a && a !== document.body && a.closest("header, nav")) requestAnimationFrame(() => (document.getElementById("view") as HTMLElement | null)?.focus({ preventScroll: true }));
+  }, [head, arg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (h: Hit) => {
     setSearchOpen(false);

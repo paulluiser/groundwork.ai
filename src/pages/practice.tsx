@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Meter } from "@/components/brand";
-import { Page } from "@/components/shell";
-import { byId, GW, load, save, trackIdOf, trackName, uniq } from "@/lib/kern";
+import { Disclosure, onDark, Page, PageHeader, SectionHead, Spotlight } from "@/components/shell";
+import { byId, GW, load, plural, save, trackIdOf, trackName, uniq } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -31,26 +30,26 @@ export function PracticeList() {
   const { mine, list } = ordered(roles);
   const done = list.filter((x) => s[x.n]), same = done.filter((x) => s[x.n].v === x.p.v).length, next = list.find((x) => !s[x.n]);
   const groups: [string, typeof list][] = [["Your roles", list.filter((x) => mine.includes(x.p.r))], [mine.length && mine[0] !== "general" ? "Other roles" : "All roles", list.filter((x) => !mine.includes(x.p.r))]];
+  const rowsOf = (xs: typeof list) => (
+    <Card className="gap-0 overflow-hidden py-0"><ul className="divide-y lg:grid lg:grid-cols-2 lg:divide-y-0 lg:[&>li]:border-b lg:[&>li:nth-child(odd)]:border-r">
+      {xs.map((x) => { const r = s[x.n], st = !r ? "Not tried" : r.v === x.p.v ? "Same call" : "Different call"; return (
+        <li key={x.n}><a href={"#practice/" + x.n} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-accent"><b className="min-w-0 text-sm font-medium">{x.p.t}</b><span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">{trackName(x.p.r)} · <span className={cn(r && r.v === x.p.v && "text-brand")}>{st}</span><ChevronRight className="size-4" /></span></a></li>
+      ); })}
+    </ul></Card>
+  );
   return (
     <Page>
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#exercises"><ArrowLeft />Exercises</a></Button>
-      <h1 className="text-h1 font-semibold">You decide</h1>
-      <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Each draft below came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s.</p>
-      <Card className="mt-6"><CardContent className="flex flex-wrap items-center gap-4">
-        <Meter value={done.length / (list.length || 1)} size={22} />
-        <p className="flex-1 text-sm"><b className="font-semibold">{done.length} of {list.length} reviewed</b><span className="block text-xs text-muted-foreground">{done.length ? "Same call as the reviewer on " + same : "About 3 minutes each"}</span></p>
-        {next && <Button asChild><a href={"#practice/" + next.n}>{done.length ? "Next draft" : "Start with the first draft"}</a></Button>}
-      </CardContent></Card>
-      {groups.filter((g) => g[1].length).map(([h, xs]) => (
-        <section key={h} className="mt-8">
-          <h2 className="mb-2 text-lg font-semibold">{h}</h2>
-          <Card className="gap-0 overflow-hidden py-0"><ul className="divide-y">
-            {xs.map((x) => { const r = s[x.n], st = !r ? "Not tried" : r.v === x.p.v ? "Same call" : "Different call"; return (
-              <li key={x.n}><a href={"#practice/" + x.n} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-accent"><b className="font-medium">{x.p.t}</b><span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">{trackName(x.p.r)} · {st}<ChevronRight className="size-4" /></span></a></li>
-            ); })}
-          </ul></Card>
-        </section>
-      ))}
+      <PageHeader back={["#exercises", "Exercises"]} title="You decide" description="Each draft came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s." />
+      <Spotlight className="mb-8" eyebrow={next ? (done.length ? "Next draft · " : "Start here · ") + trackName(next.p.r) : "All drafts reviewed"} title={next ? next.p.t : "You’ve made a call on every draft"}
+        action={next && <><Button asChild className={onDark}><a href={"#practice/" + next.n}>{done.length ? "Next draft" : "Start with this draft"}<ChevronRight /></a></Button><span className="text-xs text-primary-foreground/70">About 3 minutes</span></>}
+        aside={<div className="flex items-center gap-4 md:flex-col md:items-end"><Meter value={done.length / (list.length || 1)} size={44} /><p className="text-sm text-primary-foreground/75"><b className="text-h1 font-medium text-primary-foreground tabular-nums">{done.length}</b> / {list.length} reviewed{done.length ? <span className="block text-xs">Same call on {same}</span> : null}</p></div>}>
+        {next?.p.ctx}
+      </Spotlight>
+      <div className="grid gap-6">
+        {groups.filter((g) => g[1].length).map(([h, xs], i) => i === 0 && groups[0][1].length
+          ? <section key={h}><SectionHead title={h} meta={plural(xs.length, "draft")} />{rowsOf(xs)}</section>
+          : <Disclosure key={h} title={h} meta={plural(xs.length, "draft")} defaultOpen={!groups[0][1].length}>{rowsOf(xs)}</Disclosure>)}
+      </div>
     </Page>
   );
 }
@@ -72,14 +71,13 @@ export function PracticeCase({ n }: { n: number }) {
   const rv = CALLS[p.v], me = mine && CALLS[mine.v], d = me ? me[2] - rv[2] : 0;
   const verdict = d === 0 ? "Same call as the reviewer." : d < 0 ? "You would have let it through more easily than the reviewer." : "You were stricter than the reviewer. That’s the safer side to be on, though it costs time.";
   return (
-    <Page className="max-w-3xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground"><a href="#practice"><ArrowLeft />All drafts</a></Button>
-      <p className="text-caption text-muted-foreground">Draft {pos + 1} of {list.length} · {trackName(p.r)}</p>
-      <h1 className="mt-1 text-h1 font-semibold">{p.t}</h1>
-      <p className="mt-2 text-ink-2">{p.ctx}</p>
-      <Card className="mt-6 gap-0 overflow-hidden py-0"><div className="border-b bg-muted px-4 py-2 text-xs font-medium">AI draft</div><div className="lesson kern-lesson-body px-4 py-3 text-sm" dangerouslySetInnerHTML={{ __html: p.draft }} /></Card>
+    <Page>
+      <PageHeader back={["#practice", "All drafts"]} eyebrow={"Draft " + (pos + 1) + " of " + list.length + " · " + trackName(p.r)} title={p.t} description={p.ctx} />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <Card className="gap-0 overflow-hidden py-0"><div className="border-b bg-muted px-4 py-2 text-xs font-medium">AI draft</div><div className="lesson kern-lesson-body px-4 py-3 text-sm" dangerouslySetInnerHTML={{ __html: p.draft }} /></Card>
+      <div className="lg:sticky lg:top-20">
       {!mine ? (
-        <Card className="mt-6 border-ex-line" style={{ background: "var(--ex-bg)" }}>
+        <Card className="border-ex-line" style={{ background: "var(--ex-bg)" }}>
           <CardHeader><CardTitle id="pr-h">Your call</CardTitle></CardHeader>
           <CardContent className="grid gap-4">
             <ToggleGroup type="single" variant="outline" spacing={2} value={call} onValueChange={(v) => v && setCall(v)} aria-labelledby="pr-h" className="flex-wrap justify-start bg-card">
@@ -91,7 +89,7 @@ export function PracticeCase({ n }: { n: number }) {
           </CardContent>
         </Card>
       ) : (
-        <Card className="mt-6" aria-live="polite">
+        <Card aria-live="polite">
           <CardHeader><CardTitle ref={resRef} tabIndex={-1} className="outline-none">The reviewer’s call</CardTitle></CardHeader>
           <CardContent className="grid gap-4">
             <div className="flex flex-wrap items-start gap-3"><span className={cn("rounded-md border px-2 py-0.5 text-xs font-medium", STAMP[rv[1]])}>{rv[0]}</span><p className="flex-1 text-sm"><b className="font-semibold">{verdict}</b> Your call: {me![0]}.</p></div>
@@ -102,11 +100,12 @@ export function PracticeCase({ n }: { n: number }) {
           </CardContent>
         </Card>
       )}
+      </div>
+      </div>
       <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
         {l ? <a href={"#" + l.id} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><BookOpen className="size-4" /><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</a> : <span />}
         <Button asChild variant="secondary"><a href={nextX ? "#practice/" + nextX.n : "#practice"}>{nextX ? "Next draft" : "All drafts"}</a></Button>
       </footer>
-      <Badge className="hidden" />
     </Page>
   );
 }

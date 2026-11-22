@@ -182,7 +182,7 @@ export default function LessonPage({ id, target }: { id: string; target: string 
   const nOut = prep.c.outcomes.length, H = prep.plan.length;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 pb-28 pt-6 md:px-6 md:pb-16 xl:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 pb-28 pt-6 md:px-8 md:pt-8 md:pb-16 xl:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="hidden xl:block"><div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pr-2"><LessonRail active={id} /></div></aside>
       <main id="view" tabIndex={-1} className="min-w-0 outline-none">
         {/* overview */}

@@ -37,20 +37,16 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
+// forwardRef so Radix triggers (Sheet, Popover, Collapsible) can attach their ref on React 18.
+const Button = React.forwardRef<HTMLButtonElement, React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
-  }) {
+  }>(function Button({ className, variant = "default", size = "default", asChild = false, ...props }, ref) {
   const Comp = asChild ? Slot.Root : "button"
 
   return (
     <Comp
+      ref={ref}
       data-slot="button"
       data-variant={variant}
       data-size={size}
@@ -58,6 +54,6 @@ function Button({
       {...props}
     />
   )
-}
+})
 
 export { Button, buttonVariants }
