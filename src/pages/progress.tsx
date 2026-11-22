@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Meter } from "@/components/brand";
 import { Disclosure, onDark, Page, PageHeader, SectionHead, Spotlight, Tile } from "@/components/shell";
+import { assessResult } from "@/pages/assessment";
 import { byId, coreIds, copyText, decodeProgress, lessons, load, pathLong, prettyCode, resumeLink, routeFor, trackIdOf, trackName, trackOf, uniq } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
 
@@ -88,12 +89,13 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
             {lessons.filter((l) => progress[l.id]).length} of {lessons.length} lessons completed across the whole library.
           </Spotlight>
           <section>
-            <SectionHead title="Tracks and certificates" meta="Finish a track to make a certificate" />
+            <SectionHead title="Tracks and certificates" meta="Finish a track, then pass its assessment" />
             <Card className="gap-0 overflow-hidden py-0"><ul className="divide-y">
               {tracksFor(roles).map((t) => {
-                const d = t.ids.filter((id) => progress[id]).length, full = d === t.ids.length;
-                const inner = <><span className="flex items-center gap-3"><Meter value={d / t.ids.length} size={18} /><b className="text-sm font-medium">{t.name}</b></span><span className="flex items-center gap-1 text-xs text-muted-foreground">{full ? <b className="font-medium text-brand">Get your certificate</b> : d + " of " + t.ids.length + " done"}{full && <ChevronRight className="size-4" />}</span></>;
-                return <li key={t.k}>{full ? <a href={"#certificate/" + t.k} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-accent">{inner}</a> : <div className="flex items-center justify-between gap-3 px-4 py-3">{inner}</div>}</li>;
+                const d = t.ids.filter((id) => progress[id]).length, full = d === t.ids.length, r = assessResult(t.k), passed = !!r?.passed;
+                const label = !full ? d + " of " + t.ids.length + " done" : passed ? <b className="font-medium text-brand">Get your certificate</b> : <b className="font-medium text-foreground">{r ? `Retake the assessment (best ${r.best}/${r.total})` : "Take the assessment"}</b>;
+                const inner = <><span className="flex items-center gap-3"><Meter value={d / t.ids.length} size={18} /><b className="text-sm font-medium">{t.name}</b></span><span className="flex items-center gap-1 text-xs text-muted-foreground">{label}{full && <ChevronRight className="size-4" />}</span></>;
+                return <li key={t.k}>{full ? <a href={(passed ? "#certificate/" : "#assessment/") + t.k} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-accent">{inner}</a> : <div className="flex items-center justify-between gap-3 px-4 py-3">{inner}</div>}</li>;
               })}
             </ul></Card>
           </section>

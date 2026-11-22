@@ -200,6 +200,13 @@ Phases 0 to 3 are done for all 45 lessons:
 
 Every lesson now has an opening situation, a warm-up question, at least one worked example, an open task, a Try it this week exercise, common misconceptions, a recap, five balanced scenario questions and additional sources. The capstone now includes a three-part project: a pilot plan, a reviewed work sample and a team agreement.
 
-Still to do (phase 4): mastery checks before a lesson can be marked complete, track assessments tied to certificates, and recap cards in Review.
+Phase 4 is also done:
+
+- **Mastery check:** “Mark lesson complete” unlocks once 4 of 5 knowledge-check questions are answered correctly first time; learners can retake the check. Lessons completed before this change stay complete. First answers are kept in `gw-checks`.
+- **Track assessments:** `#assessment/<track>` draws 10 questions from across the track's lessons, in a new order with shuffled options each time; 8 correct passes. Results are kept in `gw-assess`.
+- **Certificates** need every lesson done and the assessment passed.
+- **Review** has a “Key ideas” option: one card per finished lesson, built from its recap.
+
+New localStorage keys (`gw-tasks`, `gw-checks`, `gw-assess`) stay in the browser and aren't part of progress codes, so codes and links are unchanged.
 
 Tools: `scripts/expand_lesson.py` applies a lesson spec from `scripts/lesson-specs/`; `scripts/check_lessons.cjs` checks every lesson loads, citations resolve and answers aren't given away by length; `scripts/balance_report.cjs` lists any question whose answer is the longest option.

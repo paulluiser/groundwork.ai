@@ -90,7 +90,11 @@ const Body = memo(function Body({ id, html, sources, onTerm, onReady }: { id: st
     // citations: [n] jumps to the matching source
     const srcs = root.parentElement!.querySelectorAll(".sources li");
     $$("sup").forEach((sup) => { sup.innerHTML = sup.innerHTML.replace(/\[(\d+)\]/g, (m, n) => (srcs[n - 1] ? '<a class="cite" href="#' + id + '" data-cite="' + n + '" aria-label="Source ' + n + '">[' + n + "]</a>" : m)); });
-    // knowledge checks: lettered options with feedback
+    // knowledge checks: lettered options with feedback. The first answer to each main question counts
+    // towards the mastery check (warm-up questions don't count); answers already given are remembered.
+    const mainChecks = $$(".check:not(.warmup)");
+    const prior = load<Record<string, Record<number, boolean>>>("gw-checks", {})[id] || {};
+    mainChecks.forEach((box, k) => { if (k in prior) box.dataset.tried = "1"; });
     $$(".check").forEach((box) => {
       const ans = parseInt(box.getAttribute("data-a") || "0", 10), lis = $$("li", box), opts = document.createElement("div");
       opts.className = "opts"; opts.setAttribute("role", "group");
@@ -101,6 +105,7 @@ const Body = memo(function Body({ id, html, sources, onTerm, onReady }: { id: st
         b.addEventListener("click", () => {
           opts.querySelectorAll(".opt").forEach((o) => o.classList.remove("right", "wrong"));
           const ok = i === ans; b.classList.add(ok ? "right" : "wrong");
+          if (!box.classList.contains("warmup") && !box.dataset.tried) { box.dataset.tried = "1"; dispatchEvent(new CustomEvent("kern-check", { detail: { id, i: mainChecks.indexOf(box), ok } })); }
           fb.hidden = false; fb.className = "fb " + (ok ? "right" : "wrong");
           fb.innerHTML = "<b>" + (ok ? "Correct. " : "Not quite. ") + "</b>" + (li.getAttribute("data-fb") || "") + (ok ? "" : " Try another answer.");
         });
@@ -195,6 +200,22 @@ export default function LessonPage({ id, target }: { id: string; target: string 
   const g = term && GW.glossary[term.k];
   const nOut = prep.c.outcomes.length, H = prep.plan.length;
 
+  // mastery check: first answers to the knowledge check, kept per lesson in gw-checks
+  const [checks, setChecks] = useState<Record<number, boolean>>(() => load<Record<string, Record<number, boolean>>>("gw-checks", {})[id] || {});
+  const [bodyKey, setBodyKey] = useState(0);
+  useEffect(() => { setChecks(load<Record<string, Record<number, boolean>>>("gw-checks", {})[id] || {}); }, [id]);
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; i: number; ok: boolean }>).detail; if (d.id !== id || d.i < 0) return;
+      const all = load<Record<string, Record<number, boolean>>>("gw-checks", {}); all[id] = { ...(all[id] || {}), [d.i]: d.ok }; save("gw-checks", all); setChecks(all[id]);
+    };
+    addEventListener("kern-check", on); return () => removeEventListener("kern-check", on);
+  }, [id]);
+  const total = prep.nChk, need = Math.min(total, Math.ceil(total * 0.8));
+  const answered = Object.keys(checks).length, correct = Object.values(checks).filter(Boolean).length;
+  const mastered = total === 0 || correct >= need, allAnswered = answered >= total;
+  const retake = () => { const all = load<Record<string, Record<number, boolean>>>("gw-checks", {}); delete all[id]; save("gw-checks", all); setChecks({}); setBodyKey((k) => k + 1); setTimeout(() => document.getElementById("check-your-understanding")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
+
   return (
     <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 pb-28 pt-6 md:px-8 md:pt-8 md:pb-16 xl:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="hidden xl:block"><div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pr-2"><LessonRail active={id} /></div></aside>
@@ -251,11 +272,22 @@ export default function LessonPage({ id, target }: { id: string; target: string 
             </Card>
             </div>
           <div className="mt-10 min-w-0">
-            <Body key={id} id={id} html={prep.body} sources="" onTerm={onTerm} onReady={onReady} />
+            <Body key={id + ":" + bodyKey} id={id} html={prep.body} sources="" onTerm={onTerm} onReady={onReady} />
             <footer className="mt-12 grid gap-6 border-t pt-8">
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="max-w-md text-caption text-muted-foreground">{done ? <>Marked as complete and saved in this browser. To continue on another device, use your <a className="underline underline-offset-4" href="#progress">progress code</a>.</> : "Worked through the activities and the checks? Mark the lesson complete to track your progress."}</p>
-                <Button variant={done ? "outline" : "default"} onClick={() => toggleDone(id)} className={cn(done && "border-brand-line text-brand")}>{done ? <><CheckCircle2 />Completed</> : "Mark lesson complete"}</Button>
+                <div className="grid max-w-md gap-2 text-caption text-muted-foreground">
+                  {total > 0 && (
+                    <p className="flex items-center gap-2" aria-live="polite">
+                      <span className="flex gap-1" aria-hidden="true">{Array.from({ length: total }, (_, k) => <span key={k} className={cn("size-2.5 rounded-full border", k in checks ? (checks[k] ? "border-brand bg-brand" : "border-destructive bg-destructive/70") : "border-input")} />)}</span>
+                      <span><b className="font-medium text-foreground">Knowledge check: {correct} of {total}</b> right first time{!done && !mastered && <>. Get {need} to complete the lesson.</>}</span>
+                    </p>
+                  )}
+                  <p>{done ? <>Marked as complete and saved in this browser. To continue on another device, use your <a className="underline underline-offset-4" href="#progress">progress code</a>.</> : mastered ? "You've passed the knowledge check. Mark the lesson complete to track your progress." : allAnswered ? "Not quite there. Re-read the sections behind the questions you missed, then retake the check." : <>Answer the <button type="button" className="underline underline-offset-4" onClick={() => jump("check-your-understanding")}>knowledge check</button> to unlock completion. Only your first answer to each question counts.</>}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {!done && allAnswered && !mastered && <Button variant="outline" onClick={retake}>Retake the check</Button>}
+                  <Button variant={done ? "outline" : "default"} disabled={!done && !mastered} onClick={() => toggleDone(id)} className={cn(done && "border-brand-line text-brand")}>{done ? <><CheckCircle2 />Completed</> : "Mark lesson complete"}</Button>
+                </div>
               </div>
               <nav className="grid gap-3 sm:grid-cols-2" aria-label="Previous and next lessons">
                 {prev ? <a href={"#" + prev.id} className="rounded-xl border bg-card p-4 hover:bg-accent"><span className="flex items-center gap-1 text-xs text-muted-foreground"><ArrowLeft className="size-3.5" />Previous{onPath && " on your path"}</span><b className="mt-1 block font-medium">{prev.title}</b></a> : <span />}

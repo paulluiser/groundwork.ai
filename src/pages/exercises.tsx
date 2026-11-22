@@ -57,7 +57,7 @@ export default function Exercises() {
 
       <div className="mt-4"><TileRow cols={2}>
         <Tile href="#practice" icon={Scale} label="You decide" value={"Review " + nP + " AI drafts"} note={pDone ? pDone + " of " + nP + " reviewed" : "Make the call, then compare with a reviewer"} />
-        <Tile href="#review" icon={Repeat} label="Review" value="Key terms, a few a day" note="Spaced out so they stick" />
+        <Tile href="#review" icon={Repeat} label="Review" value="Key terms and key ideas" note="A few cards a day, spaced out so they stick" />
       </TileRow></div>
 
       <SectionHead className="mt-12" title="All exercises" meta={<span aria-live="polite">{plural(list.length, "exercise")}</span>} />

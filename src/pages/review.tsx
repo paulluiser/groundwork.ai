@@ -5,19 +5,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Meter } from "@/components/brand";
 import { Page, PageHeader } from "@/components/shell";
-import { byId, GW, load, plural, save } from "@/lib/kern";
+import { byId, GW, lessons, load, plural, save } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 
 /* Term review: Leitner boxes over the glossary, a few cards a day (gw-review, gw-revscope), as before. */
 const GAP = [0, 1, 2, 4, 8, 16];
 function today() { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); }
 type St = Record<string, { b: number; d: number }>;
+/* The recap list of a lesson, as list-item HTML, or "" if it has none. */
+function recapOf(id: string): string { const m = (GW.content[id]?.html || "").match(/<div class="recap"><ul>([\s\S]*?)<\/ul><\/div>/); return m ? m[1] : ""; }
 
 export default function Review() {
   const { progress } = useStore();
   const [scope, setScope] = useState<string>(() => load("gw-revscope", "done"));
   const make = (sc: string) => {
-    const pool = Object.keys(GW.glossary).filter((k) => { const l = GW.glossary[k][2]; return sc === "all" || (l && progress[l]); });
+    const pool = sc === "ideas"
+      ? lessons.filter((l) => progress[l.id] && recapOf(l.id)).map((l) => "recap:" + l.id)
+      : Object.keys(GW.glossary).filter((k) => { const l = GW.glossary[k][2]; return sc === "all" || (l && progress[l]); });
     const st = load<St>("gw-review", {}), t = today();
     const due = pool.filter((k) => st[k] && st[k].d <= t), fresh = pool.filter((k) => !st[k]).slice(0, 5);
     const queue = due.slice(0, 15).concat(fresh).slice(0, 15);
@@ -38,9 +42,14 @@ export default function Review() {
     };
     addEventListener("keydown", onKey); return () => removeEventListener("keydown", onKey);
   });
-  const k = s.queue[s.i], g = k && GW.glossary[k], l = g && g[2] && byId[g[2]];
+  // a card is either a glossary term or the key ideas (recap) of a finished lesson
+  const k = s.queue[s.i], isIdea = !!k && k.startsWith("recap:");
+  const g: [string, string, string?] | undefined = !k ? undefined : isIdea ? ["Key ideas: " + byId[k.slice(6)].title, recapOf(k.slice(6)), k.slice(6)] : GW.glossary[k];
+  const l = g && g[2] && byId[g[2]];
   let body;
-  if (!s.pool) body = <p className="text-sm text-muted-foreground">No terms yet. Terms join the review when you finish the lesson that explains them. Or <Button variant="link" className="h-auto p-0" onClick={() => changeScope("all")}>review all terms</Button>.</p>;
+  if (!s.pool) body = scope === "ideas"
+    ? <p className="text-sm text-muted-foreground">No key ideas yet. Each lesson's recap joins the review when you mark the lesson complete.</p>
+    : <p className="text-sm text-muted-foreground">No terms yet. Terms join the review when you finish the lesson that explains them. Or <Button variant="link" className="h-auto p-0" onClick={() => changeScope("all")}>review all terms</Button>.</p>;
   else if (s.i >= s.queue.length) {
     const st = load<St>("gw-review", {}), t = today(), nextDue = Object.keys(st).map((x) => st[x].d).filter((d) => d > t).sort((a, b) => a - b)[0];
     body = (<Card className="items-center text-center"><CardContent className="grid justify-items-center gap-3"><Meter value={1} size={40} /><h2 className="text-2xl font-semibold">{s.total ? "Done for today" : "Nothing due today"}</h2>
@@ -49,9 +58,10 @@ export default function Review() {
   } else body = (
     <Card aria-live="polite" className="border-ex-line"><CardContent className="grid min-h-80 content-center justify-items-center gap-4 text-center">
       <p className="text-xs text-muted-foreground">Card {s.i + 1} of {s.queue.length}</p>
-      <h2 className="text-h1 font-semibold">{g[0]}</h2>
-      {!s.shown ? (<><Button onClick={() => setS({ ...s, shown: true })}>Show the meaning</Button><p className="text-xs text-muted-foreground">Press Space to show it.</p></>) : (<>
-        <p className="max-w-lg text-ink-2">{g[1]}</p>
+      <h2 className={isIdea ? "max-w-xl text-h2 font-semibold" : "text-h1 font-semibold"}>{g![0]}</h2>
+      {isIdea && !s.shown && <p className="max-w-md text-sm text-muted-foreground">Say or jot down the key ideas from this lesson, then check them.</p>}
+      {!s.shown ? (<><Button onClick={() => setS({ ...s, shown: true })}>{isIdea ? "Show the key ideas" : "Show the meaning"}</Button><p className="text-xs text-muted-foreground">Press Space to show {isIdea ? "them" : "it"}.</p></>) : (<>
+        {isIdea ? <ul className="grid max-w-xl list-disc gap-1.5 pl-5 text-left text-sm text-ink-2 marker:text-brand" dangerouslySetInnerHTML={{ __html: g![1] }} /> : <p className="max-w-lg text-ink-2">{g![1]}</p>}
         {l && <a href={"#" + l.id} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><BookOpen className="size-3.5" /><b className="font-medium text-brand">Lesson {l.num}</b> {l.title}</a>}
         <div className="flex flex-wrap justify-center gap-2"><Button variant="secondary" onClick={() => answer(false)}>I didn’t know it</Button><Button autoFocus onClick={() => answer(true)}>I knew it</Button></div>
         <p className="text-xs text-muted-foreground">Or press 1 or 2.</p></>)}
@@ -60,15 +70,15 @@ export default function Review() {
   const st = load<St>("gw-review", {}), t = today(), known = Object.keys(st).filter((x) => st[x].b >= 3).length;
   return (
     <Page>
-      <PageHeader back={["#exercises", "Exercises"]} title="Review terms" description="A few cards a day. Say the meaning to yourself, then check it. Terms you know come back less often."
-        actions={<Tabs value={scope} onValueChange={changeScope}><TabsList><TabsTrigger value="done">From finished lessons</TabsTrigger><TabsTrigger value="all">All terms</TabsTrigger></TabsList></Tabs>} />
+      <PageHeader back={["#exercises", "Exercises"]} title="Review" description={scope === "ideas" ? "One card per finished lesson. Recall its key ideas, then check them. Ideas you know come back less often." : "A few cards a day. Say the meaning to yourself, then check it. Terms you know come back less often."}
+        actions={<Tabs value={scope} onValueChange={changeScope}><TabsList><TabsTrigger value="done">From finished lessons</TabsTrigger><TabsTrigger value="all">All terms</TabsTrigger><TabsTrigger value="ideas">Key ideas</TabsTrigger></TabsList></Tabs>} />
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div>{body}</div>
         <Card className="gap-0 py-0"><CardContent className="grid gap-4 p-6">
           <p className="text-xs text-muted-foreground">Today</p>
           <div className="flex items-center gap-4"><Meter value={s.total ? Math.min(s.i, s.total) / s.total : 1} size={36} /><p className="text-sm"><b className="text-h1 font-medium tabular-nums">{Math.min(s.i, s.total)}</b> <span className="text-muted-foreground">of {plural(s.total, "card")}</span></p></div>
           <dl className="grid grid-cols-2 gap-3 border-t pt-4 text-xs">
-            <div><dt className="text-muted-foreground">Terms in review</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{s.pool}</dd></div>
+            <div><dt className="text-muted-foreground">{scope === "ideas" ? "Lessons in review" : "Terms in review"}</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{s.pool}</dd></div>
             <div><dt className="text-muted-foreground">Well known</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{known}</dd></div>
           </dl>
           <p className="border-t pt-4 text-xs text-muted-foreground">Keys: Space shows the meaning, 1 if you didn’t know it, 2 if you did.</p>

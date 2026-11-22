@@ -15,6 +15,7 @@ import { PracticeCase, PracticeList } from "@/pages/practice";
 import Review from "@/pages/review";
 import Team from "@/pages/team";
 import Certificate from "@/pages/certificate";
+import Assessment from "@/pages/assessment";
 
 const OPEN = ["welcome", "role", "progress", "team"];   // pages that work before any roles are chosen
 
@@ -33,7 +34,7 @@ function Router() {
   // redirects, as on the original site
   let redirect: string | null = null;
   if (hash.startsWith("resume=")) redirect = "resume";
-  else if (!roles.length && !OPEN.includes(head)) redirect = isLesson || ["exercises", "usecases", "glossary", "usecase", "practice", "review", "certificate"].includes(head) ? "role" : "welcome";
+  else if (!roles.length && !OPEN.includes(head)) redirect = isLesson || ["exercises", "usecases", "glossary", "usecase", "practice", "review", "certificate", "assessment"].includes(head) ? "role" : "welcome";
   else if (hash === "") redirect = "welcome";
 
   useEffect(() => {
@@ -73,7 +74,7 @@ function Router() {
 
   // page title
   useEffect(() => {
-    const T: Record<string, string> = { welcome: "Kern · AI for software teams", role: "Choose your roles", home: "Lessons", exercises: "Exercises", usecases: "Use cases", glossary: "Glossary", progress: roles.length ? "Progress" : "Continue with a code", practice: "You decide", review: "Review terms", team: "Team plan", certificate: "Certificate" };
+    const T: Record<string, string> = { welcome: "Kern · AI for software teams", role: "Choose your roles", home: "Lessons", exercises: "Exercises", usecases: "Use cases", glossary: "Glossary", progress: roles.length ? "Progress" : "Continue with a code", practice: "You decide", review: "Review", team: "Team plan", certificate: "Certificate", assessment: "Track assessment" };
     const uc = head === "usecase" && (GW.useCases || []).find((u: { t: string }) => u.t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) === arg);
     const pr = head === "practice" && arg && GW.practice?.[parseInt(arg, 10) - 1];
     const t = isLesson ? byId[head].title : uc ? uc.t : pr ? pr.t : T[head] || "Lessons";
@@ -98,7 +99,7 @@ function Router() {
 
   if (redirect) return null;
   const bare = head === "welcome" || head === "role" || (!roles.length && (head === "progress" || head === "team"));
-  const tab = isLesson ? "home" : ({ usecase: "usecases", practice: "exercises", review: "exercises", team: "progress", certificate: "progress" } as Record<string, string>)[head] || head;
+  const tab = isLesson ? "home" : ({ usecase: "usecases", practice: "exercises", review: "exercises", team: "progress", certificate: "progress", assessment: "progress" } as Record<string, string>)[head] || head;
 
   let page;
   if (head === "welcome") page = <Landing />;
@@ -113,6 +114,7 @@ function Router() {
   else if (head === "review") page = <Review />;
   else if (head === "team") page = <Team link={hash.startsWith("team=") ? arg : ""} />;
   else if (head === "certificate") page = <Certificate k={arg} />;
+  else if (head === "assessment") page = <Assessment k={arg} />;
   else page = <Home onSearch={() => setSearchOpen(true)} />;
 
   return (

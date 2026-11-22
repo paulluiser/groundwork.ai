@@ -8,6 +8,7 @@ import { Page, PageHeader } from "@/components/shell";
 import { byId, load, plural, save } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 import { tracksFor } from "@/pages/progress";
+import { assessResult } from "@/pages/assessment";
 
 /* Certificates: drawn in the browser on Kern paper, downloaded as a PNG. Self-reported. */
 const LONGDATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -38,7 +39,7 @@ function drawCert(cv: HTMLCanvasElement, who: string, t: T, date: string) {
 export default function Certificate({ k }: { k: string }) {
   const { roles, progress } = useStore();
   const t = tracksFor(roles).find((x) => x.k === k);
-  const full = !!t && t.ids.every((id) => progress[id]);
+  const done = !!t && t.ids.every((id) => progress[id]), passed = !!assessResult(k)?.passed, full = done && passed;
   const [name, setName] = useState<string>(() => load("gw-name", "") || "");
   const [ready, setReady] = useState(false);
   const [msg, setMsg] = useState("");
@@ -51,19 +52,28 @@ export default function Certificate({ k }: { k: string }) {
   }, [name, full]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Page>
-      <PageHeader back={["#progress", "Progress"]} title="Certificate" description={!t ? undefined : full ? t.name + ", " + plural(t.ids.length, "lesson") + ". Add your name as you want it to appear, then download the image." : "Finish every lesson in " + t.name.replace(/^Your /, "your ") + " to make your certificate."} />
+      <PageHeader back={["#progress", "Progress"]} title="Certificate" description={!t ? undefined : full ? t.name + ", " + plural(t.ids.length, "lesson") + ". Add your name as you want it to appear, then download the image." : done ? "Pass the track assessment to unlock your certificate." : "Finish every lesson in " + t.name.replace(/^Your /, "your ") + ", then pass its assessment, to make your certificate."} />
       {!t ? (<p className="text-sm text-muted-foreground">That track isn’t on your path. <a className="underline underline-offset-4" href="#progress">See your tracks</a></p>) : !full ? (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="relative overflow-hidden rounded-xl border">
             <canvas ref={cv} width={1600} height={1000} className="block h-auto w-full opacity-35 grayscale" role="img" aria-label="Preview of the certificate, locked until the track is done" />
-            <div className="absolute inset-0 grid place-items-center"><span className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium shadow-sm"><Lock className="size-4" />Unlocks when the track is done</span></div>
+            <div className="absolute inset-0 grid place-items-center"><span className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium shadow-sm"><Lock className="size-4" />{done ? "Unlocks when you pass the assessment" : "Unlocks when the track is done"}</span></div>
           </div>
+          {done ? (
+          <div className="grid gap-4 rounded-xl border bg-card p-6">
+            <p className="text-xs text-muted-foreground">{t.name}</p>
+            <p className="text-lg font-medium">All {plural(t.ids.length, "lesson")} done</p>
+            <p className="text-sm text-muted-foreground">One step left: a 10-question assessment drawn from across the track. 8 correct passes; you can retake it as often as you like.{assessResult(k) && <> Your best so far: {assessResult(k)!.best} of {assessResult(k)!.total}.</>}</p>
+            <Button asChild className="justify-self-start"><a href={"#assessment/" + k}>Take the assessment</a></Button>
+          </div>
+          ) : (
           <div className="grid gap-4 rounded-xl border bg-card p-6">
             <div><p className="text-xs text-muted-foreground">{t.name}</p><p className="mt-1 flex items-center gap-3"><Meter value={t.ids.filter((id) => progress[id]).length / t.ids.length} size={22} /><b className="text-lg font-medium">{plural(t.ids.filter((id) => !progress[id]).length, "lesson")} to go</b></p></div>
             <ul className="grid gap-1 border-t pt-3">
               {t.ids.filter((id) => !progress[id]).map((id) => <li key={id}><a href={"#" + id} className="-mx-2 flex min-h-9 items-center justify-between gap-3 rounded-md px-2 text-sm hover:bg-accent"><span className="min-w-0"><span className="mr-2 text-caption text-muted-foreground tabular-nums">{byId[id].num}</span>{byId[id].title}</span><span className="shrink-0 text-xs text-muted-foreground">{byId[id].minutes} min</span></a></li>)}
             </ul>
           </div>
+          )}
         </div>
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
