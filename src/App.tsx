@@ -34,7 +34,7 @@ function Router() {
   let redirect: string | null = null;
   if (hash.startsWith("resume=")) redirect = "resume";
   else if (!roles.length && !OPEN.includes(head)) redirect = isLesson || ["exercises", "usecases", "glossary", "usecase", "practice", "review", "certificate"].includes(head) ? "role" : "welcome";
-  else if (hash === "") redirect = "home";
+  else if (hash === "") redirect = "welcome";
 
   useEffect(() => {
     if (redirect === "resume") {
@@ -97,7 +97,7 @@ function Router() {
   };
 
   if (redirect) return null;
-  const bare = head === "welcome" || head === "role" || (!roles.length && (head === "progress" || head === "team"));
+  const bare = (head === "welcome" && !roles.length) || head === "role" || (!roles.length && (head === "progress" || head === "team"));
   const tab = isLesson ? "home" : ({ usecase: "usecases", practice: "exercises", review: "exercises", team: "progress", certificate: "progress" } as Record<string, string>)[head] || head;
 
   let page;

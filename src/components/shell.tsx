@@ -28,7 +28,7 @@ export function Header({ tab, bare, lessonId, onSearch }: { tab: string; bare: b
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className={cn("flex h-14 items-center gap-2", FRAME)}>
         {lessonId && <LessonDrawer active={lessonId} />}
-        <a href={roles.length && !bare ? "#home" : "#welcome"} className="mr-2 flex items-center gap-2 rounded-md font-semibold" aria-label="Kern, home">
+        <a href="#welcome" className="mr-2 flex items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the course">
           <Mark /><span className="hidden text-lg sm:inline">Kern</span>
         </a>
         {!bare && roles.length > 0 && (
