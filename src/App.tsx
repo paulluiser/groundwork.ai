@@ -97,7 +97,7 @@ function Router() {
   };
 
   if (redirect) return null;
-  const bare = (head === "welcome" && !roles.length) || head === "role" || (!roles.length && (head === "progress" || head === "team"));
+  const bare = head === "welcome" || head === "role" || (!roles.length && (head === "progress" || head === "team"));
   const tab = isLesson ? "home" : ({ usecase: "usecases", practice: "exercises", review: "exercises", team: "progress", certificate: "progress" } as Record<string, string>)[head] || head;
 
   let page;
@@ -118,7 +118,7 @@ function Router() {
   return (
     <>
       <a href="#view" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2">Skip to content</a>
-      <Header tab={tab} bare={bare} lessonId={isLesson ? head : undefined} onSearch={() => setSearchOpen(true)} />
+      <Header tab={tab} bare={bare} landing={head === "welcome"} lessonId={isLesson ? head : undefined} onSearch={() => setSearchOpen(true)} />
       {page}
       {!bare && roles.length > 0 && <MobileTabs tab={tab} />}
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} onPick={pick} />

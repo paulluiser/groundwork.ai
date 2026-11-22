@@ -1,55 +1,117 @@
-import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Page, PageHeader, SectionHead } from "@/components/shell";
-import { byId, GW, plural } from "@/lib/kern";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Page, PageHeader } from "@/components/shell";
+import { byId, GW, plural, routeFor } from "@/lib/kern";
+import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
+/* Glossary, laid out like a reference index: search and topic filter on top, an A–Z rail that greys out
+   empty letters, and one readable column of term / definition rows grouped by letter. */
+const ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+type Entry = [string, string, string?];
+const letterOf = (t: string) => { const c = t[0].toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
+
 export default function Glossary({ term }: { term: string }) {
-  const keys = useMemo(() => Object.keys(GW.glossary).sort((a, b) => GW.glossary[a][0].localeCompare(GW.glossary[b][0])), []);
+  const { roles } = useStore();
+  const G: Record<string, Entry> = GW.glossary;
+  const keys = useMemo(() => Object.keys(G).sort((a, b) => G[a][0].localeCompare(G[b][0])), [G]);
+  const path = routeFor(roles);
   const [q, setQ] = useState("");
+  const [topic, setTopic] = useState("all");
   const [flash, setFlash] = useState("");
+  const [active, setActive] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
   const ql = q.toLowerCase().trim();
-  const shown = keys.filter((k) => !ql || (GW.glossary[k][0] + " " + GW.glossary[k][1]).toLowerCase().includes(ql));
+
+  const topics: [string, string][] = [["all", "All"], ...(path.length ? [["path", "Your path"] as [string, string]] : []), ...GW.parts.map((p: { id: string; title: string }) => [p.id, p.title] as [string, string])];
+  const inTopic = (k: string) => { const l = G[k][2] && byId[G[k][2]!]; return topic === "all" || (topic === "path" ? !!l && path.includes(l.id) : !!l && l.part === topic); };
+  const shown = keys.filter((k) => inTopic(k) && (!ql || (G[k][0] + " " + G[k][1]).toLowerCase().includes(ql)));
+  const groups: Record<string, string[]> = {};
+  shown.forEach((k) => (groups[letterOf(G[k][0])] = groups[letterOf(G[k][0])] || []).push(k));
+  const letters = Object.keys(groups);
+
+  // deep link: #glossary/term scrolls to it and highlights it briefly
   useEffect(() => {
     if (!term) return;
-    const el = document.getElementById("term-" + term);
-    if (el) { el.scrollIntoView({ block: "center" }); setFlash(term); const t = setTimeout(() => setFlash(""), 1800); return () => clearTimeout(t); }
+    setQ(""); setTopic("all");
+    requestAnimationFrame(() => {
+      const el = document.getElementById("term-" + term);
+      if (el) { el.scrollIntoView({ block: "center" }); setFlash(term); }
+    });
+    const t = setTimeout(() => setFlash(""), 2000);
+    return () => clearTimeout(t);
   }, [term]);
-  const letters: Record<string, string[]> = {};
-  shown.forEach((k) => { const c = GW.glossary[k][0][0].toUpperCase(), L = /[A-Z]/.test(c) ? c : "#"; (letters[L] = letters[L] || []).push(k); });
-  const all = Array.from(new Set(keys.map((k) => { const c = GW.glossary[k][0][0].toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; })));
+
+  // the letter in view is highlighted in the rail
+  useEffect(() => {
+    const els = [...(listRef.current?.querySelectorAll<HTMLElement>("[data-letter]") || [])];
+    const io = new IntersectionObserver((es) => { const v = es.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]; if (v) setActive((v.target as HTMLElement).dataset.letter || ""); }, { rootMargin: "-80px 0px -70% 0px" });
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
+  }, [shown.length, topic, ql]);
+
+  const jump = (L: string) => document.getElementById("gl-" + L)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const clear = () => { setQ(""); setTopic("all"); };
+
   return (
     <Page>
-      <PageHeader title="Glossary" description="Every term the course relies on, in plain words. Each entry links to the lesson that explains it properly.">
-        <div className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[minmax(0,420px)_1fr] md:items-center">
-          <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" autoFocus={!term} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a term, e.g. token, injection, eval" aria-label="Filter terms" className="h-11 pl-9" /></div>
-          <nav aria-label="Jump to a letter" className="flex flex-wrap gap-0.5">
-            {all.map((L) => <a key={L} href={"#glossary"} onClick={(e) => { e.preventDefault(); document.getElementById("gl-" + L)?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-disabled={!letters[L]} className={cn("grid size-7 place-items-center rounded-md text-xs hover:bg-accent", !letters[L] && "pointer-events-none opacity-30")}>{L}</a>)}
-          </nav>
+      <PageHeader title="Glossary" description="Every term the course relies on, in plain words, with the lesson that explains it." />
+
+      <div className="sticky top-14 z-20 -mx-4 mb-8 grid gap-2 border-b sm:gap-3 bg-background/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="relative w-full sm:w-80"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" autoFocus={!term} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a term" aria-label="Find a term" className="pl-9" /></div>
+          <ToggleGroup type="single" spacing={1} value={topic} onValueChange={(v) => v && setTopic(v)} aria-label="Filter by topic" className="-mx-1 flex w-full justify-start overflow-x-auto px-1 sm:w-auto sm:flex-wrap sm:overflow-visible">
+            {topics.map(([id, t]) => <ToggleGroupItem key={id} value={id} size="sm" className="shrink-0 rounded-full px-3 text-xs text-muted-foreground hover:text-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{t}</ToggleGroupItem>)}
+          </ToggleGroup>
+          <p className="hidden text-xs text-muted-foreground tabular-nums sm:ml-auto sm:block" aria-live="polite">{shown.length === keys.length ? plural(keys.length, "term") : shown.length + " of " + keys.length + " terms"}</p>
         </div>
-        <p className="text-xs text-muted-foreground" aria-live="polite">{ql ? shown.length + " of " + keys.length + " terms" : keys.length + " terms"}</p>
-      </PageHeader>
-      {!shown.length && <p className="text-sm text-muted-foreground">No terms match. Try a shorter word, or <Button variant="link" className="h-auto p-0" onClick={() => setQ("")}>clear the filter</Button>.</p>}
-      <div className="gap-x-8 md:columns-2 xl:columns-3">
-        {Object.keys(letters).map((L) => (
-          <section key={L} aria-labelledby={"gl-" + L} className="mb-8 break-inside-avoid-column">
-            <SectionHead id={"gl-" + L} title={L} meta={plural(letters[L].length, "term")} className="scroll-mt-20" />
-            <dl className="grid gap-1">
-              {letters[L].map((k) => {
-                const g = GW.glossary[k], l = g[2] && byId[g[2]];
-                return (
-                  <div key={k} className={cn("break-inside-avoid rounded-lg px-3 py-2.5 transition-colors", flash === k && "bg-brand-tint")}>
-                    <dt id={"term-" + k} className="scroll-mt-24 text-sm font-semibold">{g[0]}</dt>
-                    <dd className="mt-0.5 text-caption text-ink-2">{g[1]}{l && <a href={"#" + l.id} className="-mb-1.5 mt-0.5 flex min-h-7 items-center gap-1 text-xs text-brand underline-offset-4 hover:underline"><BookOpen className="size-3" />Lesson {l.num}: {l.title}</a>}</dd>
-                  </div>
-                );
-              })}
-            </dl>
-          </section>
-        ))}
+        {/* A–Z: a single row on phones and tablets */}
+        <nav aria-label="Jump to a letter" className="-mx-1 flex overflow-x-auto lg:hidden">
+          {ABC.map((L) => <button key={L} type="button" disabled={!groups[L]} onClick={() => jump(L)} className={cn("grid size-8 shrink-0 place-items-center rounded-md text-xs", groups[L] ? "hover:bg-accent" : "text-muted-foreground/40", active === L && "bg-accent font-medium")}>{L}</button>)}
+        </nav>
       </div>
+
+      {!shown.length ? (
+        <div className="rounded-xl border border-dashed p-10 text-center">
+          <p className="font-medium">No terms match “{q || topics.find((t) => t[0] === topic)?.[1]}”</p>
+          <p className="mt-1 text-sm text-muted-foreground">Try a shorter word, or search all topics.</p>
+          <Button variant="outline" size="sm" className="mt-4" onClick={clear}>Clear search and filter</Button>
+        </div>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[40px_minmax(0,1fr)]">
+          {/* A–Z rail on wide screens */}
+          <nav aria-label="Jump to a letter" className="hidden lg:block">
+            <div className="sticky top-40 grid">
+              {ABC.map((L) => <button key={L} type="button" disabled={!groups[L]} onClick={() => jump(L)} className={cn("grid h-6 w-8 place-items-center rounded text-xs", groups[L] ? "text-muted-foreground hover:bg-accent hover:text-foreground" : "text-muted-foreground/30", active === L && "bg-accent font-medium text-foreground")}>{L}</button>)}
+            </div>
+          </nav>
+
+          <div ref={listRef} className="grid max-w-4xl gap-10">
+            {letters.map((L) => (
+              <section key={L} id={"gl-" + L} data-letter={L} aria-labelledby={"glh-" + L} className="scroll-mt-44">
+                <h2 id={"glh-" + L} className="mb-1 flex items-baseline justify-between border-b pb-2 text-lg font-semibold">{L}<span className="text-xs font-normal text-muted-foreground tabular-nums">{plural(groups[L].length, "term")}</span></h2>
+                <dl className="divide-y">
+                  {groups[L].map((k) => {
+                    const [t, d, lid] = G[k], l = lid && byId[lid];
+                    return (
+                      <div key={k} className={cn("grid gap-1 py-4 transition-colors sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:gap-8", flash === k && "-mx-3 rounded-lg bg-brand-tint px-3")}>
+                        <dt id={"term-" + k} className="scroll-mt-44 text-sm font-semibold">{t}</dt>
+                        <dd className="text-caption text-ink-2">
+                          {d}
+                          {l && <a href={"#" + l.id} className="ml-2 inline-flex min-h-6 items-center whitespace-nowrap text-xs text-muted-foreground underline-offset-4 hover:text-brand hover:underline">Lesson {l.num}</a>}
+                        </dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
     </Page>
   );
 }

@@ -20,7 +20,7 @@ const TABS = [
   { id: "progress", label: "Progress", icon: PieChart },
 ];
 
-export function Header({ tab, bare, lessonId, onSearch }: { tab: string; bare: boolean; lessonId?: string; onSearch: () => void }) {
+export function Header({ tab, bare, landing, lessonId, onSearch }: { tab: string; bare: boolean; landing?: boolean; lessonId?: string; onSearch: () => void }) {
   const { roles } = useStore();
   const [theme, toggle] = useTheme();
   const tabs = TABS.filter((t) => t.id !== "usecases" || hasUseCases);
@@ -56,9 +56,9 @@ export function Header({ tab, bare, lessonId, onSearch }: { tab: string; bare: b
               <kbd className="ml-2 hidden rounded border bg-muted px-1.5 text-2xs lg:inline">/</kbd>
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+          {!landing && <Button variant="ghost" size="icon" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
             {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </Button>
+          </Button>}
         </div>
       </div>
     </header>
