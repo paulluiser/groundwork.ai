@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Mark, Meter } from "@/components/brand";
 import { GW, byId, hasUseCases, lessons, pathLong, pathName, roleInfo, routeFor, searchIndex, version, type Hit } from "@/lib/kern";
 import { useStore, useTheme } from "@/lib/store";
@@ -20,7 +21,68 @@ const TABS = [
   { id: "progress", label: "Progress", icon: PieChart },
 ];
 
-export function Header({ tab, bare, landing, lessonId, onSearch }: { tab: string; bare: boolean; landing?: boolean; lessonId?: string; onSearch: () => void }) {
+/* Path menu: initials of your main role; opens your path, roles, progress code and theme. */
+function PathMenu() {
+  const { roles } = useStore();
+  const [theme, toggle] = useTheme();
+  const main = roleInfo(roles[0])?.name || "General";
+  const ini = main.split(/\s+/).filter((w) => /^[A-Za-z]/.test(w) && !/^(and|of|the)$/i.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" aria-label={"Your path: " + pathLong(roles) + ". Open menu"} className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50">
+          <span className="grid size-7 place-items-center rounded-full bg-brand-tint text-2xs font-semibold text-brand">{ini}</span><ChevronDown className="size-3.5 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel className="font-normal"><span className="block text-xs text-muted-foreground">Your path</span><span className="block text-sm font-medium">{pathLong(roles)}</span></DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild><a href="#role">Change roles</a></DropdownMenuItem>
+        <DropdownMenuItem asChild><a href="#progress">Progress code</a></DropdownMenuItem>
+        <DropdownMenuItem asChild><a href="#welcome">About the course</a></DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); toggle(); }}>{theme === "dark" ? <Sun /> : <Moon />}{theme === "dark" ? "Light mode" : "Dark mode"}</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function SearchField({ onSearch, className }: { onSearch: () => void; className?: string }) {
+  return (
+    <button type="button" onClick={onSearch} aria-label="Search the course" className={cn("flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground", className)}>
+      <Search className="size-4" /><span className="hidden lg:inline">Search</span><kbd className="ml-auto hidden rounded border bg-muted px-1.5 text-2xs lg:inline">/</kbd>
+    </button>
+  );
+}
+
+/* Course header: logo left, the five sections as one centred switch, search field and path menu right.
+   The landing page and role picker use the bare header instead. */
+export function Header(props: { tab: string; bare: boolean; landing?: boolean; lessonId?: string; onSearch: () => void }) {
+  if (props.bare) return <BareHeader {...props} />;
+  const { tab, lessonId, onSearch } = props;
+  const tabs = TABS.filter((t) => t.id !== "usecases" || hasUseCases);
+  return (
+    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className={cn("flex h-14 items-center justify-between gap-3 md:grid md:grid-cols-[1fr_auto_1fr]", FRAME)}>
+        <div className="flex items-center gap-2">
+          {lessonId && <LessonDrawer active={lessonId} />}
+          <a href="#welcome" className="mr-2 flex shrink-0 items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the course">
+            <Mark /><span className="hidden text-lg sm:inline">Kern</span>
+          </a>
+        </div>
+        <nav aria-label="Course sections" className="hidden rounded-lg bg-muted p-0.5 md:flex">
+          {tabs.map((t) => (
+            <a key={t.id} href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined}
+              className={cn("rounded-md px-3 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground", tab === t.id && "bg-card text-foreground shadow-xs ring-1 ring-border")}>{t.label}</a>
+          ))}
+        </nav>
+        <div className="flex items-center justify-end gap-2"><SearchField onSearch={onSearch} className="lg:w-52" /><PathMenu /></div>
+      </div>
+    </header>
+  );
+}
+
+function BareHeader({ tab, bare, landing, lessonId, onSearch }: { tab: string; bare: boolean; landing?: boolean; lessonId?: string; onSearch: () => void }) {
   const { roles } = useStore();
   const [theme, toggle] = useTheme();
   const tabs = TABS.filter((t) => t.id !== "usecases" || hasUseCases);
