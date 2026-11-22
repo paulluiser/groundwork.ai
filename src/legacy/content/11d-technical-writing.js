@@ -1,13 +1,24 @@
 GW.lesson({
   id: "technical-writing",
+  reviewed: "2026-11",
   lede: "Documentation is where AI drafts look most finished and where errors cost the most: a wrong flag in the docs gets copied by every reader. And docs now have a second audience, the AI tools that read them to answer questions.",
   outcomes: [
     "Use AI to draft, restructure and edit docs, with the product itself as the source of truth.",
     "Catch invented options, wrong defaults and unsupported claims in a generated draft.",
     "Test docs by running every step, the way you would test code.",
-    "Write pages that both people and retrieval systems can use well."
+    "Write pages that both people and retrieval systems can use well.",
+    "Verify every command, flag and value in an AI-drafted page against the source before publishing."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An engineer asks you to document the new <code>export</code> command by Friday. An assistant drafts a complete page from the pull request description: usage, five flags, three examples and a troubleshooting section. It reads like it was written by someone who uses the tool every day.</p>
+<p>Two of the flags were renamed during review, one example uses a format the command doesn't support, and the troubleshooting tips describe errors from a different tool. Every reader who copies them will hit the same wall. This lesson is about keeping documentation as accurate as the code it describes.</p></div>
+<div class="check warmup" data-a="1"><p class="q">An AI-drafted doc page lists five command flags. What's the most reliable check?</p><ul>
+<li data-fb="A skim misses renamed or invented flags.">Ask the engineer whether the page looks right to them.</li>
+<li data-fb="Right. The tool itself is the source of truth.">Run each flag and example against the current build.</li>
+<li data-fb="The PR may be out of date by merge time.">Compare the page with the pull request description.</li>
+<li data-fb="Style doesn't verify accuracy.">Check that the formatting matches the style guide.</li>
+</ul></div>
 <h2>Where AI meets documentation</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -56,6 +67,39 @@ GW.lesson({
 <li><strong>Use the same name for the same thing.</strong> If the UI says “workspace”, don't also say “project” and “team”.</li>
 </ul>
 
+<h2>Verify against the source, not the draft</h2>
+<p>For reference documentation, the source of truth is the thing itself: the command's <code>--help</code> output, the code, the API schema, or a test run. Draft from the source where possible (paste the help text, not the PR description), then verify every command, flag, default value and example by running it. Style guides like Google's and Microsoft's help with clarity and consistency;[1][4] they can't tell you whether a flag exists.</p>
+<h2>Worked example: verifying a drafted page</h2>
+<div class="tbl"><table><thead><tr><th>Drafted line</th><th>Check</th><th>Result</th></tr></thead><tbody>
+<tr><td><code>--format csv|json|xlsx</code></td><td>Run <code>export --help</code></td><td>xlsx isn't supported: remove it</td></tr>
+<tr><td><code>--out-dir</code> sets the folder</td><td>Run it</td><td>Renamed to <code>--output</code> in review: fix everywhere</td></tr>
+<tr><td>“Defaults to the current month”</td><td>Read the code</td><td>Defaults to the last 30 days: fix</td></tr>
+<tr><td>Example: export last quarter as JSON</td><td>Copy and run it</td><td>Works</td></tr>
+<tr><td>Troubleshooting: “Error 403: token expired”</td><td>Search the codebase for the message</td><td>Doesn't exist: replace with the real errors</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Four of five lines needed changes</strong>, and the page read perfectly before checking.</li>
+<li><strong>Copy-paste examples are the highest-stakes lines.</strong> Readers run them without reading the prose.</li>
+<li><strong>Automate what you can:</strong> doc tests that run every example in CI keep pages honest after release (docs as code).[3]</li>
+</ul>
+<h2>Your turn: plan the verification</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">How would you check this page?</span></div><div class="activity-b">
+<p>An assistant drafted a “Getting started with the API” page: authentication with an API key, a first request with curl, rate limits, and pagination. Write a verification plan: what you'd check, against what source, and what you'd automate.</p>
+<div data-w="task" data-key="writing-verify">
+<div class="task-model"><ul>
+<li><strong>Authentication:</strong> create a test key and follow the steps exactly as written; check header names against the API schema.</li>
+<li><strong>First request:</strong> run the curl command as copied; check the response matches the documented example.</li>
+<li><strong>Rate limits:</strong> confirm numbers with the platform team or the gateway configuration, not the draft.</li>
+<li><strong>Pagination:</strong> check parameter names and default page size against the schema; request two pages.</li>
+<li><strong>Automate:</strong> run the curl examples in CI against a sandbox so the page fails the build when the API changes.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Checks each section against a named source of truth</li>
+<li>Runs copy-paste examples exactly as written</li>
+<li>Confirms numbers like limits with the owning team or configuration</li>
+<li>Proposes automating example checks</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Fluency hides gaps.</strong> A polished draft gets less scrutiny than a rough one. Review the facts separately from the prose.</li>
@@ -67,21 +111,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Pick a how-to page and ask an assistant to rewrite it from the current help output or API definition. Then run every step of both versions in a clean environment. Note where each one breaks.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A fluent AI draft is a good first draft.</dt><dd>Fluency is cheap. For reference docs, a draft from the source (help text, schema) beats a fluent one from a description.</dd>
+<dt>If the engineer reviewed it, it's accurate.</dt><dd>Reviewers skim prose. Running the examples finds what reading misses.</dd>
+<dt>Docs only need checking at release.</dt><dd>Products change weekly. Tests that run examples keep pages honest.</dd>
+<dt>Writing for AI readers means writing for robots.</dt><dd>The same clarity helps both: self-contained sections, explicit names, complete examples.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Draft reference docs from the source: help text, code, schema.</li>
+<li>Verify every command, flag, default and example by running it.</li>
+<li>Copy-paste examples are the highest-stakes lines on the page.</li>
+<li>Automate example checks so docs fail the build when the product changes.</li>
+<li>Style guides help clarity; only the source confirms accuracy.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">A generated how-to uses a flag that isn't in the help output. What is the most likely explanation?</p><ul>
-<li data-fb="Possible, but check the source before assuming the help output is wrong.">The help output is out of date.</li>
-<li data-fb="Some do, but the generated text gives no evidence of that.">It's from a newer version.</li>
-<li data-fb="Right. Plausible invented options are a typical error. Remove it unless the product confirms it.">The model invented a plausible flag.</li>
+<div class="check" data-a="2"><p class="q">What's the best source for drafting a command reference page?</p><ul>
+<li data-fb="Often outdated by the time the PR merges.">The pull request description that introduced the command.</li>
+<li data-fb="Different tool, different flags.">A similar page from a competitor's documentation.</li>
+<li data-fb="Right. Draft from the source of truth.">The command's current help output and the code.</li>
+<li data-fb="Memory drifts; the build doesn't.">The engineer's memory of how the command works.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">What is the most reliable way to check a generated procedure?</p><ul>
-<li data-fb="Right. Running the steps exactly as written catches what reading misses.">Run every step, as written, in a clean environment.</li>
-<li data-fb="Reading catches style issues, not wrong defaults or missing steps.">Read it carefully twice.</li>
-<li data-fb="A second model can share the same wrong assumptions.">Ask another model to review it.</li>
+<div class="check" data-a="0"><p class="q">Which lines in a doc page most need running before publishing?</p><ul>
+<li data-fb="Right. Errors there are copied by every reader.">Copy-paste examples that readers will run as is.</li>
+<li data-fb="Lower risk than examples.">The introduction explaining what the command is for.</li>
+<li data-fb="Worth checking, but less critical.">Links to related pages at the bottom.</li>
+<li data-fb="Structure doesn't break anyone's work.">Headings and the order of sections.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">An old page describing a retired feature still ranks well. Why does that matter more now?</p><ul>
-<li data-fb="That's true but minor.">It makes the site look untidy.</li>
-<li data-fb="Right. Retrieval will find it and an assistant may present it as current.">AI assistants may retrieve and quote it as current.</li>
-<li data-fb="Ranking doesn't change the product.">It changes how the feature works.</li>
+<div class="check" data-a="3"><p class="q">Troubleshooting tips mention an error message you can't find in the codebase. What should you do?</p><ul>
+<li data-fb="If the code can't produce it, users can't see it.">Keep it, since users might still see it in some rare edge case we haven't tested.</li>
+<li data-fb="Clear but false is still false.">Rewrite it in clearer language.</li>
+<li data-fb="It may invent a source.">Ask the assistant where the error comes from.</li>
+<li data-fb="Right. Search the code for real messages.">Replace it with the errors the command actually produces.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">How do docs as code help keep pages accurate?</p><ul>
+<li data-fb="It's about process, not who writes.">Docs are written by engineers instead of writers.</li>
+<li data-fb="Right. Docs get the same checks as code.">Examples can run as tests in CI, failing when the product changes.</li>
+<li data-fb="Not what docs as code means.">AI can edit and republish the docs automatically after every single release.</li>
+<li data-fb="Docs as code uses plain text in version control.">Pages are stored as PDFs alongside the code.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">What can a style guide not tell you about an AI-drafted page?</p><ul>
+<li data-fb="Right. Only the source can confirm that.">Whether the flags and examples are correct.</li>
+<li data-fb="That's what style guides help with.">Whether sentences are clear and concise.</li>
+<li data-fb="Style guides cover this.">Whether headings follow a consistent pattern.</li>
+<li data-fb="Style guides and linters cover this.">Whether terminology is consistent.</li>
 </ul></div>
 </section>
 
@@ -89,6 +164,8 @@ GW.lesson({
 <li>Google, <a href="https://developers.google.com/style" target="_blank" rel="noopener">Developer documentation style guide</a>. A widely used reference for clear technical writing.</li>
 <li>Procida, <a href="https://diataxis.fr/" target="_blank" rel="noopener">Diátaxis</a>. Organising docs into tutorials, how-to guides, reference and explanation.</li>
 <li>Write the Docs, <a href="https://www.writethedocs.org/guide/docs-as-code/" target="_blank" rel="noopener">Docs as Code</a>. Treating documentation with the same tools and review as code.</li>
+
+<li>Microsoft, <a href="https://learn.microsoft.com/en-us/style-guide/welcome/" target="_blank" rel="noopener">Microsoft Writing Style Guide</a>. Guidance on clear, consistent technical writing.</li>
 </ol></section>
 `
 });

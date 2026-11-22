@@ -15,14 +15,25 @@ GW.trackCfg["retrieval-ready"] = {
 };
 GW.lesson({
   id: "docs-for-ai",
+  reviewed: "2026-11",
   lede: "Your documentation now has a second audience. Customers ask chat assistants, coding tools and your own support bot, and those systems answer from your pages. If the docs are hard for them to use, people get wrong answers attributed to your product. This lesson covers writing and structuring docs so that AI tools answer correctly, and checking that they do.",
   outcomes: [
     "Explain how retrieval splits and selects your docs, and why that changes how you write.",
     "Structure pages so each section makes sense on its own.",
     "Decide whether to publish an llms.txt file, and what to put in it.",
-    "Measure whether assistants answer correctly from your docs, with a set of real questions."
+    "Measure whether assistants answer correctly from your docs, with a set of real questions.",
+    "Rewrite a documentation section so it stands alone when retrieved by an AI tool."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>A customer asks your support bot how to rotate an API key. The bot answers confidently with steps from a page about a different product tier, because the relevant section of your docs starts with “As described above, do the following” and never names the product, the tier or the setting.</p>
+<p>Nobody on the docs team wrote anything wrong. They wrote for a reader who scrolls. Retrieval systems don't scroll; they pick up one chunk and answer from it. This lesson is about writing sections that survive being read alone.</p></div>
+<div class="check warmup" data-a="3"><p class="q">Which section opening works best when an AI tool retrieves just that section?</p><ul>
+<li data-fb="“Above” doesn't exist for a retrieved chunk.">“As described above, do the following.”</li>
+<li data-fb="“It” and “next” depend on earlier text.">“Next, configure it as shown in the screenshot and the steps that came before this section.”</li>
+<li data-fb="Before what? The context is lost.">“This works the same as before.”</li>
+<li data-fb="Right. It names the task, the tier and the place.">“To rotate an API key on the Business plan, open Settings › Keys.”</li>
+</ul></div>
 <h2>How assistants read your docs</h2>
 <p>Most assistants that answer from documentation use <a class="term" data-t="rag">retrieval</a> (lesson 2). Your pages are split into chunks, each chunk is turned into an <a class="term" data-t="embedding">embedding</a>, and at question time the closest chunks are placed in the model's context. The model never sees your navigation, your page titles, or the paragraph before the chunk, unless the system adds them.</p>
 <p>That loss of context is a known problem. Anthropic's write-up on contextual retrieval tested adding a short, generated description of where each chunk sits in its document before indexing. Combined with keyword search, it cut failed retrievals by 49%, and by 67% with <a class="term" data-t="reranking">reranking</a> added.<sup>[3]</sup> You can't control every assistant's pipeline, but you can write chunks that carry their own context.</p>
@@ -66,6 +77,32 @@ GW.lesson({
 <h2>Measure whether it works</h2>
 <p>Build a small question set from real support tickets and search logs, each with the correct answer and the page it should come from. Ask several assistants, including your own support bot, and score the answers. Recheck after major docs changes. This is the docs version of an <a class="term" data-t="eval">eval</a> (lesson 18), and it turns “AI gets our docs wrong” into a list of pages to fix.</p>
 
+<h2>Write sections that carry their own context</h2>
+<p>Retrieval systems split pages into chunks and fetch the few that best match a question. A chunk that depends on its page loses meaning: pronouns, “above”, an unnamed product. The fix is to give each section the context a newcomer would need: name the product, version, plan and task in the heading or first sentence; repeat key nouns instead of “it”; keep prerequisites in the section that needs them. Structured reference, like an OpenAPI schema for APIs, gives AI tools exact names and types they don't have to guess.[4]</p>
+<h2>Worked example: a retrieval-ready section</h2>
+<div class="worked">
+<div class="wx"><b>Written for scrolling</b><div><p><strong>Rotating</strong></p><p>As described above, you'll need admin rights. Click it, then choose Rotate. The old one stops working after the period you set.</p></div></div>
+<div class="wx strong"><b>Written to stand alone</b><div><p><strong>Rotate an API key (Business and Enterprise plans)</strong></p><p>Only workspace admins can rotate API keys. Open <em>Settings › API keys</em>, select the key, and choose <em>Rotate</em>. The old key keeps working for the grace period you set (default 24 hours), then stops. Update the key in every system that uses it before the grace period ends.</p></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>The heading names the task and the plans</strong>, so the chunk matches the question and the right tier.</li>
+<li><strong>“It” and “the old one” became “API key”.</strong> Repeated nouns survive chunking.</li>
+<li><strong>The prerequisite (admin rights) moved into the section</strong> instead of living “above”.</li>
+<li><strong>The default is stated</strong>, so the assistant doesn't fill one in.</li>
+</ul>
+<h2>Your turn: make a section stand alone</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Rewrite for retrieval</span></div><div class="activity-b">
+<p>Rewrite this section so it works when retrieved on its own: <em>“Limits: As mentioned, these differ by plan. The higher one allows 10x more. Exceeding them returns the usual error; wait and try again.”</em> Invent sensible details.</p>
+<div data-w="task" data-key="docs-standalone">
+<div class="task-model"><p><strong>API rate limits by plan</strong></p><p>The Kern API limits how many requests each API key can make per minute: Starter, 60 requests per minute; Business, 600 requests per minute. When a key exceeds its limit, the API returns HTTP 429 Too Many Requests with a <code>Retry-After</code> header giving the number of seconds to wait. Wait that long before retrying, and use exponential backoff for repeated 429s.</p></div>
+<ul class="task-rubric">
+<li>Heading names the topic specifically</li>
+<li>States the actual limits for each plan</li>
+<li>Names the exact error code and header instead of “the usual error”</li>
+<li>Gives the recommended action in concrete terms</li>
+<li>Contains no references to “above”, “as mentioned” or unexplained pronouns</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Writing for bots instead of people.</strong> Keyword-stuffed pages read badly and don't retrieve better.</li>
@@ -77,21 +114,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take the ten most common questions from support. Ask two assistants each question about your product and check the answers against the docs. For every wrong answer, find the page that misled it.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Writing for AI means stuffing pages with keywords.</dt><dd>It means clear, self-contained sections with exact names. Keyword stuffing makes retrieval worse.</dd>
+<dt>If the bot answered wrongly, the model is the problem.</dt><dd>Often the retrieved chunk lacked the context to answer correctly. Fix the section.</dd>
+<dt>llms.txt makes docs AI-ready on its own.</dt><dd>It points tools to the right pages. The pages still need to be clear and self-contained.[1]</dd>
+<dt>Repetition is bad writing.</dt><dd>Repeating the key noun instead of “it” is clearer for every reader, human or machine.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Retrieval reads one chunk at a time; write sections that stand alone.</li>
+<li>Name the product, plan, version and task in the heading or first line.</li>
+<li>Replace pronouns and “above” with the actual nouns and prerequisites.</li>
+<li>State defaults, limits and error codes explicitly.</li>
+<li>Structured references like OpenAPI give tools exact names to use.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">Why should each section name its subject in the first sentence?</p><ul>
-<li data-fb="Style guides vary; the reason here is retrieval.">Because style guides require it.</li>
-<li data-fb="Right. A retrieved chunk often arrives without its page title or previous paragraph.">Because retrieval often returns a section without its surrounding context.</li>
-<li data-fb="Length isn't the point.">To make pages longer for search engines.</li>
+<div class="check" data-a="2"><p class="q">Why does “As described above” cause problems for AI tools?</p><ul>
+<li data-fb="They read it; it just points nowhere.">AI tools can't read the word “above”.</li>
+<li data-fb="Length isn't the problem.">It makes sections too short to be indexed.</li>
+<li data-fb="Right. The referenced text isn't in the chunk.">A retrieved chunk has no “above”, so the context is lost.</li>
+<li data-fb="Possibly, but that isn't why it breaks retrieval.">It's against most documentation style guides, which ban references to other sections.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">An assistant gives customers an outdated default value. What's the most likely docs cause?</p><ul>
-<li data-fb="Possibly, but the docs usually contain the source of the error.">The assistant's training data is old.</li>
-<li data-fb="Missing llms.txt wouldn't introduce wrong values.">You haven't published an llms.txt file.</li>
-<li data-fb="Right. Repeated facts drift, and retrieval may pick the stale copy.">The value appears on more than one page, and one copy is stale.</li>
+<div class="check" data-a="0"><p class="q">What should a retrieval-ready heading include?</p><ul>
+<li data-fb="Right. It matches questions and the right context.">The task and the product, plan or version it applies to.</li>
+<li data-fb="Too little context for retrieval.">A single word, so it's easy to scan.</li>
+<li data-fb="Can help, but must still name the task and scope.">A question, so it matches the way users phrase what they ask.</li>
+<li data-fb="Useful metadata, but not what matches questions.">The date the section was last updated.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">What's the best source of questions for testing whether assistants answer correctly from your docs?</p><ul>
-<li data-fb="Right. Real questions are messier, and closer to what customers ask.">Real support tickets and search logs.</li>
-<li data-fb="Generated questions tend to match the docs' own wording.">Questions an assistant generates from the docs.</li>
-<li data-fb="Writers know the docs too well to ask like customers.">Questions the writing team makes up.</li>
+<div class="check" data-a="3"><p class="q">Your support bot gave steps for the wrong plan. What's the first thing to check?</p><ul>
+<li data-fb="The model may be answering faithfully from a vague chunk.">Whether a newer, more capable model would answer the same question correctly.</li>
+<li data-fb="Unlikely to be the cause.">Whether the bot's temperature is set too high.</li>
+<li data-fb="The question was clear.">Whether users are asking unclear questions.</li>
+<li data-fb="Right. Missing scope in the chunk is a common cause.">Whether the retrieved section says which plan it covers.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">What does an llms.txt file do?</p><ul>
+<li data-fb="That's closer to robots.txt rules.">It blocks AI tools from reading your documentation.</li>
+<li data-fb="Right. A map, not a fix for unclear pages.">It points AI tools to your most useful pages in a simple format.</li>
+<li data-fb="It doesn't change your pages.">It automatically rewrites every page into a format that AI readers prefer.</li>
+<li data-fb="It doesn't train anything.">It trains models on your documentation.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Which sentence survives chunking best?</p><ul>
+<li data-fb="Right. Every noun is explicit.">“The old API key keeps working for 24 hours after rotation.”</li>
+<li data-fb="“The old one” and “a while” lose meaning.">“The old one keeps working for a while after you rotate it, as noted.”</li>
+<li data-fb="Depends on context that won't be retrieved.">“It still works temporarily, as noted.”</li>
+<li data-fb="Points to text that isn't there.">“See the previous section for details.”</li>
 </ul></div>
 </section>
 
@@ -99,6 +167,8 @@ GW.lesson({
 <li>Jeremy Howard (2024), <a href="https://llmstxt.org/" target="_blank" rel="noopener">The /llms.txt file</a>. The proposal and its format.</li>
 <li>Daniele Procida, <a href="https://diataxis.fr/" target="_blank" rel="noopener">Diátaxis</a>. A framework for tutorials, how-to guides, reference and explanation.</li>
 <li>Anthropic (2024), <a href="https://www.anthropic.com/news/contextual-retrieval" target="_blank" rel="noopener">Introducing Contextual Retrieval</a>. Adding context to chunks before indexing, with measured results.</li>
+
+<li>OpenAPI Initiative, <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification</a>. A machine-readable format for describing HTTP APIs.</li>
 </ol></section>
 `
 });

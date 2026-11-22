@@ -14,14 +14,25 @@ GW.trackCfg["flow-analysis"] = {
 };
 GW.lesson({
   id: "delivery-flow",
+  reviewed: "2026-11",
   lede: "Delivery leads spend a lot of time on the backlog and the flow of work through it: refining stories, splitting them, mapping dependencies and reading the metrics. AI is helpful with all of it. It's also quick to turn a metric into a verdict, and the wrong verdict can change how a team behaves.",
   outcomes: [
     "Use AI to refine and split stories, and check the result with the people doing the work.",
     "Map dependencies with AI from real sources, and confirm them with the teams involved.",
     "Read flow and DORA metrics as a team's own trend, not a productivity score or a league table.",
-    "Forecast with ranges based on past throughput, not a single date."
+    "Forecast with ranges based on past throughput, not a single date.",
+    "Split a large story into thin vertical slices that each deliver something testable."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Backlog refinement is in an hour. The top item is “Customers can manage their subscriptions”, estimated at 21 points and unchanged for three sprints. You ask an assistant to split it. It returns eight stories: “Build subscription database tables”, “Create subscription API”, “Build subscription UI”, “Write tests”…</p>
+<p>Each sounds like progress, and none delivers anything a customer could use until all eight are done. This lesson is about splitting work so value and feedback arrive early, and about reading flow metrics without fooling yourself.</p></div>
+<div class="check warmup" data-a="1"><p class="q">Which split of “Customers can manage subscriptions” gives the earliest useful feedback?</p><ul>
+<li data-fb="Horizontal layers: nothing usable until the end.">Database tables, then API, then UI, then tests.</li>
+<li data-fb="Right. A thin slice through every layer, usable on its own.">Customers can see their current plan and renewal date.</li>
+<li data-fb="Delays feedback on whether the screens work.">Design all screens first, then build them together.</li>
+<li data-fb="Doesn't deliver the customer value first.">Build the admin tools first, then build the customer-facing screens afterwards.</li>
+</ul></div>
 <h2>Where AI helps with backlogs and flow</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -57,6 +68,40 @@ GW.lesson({
 <h2>The DORA metrics, briefly</h2>
 <p>DORA's software delivery metrics come in two groups.<sup>[1]</sup> Throughput: change lead time (from commit to production), deployment frequency, and how long it takes to recover from a failed deployment. Instability: change fail rate (deployments that need immediate intervention) and deployment rework rate. Looking at both groups together matters. The 2024 DORA report found that higher AI adoption was associated with slightly lower throughput and stability across its survey,<sup>[2]</sup> which is a reason to watch stability as well as speed when a team starts using AI heavily.</p>
 
+<h2>Vertical slices, not layers</h2>
+<p>A good story is small, testable and valuable on its own; Bill Wake's INVEST checklist (Independent, Negotiable, Valuable, Estimable, Small, Testable) remains a useful test.[3] Assistants tend to split by technical layer, because that's how work is often described. Ask explicitly for vertical slices: each story should touch every layer needed to deliver one small thing a user can do, and be demonstrable at the end of the sprint.</p>
+<h2>Worked example: splitting by workflow step</h2>
+<div class="worked">
+<div class="wx"><b>AI split (layers)</b><div><ol><li>Subscription database tables</li><li>Subscription API endpoints</li><li>Subscription settings UI</li><li>Payment provider integration</li><li>Tests for subscriptions</li></ol></div></div>
+<div class="wx strong"><b>Vertical slices</b><div><ol><li>See my current plan and renewal date</li><li>Cancel at the end of the billing period</li><li>Switch to annual billing</li><li>Upgrade plan with immediate proration</li><li>Downgrade plan from next billing period</li></ol></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>Slice 1 ships in days</strong> and tells you whether customers find the page.</li>
+<li><strong>Each slice includes its own tests</strong>, so “Write tests” disappears as a separate story.</li>
+<li><strong>The hardest slice (proration) is isolated</strong>, so it can be estimated and de-risked on its own.</li>
+<li><strong>The prompt that produced this:</strong> “Split into vertical slices; each must be usable and testable by a customer on its own; order by value and learning.”</li>
+</ul>
+<h2>Flow metrics without fooling yourself</h2>
+<p>Cycle time, throughput and work in progress describe how work moves; the Kanban Guide treats them as signals for improving flow, not targets.[4] An assistant can summarise them from your board in seconds. Check two things before trusting the summary: whether the data includes everything (cancelled items, items moved back), and whether a change in the metric reflects a change in work or a change in how the board is used.</p>
+<h2>Your turn: split a story</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Thin slices for a team feature</span></div><div class="activity-b">
+<p>Split this story into at least four vertical slices, ordered by value or learning: <em>“Teams can share reports with external clients via a secure link.”</em></p>
+<div data-w="task" data-key="delivery-slices">
+<div class="task-model"><ol>
+<li>Create a view-only link to one report that anyone with the link can open (internal testing only behind a flag).</li>
+<li>Links expire after a chosen number of days.</li>
+<li>Owners can revoke a link and see when it was last opened.</li>
+<li>Links can require the client's email to be verified before viewing.</li>
+<li>Admins can disable external sharing for the workspace.</li>
+</ol><p>Slice 1 tests the core idea with real clients quickly; security controls follow in order of risk, before general release.</p></div>
+<ul class="task-rubric">
+<li>Each slice delivers something a user can do or see</li>
+<li>No slice is a technical layer on its own (database, API, UI)</li>
+<li>Slices are ordered by value, learning or risk</li>
+<li>Security and admin controls appear as their own slices</li>
+<li>The first slice is small enough to finish in days</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Story points as output.</strong> Points are a team's own planning tool. Summed across teams, or tracked as productivity, they inflate.</li>
@@ -68,27 +113,61 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 20-minute exercise.</strong> Take the three largest stories in your backlog. Ask an assistant to split each into slices that deliver something a user could see. Bring the best suggestions to refinement and note how many the team accepted unchanged.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Splitting by layer makes work easier to estimate.</dt><dd>It makes each piece look small while hiding integration risk until the end.</dd>
+<dt>Higher throughput means the team is doing better.</dt><dd>It may mean smaller items or a different board habit. Look at what was delivered.</dd>
+<dt>DORA metrics should be targets for the team.</dt><dd>Turning them into targets invites gaming; use them to find bottlenecks.[1]</dd>
+<dt>AI story splits are ready to bring to refinement.</dt><dd>They're a starting point. Check each slice is valuable and testable on its own.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Ask for vertical slices: each one usable and testable on its own.</li>
+<li>Use INVEST to check stories; drop “write tests” as a separate story.</li>
+<li>Isolate the riskiest slice so it can be de-risked early.</li>
+<li>Treat flow metrics as signals, not targets.</li>
+<li>Check what data an AI flow summary includes before trusting it.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">A director wants to rank teams by deployment frequency. What's the best response?</p><ul>
-<li data-fb="That risks gaming and competition, as DORA's guidance warns.">Agree, as long as the data is accurate.</li>
-<li data-fb="Right. The metrics are for each team to improve on its own trend.">Suggest each team tracks its own trend instead, because systems and risks differ.</li>
-<li data-fb="Story points are even less comparable.">Suggest ranking by story points instead.</li>
+<div class="check" data-a="3"><p class="q">Which is a vertical slice?</p><ul>
+<li data-fb="A technical layer.">Create the subscriptions database schema.</li>
+<li data-fb="A technical layer.">Build all subscription API endpoints.</li>
+<li data-fb="Testing belongs inside each slice.">Write end-to-end tests for every subscription flow before any code is written.</li>
+<li data-fb="Right. Usable and testable on its own.">Customers can cancel at the end of their billing period.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">An AI summary says cycle time rose because the team “lost focus”. What should you do?</p><ul>
-<li data-fb="It's a guess; the data doesn't contain the cause.">Include it; the assistant analysed all the data.</li>
-<li data-fb="The number is real; it's the cause that's unsupported.">Remove the cycle-time figure from the summary.</li>
-<li data-fb="Right. The team knows what happened; the data doesn't.">Ask the team what happened in that period before giving a reason.</li>
+<div class="check" data-a="0"><p class="q">What prompt is most likely to produce vertical slices?</p><ul>
+<li data-fb="Right. It states the property you want.">“Each story must be usable and testable by a customer on its own.”</li>
+<li data-fb="Often produces layers or tasks.">“Break this story into smaller tasks.”</li>
+<li data-fb="Produces a layer list.">“List all the technical work needed.”</li>
+<li data-fb="Equal size isn't the point.">“Split this into eight stories of roughly equal size and effort for the team.”</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">How should you forecast when the remaining backlog will be done?</p><ul>
-<li data-fb="Right. Past throughput as a range is honest about uncertainty.">As a range, based on the team's past throughput, with the assumptions stated.</li>
-<li data-fb="A single date hides the uncertainty.">As a single date from the average rate.</li>
-<li data-fb="Asking a model for a date doesn't add information.">Ask the assistant to predict a completion date.</li>
+<div class="check" data-a="2"><p class="q">Throughput doubled this month. What should you check first?</p><ul>
+<li data-fb="Too early to celebrate.">Whether the team should get a bonus.</li>
+<li data-fb="Presentation isn't the issue.">Whether the AI summary used the right colours.</li>
+<li data-fb="Right. The metric may reflect how work is counted.">Whether items got smaller or board habits changed.</li>
+<li data-fb="First understand this month's change.">Whether the trend is likely to continue into next month and the one after.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Why isolate the proration logic into its own slice?</p><ul>
+<li data-fb="It's usually the hardest.">Proration is usually the easiest part of billing work and can be done first to build momentum.</li>
+<li data-fb="Right. Isolating risk makes it visible.">It's the riskiest part, so it can be estimated and de-risked on its own.</li>
+<li data-fb="Not a general rule.">Finance teams require it to be a separate story.</li>
+<li data-fb="Not the reason.">AI tools can't handle proration logic.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">How should DORA metrics be used?</p><ul>
+<li data-fb="Strongly discouraged.">As individual performance targets for each developer.</li>
+<li data-fb="They describe delivery, not value.">As the only measure of team success.</li>
+<li data-fb="Comparisons invite gaming.">As a way to compare teams for funding.</li>
+<li data-fb="Right. Improvement, not targets.">As signals to find bottlenecks and improve flow.</li>
 </ul></div>
 </section>
 
 <section class="sources"><h2>Sources and further reading</h2><ol>
 <li>DORA, <a href="https://dora.dev/guides/dora-metrics-four-keys/" target="_blank" rel="noopener">DORA's software delivery performance metrics</a>. Definitions, and pitfalls such as setting metrics as goals and comparing unlike teams.</li>
 <li>DORA (2024), <a href="https://dora.dev/research/2024/dora-report/" target="_blank" rel="noopener">Accelerate State of DevOps Report 2024</a>.</li>
+
+<li>Bill Wake (2003), <a href="https://xp123.com/invest-in-good-stories-and-smart-tasks/" target="_blank" rel="noopener">INVEST in Good Stories, and SMART Tasks</a>. The INVEST checklist for user stories.</li>
+<li>Daniel Vacanti and Prateek Singh, <a href="https://kanbanguides.org/english/" target="_blank" rel="noopener">The Kanban Guide</a>. Work in progress, cycle time, throughput and work item age.</li>
 </ol></section>
 `
 });

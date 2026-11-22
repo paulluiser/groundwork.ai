@@ -14,14 +14,25 @@ GW.trackCfg["ai-schedule"] = {
 };
 GW.lesson({
   id: "pm-planning",
+  reviewed: "2026-11",
   lede: "A plan is a set of commitments built on estimates. AI can draft a work breakdown, sequence tasks and spot gaps in minutes. What it can't do is know how long your team takes, which dependencies are real, or how optimistic everyone is being. This lesson covers planning with AI while keeping the plan owned by the people who'll deliver it.",
   outcomes: [
     "Use AI to draft work breakdowns and sequences from your own inputs.",
     "Spot durations and dates in an AI plan that nobody actually estimated.",
     "Give estimates and dates as ranges, using how similar projects actually went.",
-    "Use AI to check a schedule for gaps, clashes and hidden dependencies."
+    "Use AI to check a schedule for gaps, clashes and hidden dependencies.",
+    "Use a reference class to sanity-check an AI-drafted plan's total duration."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An assistant drafts a migration plan in ten minutes: 34 tasks, dependencies, and a total of 11 weeks. It looks thorough. Your last three migrations of similar size took 16, 19 and 22 weeks.</p>
+<p>The plan isn't wrong in its parts; it's optimistic in the way every bottom-up plan is, because it adds up what each task should take if nothing goes wrong. This lesson is about using AI to build plans fast and history to keep them honest.</p></div>
+<div class="check warmup" data-a="3"><p class="q">An AI-drafted plan says 11 weeks. Your three similar past projects took 16, 19 and 22. What should you do?</p><ul>
+<li data-fb="Bottom-up plans tend to be optimistic.">Trust the plan, since it was built task by task.</li>
+<li data-fb="Mixing methods doesn't fix the bias.">Average the plan with the past projects to get roughly 17 weeks.</li>
+<li data-fb="Far smaller than the gap history shows.">Add 10% contingency to the 11 weeks.</li>
+<li data-fb="Right. Past outcomes are the best guide to this one.">Treat history as the baseline and explain any difference.</li>
+</ul></div>
 <h2>Where AI helps with planning</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -62,6 +73,34 @@ GW.lesson({
 <li><strong>Re-plan openly.</strong> When an estimate changes, update the plan and say why. Don't quietly absorb it into contingency.</li>
 </ul>
 
+<h2>The outside view</h2>
+<p>People estimating their own tasks consistently underestimate, even when they know past tasks ran late; this is the planning fallacy.[1] Reference class forecasting corrects it by starting from how long similar projects actually took (the outside view), then adjusting for genuine differences.[2] AI-drafted plans are a pure inside view: they add up the tasks they can imagine. Use them for the breakdown; use your history for the total.</p>
+<h2>Worked example: reconciling a plan with history</h2>
+<div class="tbl"><table><thead><tr><th>Source</th><th>Duration</th><th>Notes</th></tr></thead><tbody>
+<tr><td>AI bottom-up plan</td><td>11 weeks</td><td>34 tasks, no allowance for rework, approvals or availability</td></tr>
+<tr><td>Reference class: 3 similar migrations</td><td>16–22 weeks (median 19)</td><td>Overruns came from data cleansing and sign-off delays</td></tr>
+<tr><td>Adjusted plan</td><td><strong>17–21 weeks</strong></td><td>Added data cleansing (3 weeks), client sign-off cycles (2 weeks), and holiday cover; one genuine difference: a tool we've used before saves about 1 week</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>The breakdown was useful.</strong> It found tasks; it just missed the ones that always run late.</li>
+<li><strong>History told you where to look</strong>: data cleansing and sign-offs.</li>
+<li><strong>A range is honest.</strong> 17–21 weeks is a commitment you can keep; 11 weeks is one you'd have to explain later.</li>
+</ul>
+<h2>Your turn: sanity-check a plan</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Check an AI plan against history</span></div><div class="activity-b">
+<p>An assistant planned a website relaunch at 8 weeks. You find four past relaunches: 10, 12, 14 and 18 weeks; the longest involved a new content system, which this one also has. Write what you'd present to the steering group and why.</p>
+<div data-w="task" data-key="pm-reference">
+<div class="task-model"><p><strong>Estimate: 13–17 weeks</strong>, target 14.</p>
+<p><strong>Why:</strong> four similar relaunches took 10–18 weeks (median 13). This one includes a new content system, like the 18-week project, so we expect the upper half of the range. The 8-week task plan is a useful breakdown but leaves out content migration, stakeholder reviews and launch fixes, which took 3–5 weeks in past projects.</p>
+<p><strong>What would shorten it:</strong> content owners named and available from week 2; reviews limited to two rounds.</p></div>
+<ul class="task-rubric">
+<li>Starts from the historical range rather than the AI total</li>
+<li>Adjusts for a genuine difference (the new content system)</li>
+<li>Presents a range, not a single date</li>
+<li>Names what the AI plan left out</li>
+<li>Says what would make the shorter end possible</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Fitting the plan to the hoped-for date.</strong> If you mention the deadline, the plan will meet it. Ask for the plan first.</li>
@@ -73,21 +112,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 20-minute exercise.</strong> Take your current plan and mark every duration with who estimated it. For anything without a name, ask the person doing the work for a range. Note how many numbers change.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A detailed plan is an accurate plan.</dt><dd>Detail adds tasks; it doesn't add the delays that always happen. Check the total against history.</dd>
+<dt>AI estimates are calibrated because they've seen many projects.</dt><dd>They describe typical tasks, not your organisation's pace, approvals and interruptions.</dd>
+<dt>Padding every task is a good way to add contingency.</dt><dd>Padding gets consumed. Hold contingency at the project level, based on history.</dd>
+<dt>This project is different, so history doesn't apply.</dt><dd>Every project feels different. Start from history, then adjust for specific differences.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>AI plans are an inside view: useful for breakdowns, optimistic in total.</li>
+<li>Start from how long similar projects took, then adjust for real differences.</li>
+<li>Look at where past projects overran and add those tasks explicitly.</li>
+<li>Present ranges with the assumptions that move them.</li>
+<li>Let the team own the estimates for their own tasks.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">An AI-drafted plan says testing will take two weeks. What should you ask first?</p><ul>
-<li data-fb="Formatting won't tell you where the number came from.">Whether the plan is formatted for the steering group.</li>
-<li data-fb="Right. A duration nobody estimated is a placeholder.">Who estimated it, and whether the testers agree.</li>
-<li data-fb="Another model's guess is still a guess.">Whether a different model gives the same number.</li>
+<div class="check" data-a="0"><p class="q">What is the planning fallacy?</p><ul>
+<li data-fb="Right. A well-documented bias.">People underestimate their own tasks even knowing past ones ran late.</li>
+<li data-fb="Not the definition.">AI tools always overestimate how long individual tasks take, which cancels out human optimism.</li>
+<li data-fb="Plans are useful; their totals need correcting.">Plans are always wrong, so planning is pointless.</li>
+<li data-fb="Not the definition.">Estimates get worse the more tasks a plan contains.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">Why can mentioning your target date make an AI plan less reliable?</p><ul>
-<li data-fb="Right. Assistants tend to fit the answer to what you seem to want.">The assistant tends to bend the plan to meet it.</li>
-<li data-fb="Models handle dates; the issue is agreement.">Models can't read dates.</li>
-<li data-fb="It doesn't change the plan's length.">The plan becomes too long.</li>
+<div class="check" data-a="2"><p class="q">What does reference class forecasting start from?</p><ul>
+<li data-fb="That's the inside view.">A detailed breakdown of every task in the plan.</li>
+<li data-fb="A target, not a forecast.">The sponsor's preferred deadline.</li>
+<li data-fb="Right. The outside view.">How long similar past projects actually took.</li>
+<li data-fb="Still inside views.">The average of several AI-generated plans.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">What's the best basis for contingency?</p><ul>
-<li data-fb="A flat figure isn't based on this project.">A standard 10% on every plan.</li>
-<li data-fb="That's a guess with a source attached.">Whatever the assistant recommends.</li>
-<li data-fb="Right. Specific risks and real history are evidence.">The listed risks and how similar projects actually went.</li>
+<div class="check" data-a="1"><p class="q">Past projects overran on data cleansing and sign-offs. What should you do with the AI plan?</p><ul>
+<li data-fb="History says these overruns recur.">Leave it, since this project might be different.</li>
+<li data-fb="Right. Put the usual delays in the plan.">Add explicit tasks and time for cleansing and sign-off cycles.</li>
+<li data-fb="Spreads contingency where it gets consumed.">Pad every task in the plan by 20%, so each one has its own buffer built in.</li>
+<li data-fb="Hides the risk.">Remove those tasks to keep the plan short.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">How should a plan's duration be presented to a steering group?</p><ul>
+<li data-fb="Optimistic and falsely precise.">As the AI's total, rounded to the nearest week.</li>
+<li data-fb="Ignores genuine differences.">As the longest past project, to be safe.</li>
+<li data-fb="A target isn't a forecast.">As whatever date the sponsor requested.</li>
+<li data-fb="Right. Honest and actionable.">As a range with the assumptions that move it.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Where is contingency best held?</p><ul>
+<li data-fb="Right. Visible and not consumed by every task.">At the project level, sized from history.</li>
+<li data-fb="Tends to get used up.">Inside every task estimate, hidden from view.</li>
+<li data-fb="Every plan meets surprises.">Nowhere: a good plan needs none.</li>
+<li data-fb="It doesn't.">With the AI tool, which adjusts automatically.</li>
 </ul></div>
 </section>
 

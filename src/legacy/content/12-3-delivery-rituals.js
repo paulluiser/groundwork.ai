@@ -26,14 +26,25 @@ GW.trackCfg["ritual-calls"] = {
 };
 GW.lesson({
   id: "delivery-rituals",
+  reviewed: "2026-11",
   lede: "Stand-ups, planning, reviews and retrospectives are where a team talks openly about how work is going. AI notetakers and summarisers can save real effort here. They also record, quote and summarise conversations that only work when people feel safe, so the questions are less about the tool and more about consent, accuracy and trust.",
   outcomes: [
     "Decide when meetings should and shouldn't be recorded, and how to ask for consent.",
     "Use AI to synthesise retro feedback while keeping counts, quotes and anonymity intact.",
     "Treat AI meeting summaries as drafts until owners confirm their actions.",
-    "Agree with the team what leaves the room, and protect psychological safety."
+    "Agree with the team what leaves the room, and protect psychological safety.",
+    "Agree team rules for AI notetakers: which meetings, what's kept, who sees it."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Someone switched on the AI notetaker for the retrospective. Afterwards, its summary landed in the team's public channel: “Key theme: frustration with Marco's code reviews being slow and harsh.” Marco hadn't been in the room. Nobody had said it quite like that.</p>
+<p>Team rituals depend on people saying difficult things honestly. AI notetakers change who might read what was said, and how it's paraphrased. This lesson is about getting their benefits without losing that honesty.</p></div>
+<div class="check warmup" data-a="3"><p class="q">Which meeting is the worst fit for an AI notetaker by default?</p><ul>
+<li data-fb="Planning outputs are useful to record.">Sprint planning, where tasks and owners are agreed.</li>
+<li data-fb="A record of feedback is useful here.">A sprint review with stakeholders from several other teams.</li>
+<li data-fb="Decisions and trade-offs are worth capturing.">A technical design discussion.</li>
+<li data-fb="Right. Candour depends on people feeling safe.">A retrospective, where people discuss what went wrong.</li>
+</ul></div>
 <h2>Where AI helps with team rituals</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -74,6 +85,41 @@ GW.lesson({
 <li><strong>Keep decisions separate from discussion</strong> in the summary, so suggestions aren't read as agreements.</li>
 </ul>
 
+<h2>Psychological safety comes first</h2>
+<p>Research at Google on effective teams found psychological safety (the belief that you won't be punished for speaking up or making mistakes) mattered more than any other factor they studied.[3] Retrospectives work only when people feel safe; Norm Kerth's Prime Directive exists for the same reason.[1] An AI notetaker isn't neutral in that room: it creates a durable record, paraphrases, and can name people. Decide its role with the team, not for it.</p>
+<h2>Worked example: team rules for meeting tools</h2>
+<div class="tbl"><table><thead><tr><th>Meeting</th><th>AI notes?</th><th>What's kept</th><th>Who sees it</th></tr></thead><tbody>
+<tr><td>Planning</td><td>Yes</td><td>Decisions, owners, dates</td><td>Team and stakeholders</td></tr>
+<tr><td>Stand-up</td><td>Optional</td><td>Blockers only</td><td>Team</td></tr>
+<tr><td>Review</td><td>Yes</td><td>Feedback and follow-ups</td><td>Team and stakeholders</td></tr>
+<tr><td>Retrospective</td><td>Off by default; team may opt in</td><td>Agreed actions only, no names</td><td>Team only; deleted after 30 days</td></tr>
+<tr><td>1:1s</td><td>No</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>The rule for retros keeps actions, not discussion.</strong> The useful output survives; the candour stays in the room.</li>
+<li><strong>Visibility is decided per meeting</strong>, not by the tool's default sharing setting.</li>
+<li><strong>Anyone can ask to switch it off</strong>, without giving a reason. Write that into the rules.</li>
+</ul>
+<h2>Your turn: write your team's rules</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Meeting tool rules for your team</span></div><div class="activity-b">
+<p>Write a short set of rules your team could agree for AI notetakers and summarisers. Cover: which meetings, consent, what's kept, who can see it, how long it's kept, and how summaries are checked.</p>
+<div data-w="task" data-key="delivery-rituals-rules">
+<div class="task-model"><ol>
+<li>The host says at the start when an AI notetaker is on; anyone can ask to turn it off, no reason needed.</li>
+<li>On by default for planning and reviews; off for retros and 1:1s unless the whole team agrees.</li>
+<li>Summaries keep decisions, actions, owners and dates. No attributing opinions to named people.</li>
+<li>The facilitator checks the summary against their own notes before sharing.</li>
+<li>Summaries go to meeting attendees; wider sharing is the facilitator's decision.</li>
+<li>Recordings and transcripts are deleted after 30 days; summaries are kept.</li>
+</ol></div>
+<ul class="task-rubric">
+<li>Requires telling people when a notetaker is on</li>
+<li>Lets anyone switch it off without justification</li>
+<li>Treats retrospectives and 1:1s differently from planning</li>
+<li>Limits what's kept, especially names attached to opinions</li>
+<li>Includes a human check before summaries are shared, and a retention period</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Summaries as the record.</strong> If the summary is wrong and nobody checks, it becomes what was “agreed”.</li>
@@ -85,27 +131,60 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 15-minute exercise.</strong> Write a short team agreement for meeting tools: which meetings may be recorded, how you ask, where summaries go, and who confirms actions. Bring it to your next retro and let the team change it.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>AI meeting notes are accurate because they come from a transcript.</dt><dd>Transcripts mishear, and summaries paraphrase. Check actions and attributions before sharing.</dd>
+<dt>If it's recorded, people will be more accountable.</dt><dd>In retros, recording often makes people less candid, which defeats the purpose.</dd>
+<dt>The tool's default sharing settings are fine.</dt><dd>Defaults may share widely. Decide visibility per meeting.</dd>
+<dt>Consent was given once, so it covers every meeting.</dt><dd>Tell people each time. Anyone should be able to opt out.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Decide AI notetaker rules with the team, per type of meeting.</li>
+<li>Keep retros and 1:1s off by default; candour matters more than a record.</li>
+<li>Keep decisions and actions, not opinions attributed to people.</li>
+<li>Check summaries before sharing, and limit who sees them.</li>
+<li>Set a retention period for recordings and transcripts.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">What's the best default for AI recording in retrospectives?</p><ul>
-<li data-fb="Recording changes what people say, especially in retros.">Always record, so nothing is lost.</li>
-<li data-fb="A public vote is hard to oppose, especially for new or junior people.">Record if most people vote for it in the meeting.</li>
-<li data-fb="Right. Retros depend on people speaking freely.">Don't record, unless the whole team has agreed in a way that was easy to refuse.</li>
+<div class="check" data-a="1"><p class="q">An AI summary of a retro names a colleague in a criticism. What went wrong?</p><ul>
+<li data-fb="Accuracy wasn't the main problem.">The transcription quality was too low.</li>
+<li data-fb="Right. Rules on what's kept and who sees it were missing.">The tool recorded opinions with names and shared them too widely.</li>
+<li data-fb="Attendance isn't the issue.">The colleague should have attended the retro to respond to the criticism directly.</li>
+<li data-fb="The problem is the rules, not the vendor.">The team should have used a different AI tool.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An AI notetaker assigns an action with a deadline nobody remembers agreeing. What should you do?</p><ul>
-<li data-fb="Right. Actions need an owner who agreed to them.">Confirm with the named owner before sending the summary.</li>
-<li data-fb="Sending it makes the deadline look agreed.">Send the summary; people can object if it's wrong.</li>
-<li data-fb="The work may still need doing.">Delete the action and move on.</li>
+<div class="check" data-a="0"><p class="q">What should a retro summary keep, if anything?</p><ul>
+<li data-fb="Right. The useful output, without names.">Agreed actions and owners, without who said what.</li>
+<li data-fb="Discourages candour.">A full transcript, so nothing is lost.</li>
+<li data-fb="Damages trust.">Every complaint, with the person who raised it.</li>
+<li data-fb="Actions are worth keeping.">Nothing at all, since retros shouldn't produce records.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">An anonymous comment includes details only one person could know. How should it appear in the shared summary?</p><ul>
-<li data-fb="The details identify the writer.">Word for word, because it has no name on it.</li>
-<li data-fb="Right. Keep the issue, protect the person, and follow up privately if needed.">Paraphrased into a theme, without the identifying details.</li>
-<li data-fb="The issue still matters to the team.">Removed completely.</li>
+<div class="check" data-a="2"><p class="q">Why does psychological safety matter for AI notetakers?</p><ul>
+<li data-fb="Not the point.">Safe teams use AI tools more often.</li>
+<li data-fb="Unrelated.">It reduces the cost of meeting tools.</li>
+<li data-fb="Right. Records change what people are willing to say.">People speak up less when they fear a durable record.</li>
+<li data-fb="Not as such.">It's a legal requirement for recording meetings in most countries.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">Who should be able to switch off a notetaker in a meeting?</p><ul>
+<li data-fb="Others' consent matters too.">Only the meeting host.</li>
+<li data-fb="Seniority shouldn't decide.">Only someone more senior than the host.</li>
+<li data-fb="People's circumstances change meeting to meeting.">Nobody, once the team has agreed as a group to use it in that meeting.</li>
+<li data-fb="Right. Consent should be easy to withdraw.">Anyone in the meeting, without needing a reason.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Which check matters most before sharing an AI meeting summary?</p><ul>
+<li data-fb="Formatting is secondary.">That it's formatted with clear headings that match the team's template.</li>
+<li data-fb="Right. Those are what people act on.">That actions, owners and attributions match what happened.</li>
+<li data-fb="Length isn't the risk.">That it's shorter than one page.</li>
+<li data-fb="Tone is secondary.">That it uses the team's usual tone.</li>
 </ul></div>
 </section>
 
 <section class="sources"><h2>Sources and further reading</h2><ol>
 <li>Martin Fowler (2012), <a href="https://www.martinfowler.com/bliki/PrimingPrimeDirective.html" target="_blank" rel="noopener">Priming Prime Directive</a>. Norm Kerth's Retrospective Prime Directive and why teams read it aloud.</li>
 <li>Atlassian Team Playbook, <a href="https://www.atlassian.com/team-playbook/plays/retrospective" target="_blank" rel="noopener">Retrospective</a>. A step-by-step play for running a retrospective.</li>
+
+<li>Google re:Work, <a href="https://rework.withgoogle.com/en/guides/understanding-team-effectiveness" target="_blank" rel="noopener">Understand team effectiveness</a>. Project Aristotle and the role of psychological safety.</li>
 </ol></section>
 `
 });
