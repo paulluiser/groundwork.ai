@@ -66,19 +66,20 @@ export default function Landing() {
           <span className="sr-only">Learn the basics of AI and its use cases for every role on a software team</span>
           <span aria-hidden="true">Learn the basics of AI and its use cases for<br /><RotatingRole /><span className="kern-cursor" /></span>
         </h1>
-        <p className="mt-6 max-w-xl text-lg text-muted-foreground">A free course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-tint px-3 py-1 text-sm font-medium text-brand">For beginners · no AI background needed</p>
+        <p className="mt-4 max-w-xl text-lg text-muted-foreground">A free starter course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg"><a href={go}>{goTxt}<ArrowRight /></a></Button>
           <Button asChild size="lg" variant="outline"><a href="#progress">I've started before</a></Button>
         </div>
-        <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · no account</p>
+        <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · beginner level · no account</p>
       </section>
 
       <section className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-16 pt-8 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] lg:gap-16">
         <div className="max-w-md">
           <p className="text-sm text-brand">What you get</p>
           <h2 className="mt-2 text-h1 font-semibold">One course for working with AI on a software team</h2>
-          <p className="mt-3 text-muted-foreground">Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team.</p>
+          <p className="mt-3 text-muted-foreground">Made for beginners. It starts from what a model is, so you need no AI or machine learning background. Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team.</p>
         </div>
         <dl className="grid gap-x-12 gap-y-7 sm:grid-cols-2">
           {feats.map(([Icon, t, d]) => (
@@ -118,7 +119,7 @@ export default function Landing() {
       <section className="mx-auto max-w-[1440px] px-4 pb-10 md:px-8">
         <Card className="items-center border-spot-line bg-spot py-12 text-center text-spot-fg">
           <CardHeader className="w-full items-center"><Badge variant="secondary" className="mx-auto">Ready when you are</Badge><CardTitle className="mt-3 text-h1">Start with lesson 1</CardTitle>
-            <CardDescription className="mx-auto max-w-lg text-spot-fg/75">It takes {first.minutes} minutes and needs no background. Choose your roles first, or start with General and add roles later.</CardDescription></CardHeader>
+            <CardDescription className="mx-auto max-w-lg text-spot-fg/75">It takes {first.minutes} minutes and assumes no AI background. Choose your roles first, or start with General and add roles later.</CardDescription></CardHeader>
           <CardContent className="flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="bg-spot-fg text-spot hover:bg-spot-fg/90"><a href={go}>{goTxt}<ArrowRight /></a></Button>
             <Button asChild size="lg" variant="outline" className="border-spot-fg/30 bg-transparent text-spot-fg hover:bg-spot-fg/10 hover:text-spot-fg"><a href="#progress">Continue with a code</a></Button>
