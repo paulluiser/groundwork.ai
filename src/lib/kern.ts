@@ -12,6 +12,14 @@ export type Role = { id: string; name: string; why: string; track?: string; fami
 // Lessons whose content file isn't loaded are left out. Numbers stay fixed, so text references stay right.
 GW.lessons = GW.lessons.filter((l: Lesson) => GW.content[l.id]);
 export const lessons: Lesson[] = GW.lessons;
+// Lesson time is worked out from the content itself (reading at about 220 words a minute, plus each activity and question),
+// so it stays right as lessons grow.
+lessons.forEach((l) => {
+  const html: string = GW.content[l.id].html, body = html.split('<section class="sources">')[0];
+  const words = body.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
+  const acts = body.split('<div class="activity">').length - 1, tasks = (body.match(/data-w="task"/g) || []).length, checks = (body.match(/class="check[ "]/g) || []).length;
+  l.minutes = Math.max(10, Math.round((words / 220 + (acts - tasks) * 4 + tasks * 8 + checks * 0.75) / 5) * 5);
+});
 export const byId: Record<string, Lesson> = {};
 lessons.forEach((l) => (byId[l.id] = l));
 export const hasUseCases = !!(GW.useCases && GW.useCases.length);
@@ -127,9 +135,9 @@ export function copyText(t: string): Promise<boolean> {
 }
 
 /* ---------- exercises: every .activity block in the lessons ---------- */
-export const EX_KIND: Record<string, string> = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call", sim: "Simulation" };
+export const EX_KIND: Record<string, string> = { claims: "Flag the claims", sort: "Sort the cases", tokens: "Tokenizer", sampler: "Sampler", context: "Context window", rerank: "Retrieval", matrix: "Risk matrix", injection: "Prompt injection", evalsim: "Eval simulator", coverage: "Test coverage", contrast: "Contrast check", codetest: "Run the code", checklist: "Checklist", builder: "Prompt builder", agreement: "Agreement check", agent: "Agent loop", scenario: "Scenario", decide: "Make the call", sim: "Simulation", task: "Open task" };
 export const EX_FAM: Record<string, string> = {};
-[["Spot the problem", "claims contrast coverage injection"], ["Sort and decide", "sort decide matrix scenario agreement"], ["Simulations", "tokens sampler context rerank agent sim evalsim codetest"], ["Write and apply", "builder checklist"]].forEach((f) => f[1].split(" ").forEach((w) => (EX_FAM[w] = f[0])));
+[["Spot the problem", "claims contrast coverage injection"], ["Sort and decide", "sort decide matrix scenario agreement"], ["Simulations", "tokens sampler context rerank agent sim evalsim codetest"], ["Write and apply", "builder checklist task"]].forEach((f) => f[1].split(" ").forEach((w) => (EX_FAM[w] = f[0])));
 export type Exercise = { lesson: Lesson; n: number; tag: string; title: string; w: string; kind: string; fam: string };
 let exIndex: Exercise[] | null = null;
 export function exercises(): Exercise[] {

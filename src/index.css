@@ -121,3 +121,59 @@
    matching the exercise band, instead of inverting like shadcn's primary. */
 :root { --spot: var(--black); --spot-fg: var(--on-black); --spot-line: transparent; }
 :root[data-theme="dark"] { --spot: #22211E; --spot-fg: #F4F3EE; --spot-line: #3A3833; }
+
+/* Lesson building blocks added in the content expansion: situation, worked example, misconceptions, recap,
+   open task and the explanation that stays closed until opened. Styled on Kern's own tokens. */
+@layer components {
+  .kern-lesson-body .scenario { max-width: calc(var(--measure) + 48px); margin: 28px 0; padding: 18px 22px; border-left: 3px solid var(--black); background: var(--white); border-radius: 0 var(--radius) var(--radius) 0; }
+  .kern-lesson-body .scenario::before { content: "The situation"; display: block; margin-bottom: 6px; font-size: var(--t-xs); font-weight: 600; color: var(--ink-3); }
+  .kern-lesson-body .scenario p { margin: 0 0 10px; } .kern-lesson-body .scenario p:last-child { margin-bottom: 0; }
+  .kern-lesson-body .check.warmup { max-width: calc(var(--measure) + 48px); }
+  .kern-lesson-body .check.warmup::before { content: "Before you start: what do you already know?"; display: block; margin-bottom: 8px; font-size: var(--t-xs); font-weight: 600; color: var(--ink-3); }
+
+  .kern-lesson-body .worked { display: grid; gap: 14px; margin: 22px 0; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 860px) { .kern-lesson-body .worked { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .kern-lesson-body .wx { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; font-size: var(--t-sm); }
+  .kern-lesson-body .wx > b { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: var(--t-xs); font-weight: 600; }
+  .kern-lesson-body .wx > b::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
+  .kern-lesson-body .wx.strong > b::before { background: var(--accent); }
+  .kern-lesson-body .wx > div { padding: 12px 14px; color: var(--ink-2); }
+  .kern-lesson-body .wx > div p { margin: 0 0 8px; } .kern-lesson-body .wx > div p:last-child { margin: 0; }
+  .kern-lesson-body .wx pre, .kern-lesson-body .wx .mono { font-family: var(--font-mono, ui-monospace); white-space: pre-wrap; font-size: var(--t-xs); line-height: 1.55; margin: 0; }
+  .kern-lesson-body ul.wx-notes { max-width: var(--measure); }
+  .kern-lesson-body ul.wx-notes li::marker { color: var(--accent); }
+
+  .kern-lesson-body dl.myths { max-width: calc(var(--measure) + 48px); margin: 18px 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .kern-lesson-body dl.myths dt { padding-top: 14px; font-weight: 600; color: var(--ink); }
+  .kern-lesson-body dl.myths dt::before { content: "Myth: "; color: var(--warning); font-weight: 600; }
+  .kern-lesson-body dl.myths dd { margin: 4px 0 0; padding-bottom: 14px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+  .kern-lesson-body dl.myths dd::before { content: "In practice: "; font-weight: 600; color: var(--accent); }
+
+  .kern-lesson-body .recap { max-width: calc(var(--measure) + 48px); margin: 22px 0; padding: 18px 22px; border-radius: var(--radius); background: var(--tint); }
+  .kern-lesson-body .recap ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+  .kern-lesson-body .recap li::marker { color: var(--accent); }
+
+  .kern-lesson-body details.explain { max-width: calc(var(--measure) + 48px); margin: 18px 0 28px; border: 1px dashed var(--line); border-radius: var(--radius); padding: 0 16px; }
+  .kern-lesson-body details.explain > summary { cursor: pointer; padding: 12px 0; font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); list-style: none; }
+  .kern-lesson-body details.explain > summary::-webkit-details-marker { display: none; }
+  .kern-lesson-body details.explain > summary::before { content: "＋ "; color: var(--accent); }
+  .kern-lesson-body details.explain[open] > summary::before { content: "－ "; }
+  .kern-lesson-body details.explain[open] { padding-bottom: 4px; }
+
+  .kern-lesson-body .task-ui { display: grid; gap: 8px; }
+  .kern-lesson-body .task-l, .kern-lesson-body .task-sub { font-size: var(--t-xs); font-weight: 600; color: var(--ink-3); margin: 0; }
+  .kern-lesson-body .task-in { width: 100%; min-height: 140px; padding: 10px 12px; border: 1px solid var(--field-line, var(--line)); border-radius: var(--radius); background: var(--white); color: var(--ink); font: inherit; font-size: var(--t-sm); line-height: 1.55; resize: vertical; }
+  .kern-lesson-body .task-in:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .kern-lesson-body .task-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .kern-lesson-body .task-btn { height: 36px; padding: 0 16px; border-radius: var(--radius); background: var(--ex-band); color: var(--ex-on); font-size: var(--t-sm); font-weight: 500; cursor: pointer; }
+  .kern-lesson-body .task-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .kern-lesson-body .task-hint { font-size: var(--t-xs); color: var(--ink-3); }
+  .kern-lesson-body .task-reveal { display: grid; gap: 16px; margin-top: 16px; }
+  .kern-lesson-body .task-model { padding: 14px 16px; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); font-size: var(--t-sm); color: var(--ink-2); }
+  .kern-lesson-body .task-model p, .kern-lesson-body .task-model ul, .kern-lesson-body .task-model ol { margin: 6px 0; }
+  .kern-lesson-body .task-check { display: grid; gap: 8px; font-size: var(--t-sm); }
+  .kern-lesson-body .task-check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .kern-lesson-body .task-check input { margin-top: 4px; accent-color: var(--accent); }
+  .kern-lesson-body .task-score { margin: 4px 0 0; font-size: var(--t-xs); font-weight: 600; color: var(--accent); }
+  .kern-lesson-body .reviewed { font-size: var(--t-xs); color: var(--ink-3); margin: -4px 0 12px; }
+}

@@ -7,6 +7,8 @@ import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { LessonRail } from "@/components/shell";
 import { byId, copyText, EX_KIND, GENERAL, GW, lessons, load, plural, roleInfo, routeFor, save, slug, stripTags, trackIdOf, trackName } from "@/lib/kern";
 import { go, useStore } from "@/lib/store";
+import { registerLessonBlocks } from "@/lib/lessonBlocks";
+registerLessonBlocks();
 import { cn } from "@/lib/utils";
 
 const esc = (s: string) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
@@ -36,6 +38,7 @@ function prepare(id: string, roles: string[], minutes: number) {
   let sources = "";
   const si = body.indexOf('<section class="sources">');
   if (si > -1) { const se = body.indexOf("</section>", si) + 10; sources = body.slice(si, se); body = body.slice(0, si) + body.slice(se); }
+  if (sources && c.reviewed) { const d = new Date(c.reviewed + "-01T00:00:00"); sources = sources.replace("</h2>", '</h2><p class="reviewed">Last reviewed ' + d.toLocaleDateString("en-GB", { month: "long", year: "numeric" }) + ". Figures and studies are as of that date.</p>"); }
   const parts = body.split(/(?=<h2[\s>])|(?=<section class="checks">)/);
   const sections: { title: string; id: string; kind: Kind; w: number }[] = [];
   parts.forEach((p) => {
@@ -61,6 +64,17 @@ const Body = memo(function Body({ id, html, sources, onTerm, onReady }: { id: st
       const hd = a.querySelector(".activity-h"), w = a.querySelector("[data-w]"), kind = w && EX_KIND[w.getAttribute("data-w")!];
       if (hd) hd.insertAdjacentHTML("afterbegin", '<span class="ex-no">' + (GW.icon ? GW.icon("flask") : "") + "Exercise " + (i + 1) + " of " + acts.length + "</span>" + (kind ? '<span class="ex-kd">' + esc(kind) + "</span>" : ""));
       a.insertAdjacentHTML("beforeend", '<p class="activity-f">End of exercise ' + (i + 1) + ". The lesson continues below.</p>");
+    });
+    // the explanation printed right after an exercise stays closed until the learner opens it
+    acts.forEach((a) => {
+      if (!a.querySelector("[data-w]") || a.querySelector('[data-w="task"]')) return;
+      const after: HTMLElement[] = [];
+      let n = a.nextElementSibling as HTMLElement | null;
+      while (n && (n.matches("ol.steps") || n.matches("div.key"))) { after.push(n); n = n.nextElementSibling as HTMLElement | null; }
+      if (!after.length) return;
+      const d = document.createElement("details"); d.className = "explain";
+      d.innerHTML = "<summary>Show the explanation</summary>";
+      a.parentNode!.insertBefore(d, after[0]); after.forEach((x) => d.appendChild(x));
     });
     // headings get ids for section links
     const heads = $$(":scope > h2, :scope > section > h2");
