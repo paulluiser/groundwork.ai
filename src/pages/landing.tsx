@@ -1,23 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Award, BarChart3, Globe, Lightbulb, ShieldCheck, Users, Workflow, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Mark } from "@/components/brand";
-import { exercises, GW, HERO_ROLES, lessons, trackName } from "@/lib/kern";
+import { exercises, GW, HERO_ROLES, lessons } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 import { PASS, SIZE } from "@/pages/assessment";
-import { cn } from "@/lib/utils";
 
-// One complete example: an AI draft and the human check, switchable by role.
-const HERO = [
-  { r: "security", draft: "Reviewed the invoice endpoint. No issues found. Low risk.", s: "bad", st: "Missed a check", note: "It checks that you're signed in, not that the invoice is yours. Change the ID in the URL and you can read anyone's invoice." },
-  { r: "product", draft: "Most users asked for dark mode.", s: "warn", st: "No source", note: "3 of 40 interview notes mention it. Ask for the count and the notes behind a theme before you repeat it." },
-  { r: "engineering", draft: "Return res.data.items from the fetch.", s: "ok", st: "Tests pass", note: "Ran it against a real response, including an empty list. The claim held up, so it ships." },
-  { r: "data-analytics", draft: "October monthly active users: 1,284,550.", s: "bad", st: "Wrong grain", note: "The query counted events, not people. One row per user changes the answer completely." },
-];
-const STAMP: Record<string, string> = { bad: "border-destructive/40 bg-danger-soft text-destructive", warn: "border-warning/40 bg-warning-soft text-warning", ok: "border-brand-line bg-brand-tint text-brand" };
 
 function RotatingRole() {
   const [text, setText] = useState(HERO_ROLES[0]);
@@ -69,10 +59,8 @@ function Scramble({ text, run, delay = 0, dur = 700, className }: { text: string
 
 export default function Landing() {
   const { roles } = useStore();
-  const [ex, setEx] = useState("0");
   const ready = roles.length > 0, go = ready ? "#home" : "#role", goTxt = ready ? "Continue where you left off" : "Get the starter kit";
   const nEx = exercises().length, nRoles = GW.roles.length, first = lessons[0];
-  const c = HERO[+ex];
   const [statsRef, statsSeen] = useInView<HTMLDivElement>();
   const nUc = (GW.useCases || []).length;
   const feats = [
@@ -120,26 +108,8 @@ export default function Landing() {
         </dl>
       </section>
 
-      <section className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 md:px-8 lg:grid-cols-2 [&>*]:min-w-0">
-        <div>
-          <Badge variant="secondary">See it in practice</Badge>
-          <h2 className="mt-3 text-h1 font-semibold">What checking AI work looks like</h2>
-          <p className="mt-3 text-muted-foreground">Every lesson works from cases like this one: an AI draft that reads well, and the human check that decides whether it ships. Switch roles to see the same habit in different work.</p>
-          <Button asChild className="mt-6"><a href={go}>{ready ? "Continue where you left off" : "Choose your roles"}<ArrowRight /></a></Button>
-        </div>
-        <Card aria-label="An AI draft and the human check that follows it">
-          <CardHeader><CardTitle>Worked example</CardTitle><CardAction><Badge variant="outline"><span className="size-1.5 rounded-full bg-brand" />Human check</Badge></CardAction></CardHeader>
-          <CardContent className="grid gap-3">
-            <div className="rounded-lg border bg-muted/50 p-4"><p className="text-xs text-muted-foreground">AI draft ({trackName(c.r)})</p><p className="mt-1">{c.draft}</p></div>
-            <div className="rounded-lg border p-4"><div className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">Human check</p><span className={cn("rounded-md border px-2 py-0.5 text-xs font-medium", STAMP[c.s])}>{c.st}</span></div><p className="mt-2 text-sm">{c.note}</p></div>
-            <div className="flex flex-wrap items-center gap-2 pt-1"><span className="text-xs text-muted-foreground">See it for</span>
-              <ToggleGroup type="single" variant="outline" size="sm" spacing={1} value={ex} onValueChange={(v) => v && setEx(v)} aria-label="Show the example for">
-                {HERO.map((h, i) => <ToggleGroupItem key={h.r} value={String(i)} className="px-2.5 text-xs">{trackName(h.r)}</ToggleGroupItem>)}
-              </ToggleGroup>
-            </div>
-          </CardContent>
-        </Card>
-        <div ref={statsRef} className="grid gap-x-8 gap-y-6 pt-4 sm:grid-cols-3 lg:col-span-2">
+      <section className="mx-auto max-w-[1440px] px-4 pb-16 md:px-8">
+        <div ref={statsRef} className="grid gap-x-8 gap-y-6 sm:grid-cols-3">
           {stats.map(([v, l], i) => (<div key={l}><Scramble text={String(v)} run={statsSeen} delay={i * 140} dur={520} className="block text-h1 font-medium tabular-nums" /><Scramble text={l} run={statsSeen} delay={i * 140 + 160} dur={760} className="mt-1 block text-sm text-muted-foreground" /></div>))}
         </div>
       </section>
