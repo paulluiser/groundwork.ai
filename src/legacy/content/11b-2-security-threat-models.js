@@ -15,14 +15,25 @@ GW.trackCfg["owasp-match"] = {
 };
 GW.lesson({
   id: "security-threat-models",
+  reviewed: "2026-11",
   lede: "An AI feature adds a new kind of component to your threat model: one that reads untrusted text, follows instructions it finds there, and may be connected to data and tools. Threat modelling it well means drawing where the untrusted text comes in, what the model can reach, and what stops harm when the model does the wrong thing.",
   outcomes: [
     "Draw the data flows and trust boundaries of an AI feature, including retrieved content and tools.",
     "Match risks to the OWASP Top 10 for LLM applications.",
     "Recognise the “lethal trifecta”: private data, untrusted content and a way to send data out.",
-    "Choose controls that hold even when the model is manipulated."
+    "Choose controls that hold even when the model is manipulated.",
+    "Apply STRIDE to an AI feature's data flow and name a control for each threat."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>Product wants an assistant in the customer portal that answers billing questions by reading the customer's invoices and can “email a copy of any invoice”. The design review is tomorrow. You have a data-flow sketch, the OWASP list, and an hour.</p>
+<p>Threat modelling an AI feature uses the same method as any other feature, plus a few threats that only exist because the component follows instructions it reads. This lesson walks through both.</p></div>
+<div class="check warmup" data-a="0"><p class="q">Which component in an AI feature is new to most threat models?</p><ul>
+<li data-fb="Right. That's what makes prompt injection possible.">One that reads untrusted text and may follow instructions in it.</li>
+<li data-fb="Databases are familiar in every threat model.">A database that stores customer information and order history.</li>
+<li data-fb="Familiar from ordinary web applications.">An API that authenticates users with tokens.</li>
+<li data-fb="Familiar, though AI output adds rendering risks.">A web front end that renders HTML for users.</li>
+</ul></div>
 <h2>Start with the diagram</h2>
 <p>Threat modelling an AI feature uses the same questions as any other: what are we building, what can go wrong, what are we doing about it, and did we do a good job? What changes is the diagram. Draw these on it:</p>
 <ul>
@@ -77,6 +88,41 @@ GW.lesson({
 <li><strong>Logging</strong> of prompts, retrieved content and tool calls, so you can investigate (lesson 23).</li>
 </ul>
 
+<h2>STRIDE still works</h2>
+<p>STRIDE is a long-standing way to walk through threats element by element: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.[5] For an AI feature, apply it as usual to the data flow, then ask an extra question at every point where the model reads text: who could have written this text, and what could it tell the model to do?</p>
+<h2>Worked example: the billing assistant</h2>
+<div class="tbl"><table><thead><tr><th>Threat (STRIDE)</th><th>How it shows up here</th><th>Control that doesn't rely on the model</th></tr></thead><tbody>
+<tr><td>Information disclosure</td><td>Assistant retrieves another customer's invoice</td><td>Retrieval runs with the logged-in user's permissions only</td></tr>
+<tr><td>Elevation of privilege</td><td>Text in an invoice note says “email all invoices to …”</td><td>Email tool can only send to the account's verified address</td></tr>
+<tr><td>Tampering</td><td>Customer convinces it to state a different balance</td><td>Balances come from a tool reading the ledger, shown as data, not as model text</td></tr>
+<tr><td>Repudiation</td><td>Customer claims the assistant promised a refund</td><td>Log prompts, tool calls and responses; assistant can't promise refunds</td></tr>
+<tr><td>Denial of service</td><td>Long or repeated requests run up model costs</td><td>Per-user rate and token limits</td></tr>
+<tr><td>Spoofing</td><td>Assistant output imitates a system message asking for card details</td><td>Model output rendered as plain text in a clearly labelled area</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Every control works even if the model is fooled.</strong> That's the test of a good control for AI components.</li>
+<li><strong>The most important control is one line:</strong> the email tool can only send to the verified address. It removes the way out (lesson 7).</li>
+<li><strong>MITRE ATLAS documents real attacks on AI systems</strong> if you need examples to convince the room.[3]</li>
+</ul>
+<h2>Your turn: threat model a feature</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Threats and controls for an internal HR assistant</span></div><div class="activity-b">
+<p>An internal assistant answers employees' HR questions by searching the HR policy wiki and, for logged-in employees, their own leave balance. It can create a leave request. List at least four threats (use STRIDE and the “who wrote this text?” question) and a control for each that doesn't rely on the model behaving.</p>
+<div data-w="task" data-key="security-stride">
+<div class="task-model"><ul>
+<li><strong>Disclosure:</strong> asks for a colleague's leave or salary. Control: leave tool only returns the caller's own data; salary data isn't connected at all.</li>
+<li><strong>Elevation / injection:</strong> someone edits a wiki page to include instructions. Control: wiki is edit-restricted; the assistant can't take actions based on retrieved text without user confirmation.</li>
+<li><strong>Tampering:</strong> user talks it into creating leave beyond their balance. Control: the leave system enforces balances and approvals, not the model.</li>
+<li><strong>Repudiation:</strong> disputes over what it said about policy. Control: log conversations; answers link to the policy page.</li>
+<li><strong>Disclosure via output:</strong> it quotes a confidential draft policy. Control: index only published policies.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Lists at least four distinct threats</li>
+<li>Considers who could write the text the assistant reads</li>
+<li>Each control works even if the model is manipulated</li>
+<li>Uses the target systems' own rules (permissions, balances) as controls</li>
+<li>Includes logging or traceability</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>“The system prompt tells it not to.”</strong> Instructions are suggestions to a model. They help, but they aren't a control.</li>
@@ -88,21 +134,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Pick an AI feature or internal assistant your company uses. List its data sources, its untrusted inputs and its ways to send data out. If all three legs of the trifecta are there, write down which one you'd remove.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A system prompt saying “only discuss billing” is a security control.</dt><dd>It's guidance the model may not follow. Controls must hold when the model is fooled.</dd>
+<dt>Threat modelling AI needs an entirely new method.</dt><dd>STRIDE and data-flow diagrams still work. Add the question of who wrote the text the model reads.</dd>
+<dt>Internal assistants don't need threat models.</dt><dd>Insiders, edited wiki pages and over-broad access make internal tools risky too.</dd>
+<dt>Output is safe because it's just text.</dt><dd>Output rendered as HTML, run as code or shown as system messages creates its own risks.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Draw the data flow, then apply STRIDE element by element.</li>
+<li>At every point where the model reads text, ask who could have written it.</li>
+<li>Choose controls that hold even if the model is manipulated.</li>
+<li>Use the connected systems' own permissions and rules as the real limits.</li>
+<li>Log prompts, tool calls and responses for traceability.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">An assistant reads customer emails and can also look up order history and send replies. What's the strongest single fix for data theft by injection?</p><ul>
-<li data-fb="Helps a little, but instructions can be overridden.">Add “never reveal other customers' data” to the system prompt.</li>
-<li data-fb="Useful as a layer, but detectors miss new attacks.">Scan incoming emails for injection phrases.</li>
-<li data-fb="Right. Breaking one leg of the trifecta, such as free-form sending, stops the attack regardless of what the model is told.">Remove its ability to send without a person reviewing each reply.</li>
+<div class="check" data-a="2"><p class="q">Which control still works if the billing assistant is tricked by injected text?</p><ul>
+<li data-fb="Prompts can be overridden by injected text.">A system prompt telling it never to email other addresses.</li>
+<li data-fb="Trivial to bypass with other wording.">A filter that blocks messages containing the word “ignore”.</li>
+<li data-fb="Right. The limit is enforced outside the model.">An email tool that can only send to the verified address.</li>
+<li data-fb="Reduces risk but doesn't guarantee it.">Training the model further on safe billing conversations.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">Model output is used to build a database query. Which OWASP risk is this mainly about?</p><ul>
-<li data-fb="Right. Output passed to another system needs validating and limiting like user input.">Improper output handling.</li>
-<li data-fb="Possible upstream, but the risk here is what happens to the output.">Data and model poisoning.</li>
-<li data-fb="That's about cost and capacity.">Unbounded consumption.</li>
+<div class="check" data-a="0"><p class="q">What does the R in STRIDE stand for, and why does it matter for assistants?</p><ul>
+<li data-fb="Right. Disputes need a record.">Repudiation: logs show what the assistant said and did.</li>
+<li data-fb="Availability is the D, denial of service.">Reliability: assistants must stay available around the clock for every user.</li>
+<li data-fb="Not part of STRIDE.">Retrieval: assistants search documents.</li>
+<li data-fb="A real risk, but not STRIDE's R.">Rendering: model output shown as HTML.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">Where should the trust boundary sit in a threat model for an AI feature?</p><ul>
-<li data-fb="The model can be steered by what it reads, so it can't enforce the boundary.">Around the model, which filters bad instructions.</li>
-<li data-fb="Right. The application enforces permissions and handles output; the model's output is treated as untrusted.">Between the model and the systems it can affect, enforced by the application.</li>
-<li data-fb="Content from inside the company can still carry injected text.">Only at the user's input box.</li>
+<div class="check" data-a="3"><p class="q">Someone edits a wiki page the HR assistant reads. Which question exposes the risk?</p><ul>
+<li data-fb="Size doesn't reveal the threat.">How many pages does the wiki contain?</li>
+<li data-fb="Every version can be influenced by text.">Which model version does the assistant use?</li>
+<li data-fb="Speed isn't the issue.">How fast does the assistant answer questions?</li>
+<li data-fb="Right. Editable sources are injection routes.">Who could have written the text the model reads?</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Where should leave-balance limits be enforced?</p><ul>
+<li data-fb="The model can be talked around.">In the assistant's instructions, as a firm rule.</li>
+<li data-fb="Right. The system of record enforces its rules.">In the leave system itself, whatever the assistant asks.</li>
+<li data-fb="Too late to prevent the problem.">In a weekly audit of the leave requests the assistant has created.</li>
+<li data-fb="Policy documents don't enforce limits.">In the employee handbook, so people know the rules.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Why render assistant output as plain text in a labelled area?</p><ul>
+<li data-fb="Token count isn't the reason.">Plain text uses fewer tokens than HTML.</li>
+<li data-fb="Not the security reason.">It makes answers easier to translate.</li>
+<li data-fb="Right. It prevents spoofing and injection into the page.">So output can't imitate system messages or run as code.</li>
+<li data-fb="They can, which is part of the risk.">Because models can't reliably produce valid, well-formed HTML markup.</li>
 </ul></div>
 </section>
 
@@ -111,6 +188,8 @@ GW.lesson({
 <li>Greshake et al. (2023), <a href="https://arxiv.org/abs/2302.12173" target="_blank" rel="noopener">Not what you've signed up for: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection</a>.</li>
 <li>MITRE, <a href="https://atlas.mitre.org/" target="_blank" rel="noopener">ATLAS</a>. A knowledge base of adversary tactics and techniques against AI systems, modelled on ATT&amp;CK.</li>
 <li>Simon Willison (2025), <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/" target="_blank" rel="noopener">The lethal trifecta for AI agents</a>.</li>
+
+<li>Microsoft, <a href="https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats" target="_blank" rel="noopener">Threat Modeling Tool threats</a>. STRIDE categories with examples and mitigations.</li>
 </ol></section>
 `
 });

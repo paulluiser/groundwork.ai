@@ -1,13 +1,24 @@
 GW.lesson({
   id: "security",
+  reviewed: "2026-11",
   lede: "Security work has two AI jobs now: using AI to find and fix weaknesses faster, and securing the AI features your company ships. Both depend on the same habit: an AI finding is a lead to investigate, never a verdict.",
   outcomes: [
     "Use AI to widen threat modelling, code review and triage, and verify every finding before acting on it.",
     "Tell an AI false positive from a real issue, and spot the issue it missed.",
     "Explain why a passing AI review is not evidence of security.",
-    "Review an AI feature for the risks specific to it: injection, excessive agency, data leakage and unsafe output handling."
+    "Review an AI feature for the risks specific to it: injection, excessive agency, data leakage and unsafe output handling.",
+    "Triage AI security findings into confirmed, needs proof, and false positive, with evidence for each."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An AI code scanner opens 47 security findings on your main service overnight. Eleven are marked critical. The development team asks which ones are real, because last quarter's tool produced 200 findings and three of them mattered.</p>
+<p>AI can read code faster than any security team. It also reports plausible weaknesses that aren't reachable, and misses the ones that depend on how your system is actually used. This lesson is about turning a pile of AI findings into a short list of real ones, with proof.</p></div>
+<div class="check warmup" data-a="3"><p class="q">An AI tool reports a SQL injection in a function. What turns this into a confirmed finding?</p><ul>
+<li data-fb="Severity is the tool's estimate, not proof.">The tool's severity rating of critical.</li>
+<li data-fb="Two tools can share the same pattern-matching mistake.">A second AI tool reporting the same issue.</li>
+<li data-fb="Concatenation is a lead, not proof of reachability.">The function building its query with string concatenation somewhere.</li>
+<li data-fb="Right. Proof of a reachable, exploitable path confirms it.">Showing that user input reaches the query unsanitised.</li>
+</ul></div>
 <h2>Where AI meets security work</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -60,6 +71,35 @@ GW.lesson({
 <tr><td>Evaluation</td><td>Is there an adversarial test set, re-run on every prompt or model change (lesson 18)?</td></tr>
 </tbody></table></div>
 
+<h2>Worked example: triaging three findings</h2>
+<div class="tbl"><table><thead><tr><th>AI finding</th><th>Evidence gathered</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Critical: SQL injection in <code>reportFilter()</code></td><td>Input comes only from a fixed dropdown mapped server-side to column names; no user string reaches SQL</td><td>False positive; note the reasoning</td></tr>
+<tr><td>High: missing authorisation on <code>GET /invoices/:id</code></td><td>Logged in as user A, requested user B's invoice ID: returned 200 with data</td><td>Confirmed: broken object-level authorisation[2]</td></tr>
+<tr><td>Medium: outdated library with a known vulnerability</td><td>The vulnerable function isn't called; upgrade is low-risk</td><td>Needs fix, low urgency</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>The “critical” one was false</strong>, and the confirmed one was rated high. Severity labels aren't verdicts.</li>
+<li><strong>Proof is specific and reproducible:</strong> a request, a response, the data you shouldn't see.</li>
+<li><strong>Write down why false positives are false</strong>, so the same finding isn't re-triaged next quarter.</li>
+</ul>
+<h2>Verification standards help</h2>
+<p>The OWASP Application Security Verification Standard (ASVS) lists concrete requirements an application should meet, grouped by area (authentication, access control, input handling and so on) and by assurance level.[5] It's a useful way to ask an assistant for targeted reviews (“check this module against ASVS access-control requirements and cite the line for each”), and to check that a review covered the areas that matter instead of only the ones a scanner is good at.</p>
+<h2>Your turn: triage a finding</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Is this finding real?</span></div><div class="activity-b">
+<p>An AI review says: <em>“High: the password reset endpoint reveals whether an email address is registered (‘No account found for this email’). This enables account enumeration.”</em> Describe how you'd confirm it, what evidence you'd record, what the fix is, and how you'd decide its priority.</p>
+<div data-w="task" data-key="security-triage">
+<div class="task-model"><p><strong>Confirm:</strong> request a reset for a known registered email and a random unregistered one; compare status codes, messages and response times.</p>
+<p><strong>Evidence:</strong> the two requests and responses, showing different messages (or a timing difference).</p>
+<p><strong>Fix:</strong> return the same message and status for both (“If an account exists, we've sent an email”), keep timing similar, and rate-limit the endpoint.[6]</p>
+<p><strong>Priority:</strong> real but usually medium on its own; higher if the product's users are high-value targets or if login has no rate limiting, since enumeration feeds credential stuffing.</p></div>
+<ul class="task-rubric">
+<li>Describes a reproducible test comparing registered and unregistered emails</li>
+<li>Considers timing as well as message differences</li>
+<li>Records requests and responses as evidence</li>
+<li>Proposes a consistent response and rate limiting as the fix</li>
+<li>Sets priority by context, not by the tool's label</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Alert fatigue from false positives.</strong> If most AI findings are wrong, people stop reading them. Tune what you ask and measure the hit rate.</li>
@@ -71,21 +111,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take an endpoint you know has been reviewed. Ask an assistant for a security review, then ask the specific question: “For each handler, how does it check the caller may access this record?” Compare the two answers with what you know. Count the false positives and anything it missed.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A finding marked critical by an AI tool is critical.</dt><dd>Severity labels are estimates. Reachability and impact in your system decide the real priority.</dd>
+<dt>If an AI security review finds nothing, the code is secure.</dt><dd>AI reviews miss logic and authorisation flaws that depend on business rules. Absence of findings isn't evidence of safety.</dd>
+<dt>AI-written code is more secure because it follows patterns.</dt><dd>Studies found a significant share of generated code contained vulnerabilities.[1]</dd>
+<dt>Prompt injection is a model problem the vendor will fix.</dt><dd>It's an application design problem. Limit what the model can access and do.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Treat every AI finding as a lead; confirm it with reproducible evidence.</li>
+<li>Severity labels aren't verdicts: judge reachability and impact yourself.</li>
+<li>Record why false positives are false so they aren't re-triaged.</li>
+<li>Use standards like OWASP ASVS to target reviews and check coverage.</li>
+<li>Secure AI features by design: limited data, tools and outward actions.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">An AI review reports “No issues found” for a pull request. What does that tell you?</p><ul>
-<li data-fb="One fallible reviewer finding nothing is not evidence of safety.">That the change is secure and can skip human review.</li>
-<li data-fb="The result isn't worthless, but it isn't a guarantee either.">Nothing at all; AI reviews are useless.</li>
-<li data-fb="Right. It's one reviewer's opinion. Your scanners, tests and human review still apply.">That one reviewer found nothing; other checks still apply.</li>
+<div class="check" data-a="1"><p class="q">An AI scanner marks a finding critical, but user input can't reach the code. What's the verdict?</p><ul>
+<li data-fb="Ratings are estimates; evidence decides.">Critical, because the tool's rating should be respected.</li>
+<li data-fb="Right. Not reachable means not exploitable here.">False positive, with the reasoning recorded.</li>
+<li data-fb="Compromise isn't a method.">Medium, as a compromise between the tool and the team.</li>
+<li data-fb="Your evidence already answers it.">Unknown until a second tool confirms it.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An assistant flags SQL injection in a query that uses parameter placeholders. What should you do?</p><ul>
-<li data-fb="Right. Reproduce it. If you can't, record it as a false positive, which also helps you judge the tool.">Try to reproduce it; if you can't, record it as a false positive.</li>
-<li data-fb="Changing safe code because of an unverified finding wastes time and can introduce bugs.">Rewrite the query anyway, to be safe.</li>
-<li data-fb="Its answer would be another generated claim, not a test.">Ask the assistant whether it's sure.</li>
+<div class="check" data-a="0"><p class="q">What's the best evidence that an authorisation finding is real?</p><ul>
+<li data-fb="Right. A reproducible request and response.">Logged in as one user, retrieving another user's data.</li>
+<li data-fb="An explanation isn't a demonstration.">The AI tool's explanation of why it's vulnerable.</li>
+<li data-fb="A lead, but the check may be elsewhere.">The endpoint not appearing in the auth middleware file.</li>
+<li data-fb="Not evidence about your system.">A similar vulnerability reported in another company's API.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">An AI feature summarises customer emails and can create support tickets. Which risk deserves the most attention in its design review?</p><ul>
-<li data-fb="Formatting matters less than what the model can be made to do.">That summaries may be too long.</li>
-<li data-fb="Right. The emails are untrusted text with access to a tool. Limit what the tool can do and treat output as untrusted.">Instructions hidden in an email steering the model into creating or altering tickets.</li>
-<li data-fb="Temperature affects variety, not security.">The model's temperature setting.</li>
+<div class="check" data-a="3"><p class="q">How should a password reset respond to an unregistered email?</p><ul>
+<li data-fb="That confirms which emails are registered.">“No account found for this email address.”</li>
+<li data-fb="Still distinguishable by an attacker.">An error code that only the front end can read.</li>
+<li data-fb="Reveals the account doesn't exist.">A redirect to the sign-up page with the email prefilled.</li>
+<li data-fb="Right. Nothing distinguishes the two cases.">The same message and timing as for a registered email.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">What does OWASP ASVS help you do with AI security reviews?</p><ul>
+<li data-fb="It's a standard, not a fixing tool.">Automatically fix every finding the AI security tool reports.</li>
+<li data-fb="It structures reviews; it doesn't replace them.">Replace security reviews with a checklist.</li>
+<li data-fb="Right. It says what to verify, area by area.">Target reviews at specific requirements and check coverage.</li>
+<li data-fb="It doesn't rank tools.">Rank AI tools by how many findings they report.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">An AI review of a new service finds no issues. What should you conclude?</p><ul>
+<li data-fb="Absence of findings isn't evidence of safety.">The service is secure and can be released.</li>
+<li data-fb="Right. These depend on rules AI tools often don't know.">Logic and authorisation flaws may still exist.</li>
+<li data-fb="Finding nothing can be correct; it just isn't proof.">The AI tool is broken and should be replaced.</li>
+<li data-fb="Manual review covers what tools can't.">Manual review is now unnecessary for this release.</li>
 </ul></div>
 </section>
 
@@ -94,6 +165,9 @@ GW.lesson({
 <li>OWASP, <a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" target="_blank" rel="noopener">API1:2023 Broken Object Level Authorization</a>. The most common API weakness: no check that the record belongs to the caller.</li>
 <li>NIST, <a href="https://csrc.nist.gov/pubs/sp/800/218/final" target="_blank" rel="noopener">SP 800-218: Secure Software Development Framework</a>. Layered practices for building secure software.</li>
 <li>OWASP, <a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">Top 10 for LLM Applications</a>. Prompt injection, excessive agency, improper output handling and more.</li>
+
+<li>OWASP, <a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank" rel="noopener">Application Security Verification Standard (ASVS)</a>. Testable security requirements by area and assurance level.</li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html" target="_blank" rel="noopener">Forgot Password Cheat Sheet</a>. Consistent responses, timing and rate limiting for reset flows.</li>
 </ol></section>
 `
 });

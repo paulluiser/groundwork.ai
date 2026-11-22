@@ -1,13 +1,24 @@
 GW.lesson({
   id: "engineering",
+  reviewed: "2026-11",
   lede: "Engineers were among the first to use AI every day, and the evidence on what it does for productivity is more mixed than the headlines suggest. This lesson focuses on the habits that make generated code safe to ship.",
   outcomes: [
     "Specify a coding task with examples and tests, so the output can be checked automatically.",
     "Find the kind of bug generated code tends to contain, by running it on edge cases.",
     "Debug with AI using evidence and hypotheses rather than guesses.",
-    "Handle dependencies, security and code review for AI-assisted changes."
+    "Handle dependencies, security and code review for AI-assisted changes.",
+    "Write tests first so generated code has to meet your specification, not its own."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>A teammate's pull request adds a date-range filter. The code is clean, idiomatic and comes with twelve passing tests. All twelve were generated alongside the code, and all twelve test what the code does, including the off-by-one that drops the last day of every range.</p>
+<p>Tests written by the same assistant that wrote the code tend to confirm it rather than challenge it. This lesson is about putting your specification in charge, so generated code has to meet your intent, not its own.</p></div>
+<div class="check warmup" data-a="2"><p class="q">An assistant writes a function and its tests together, and all tests pass. What does that show?</p><ul>
+<li data-fb="The tests may encode the same misunderstanding as the code.">The function is correct, since the tests cover the main cases.</li>
+<li data-fb="Passing self-written tests isn't evidence of correct behaviour.">The function is safe to merge after a quick style review.</li>
+<li data-fb="Right. They can agree and both be wrong.">Mainly that code and tests agree with each other.</li>
+<li data-fb="They can be useful; they just aren't independent.">Nothing at all, since generated tests are always worthless.</li>
+</ul></div>
 <h2>Where AI meets engineering work</h2>
 <p>Code is the domain where AI output is easiest to check: you can run it. That's why the habits in this lesson centre on making correctness <em>executable</em> (examples, tests, reproductions) rather than relying on reading.</p>
 <div class="tbl"><table>
@@ -86,19 +97,106 @@ First write Jest tests for every example above, then the function.</div></div>
 <li>a new dependency nobody discussed.</li>
 </ul>
 
+<h2>Tests as the specification</h2>
+<p>Kent Beck, describing his own work with coding agents, puts tests at the centre: write the test that expresses what you want, let the agent make it pass, and watch for it trying to weaken or delete tests to get to green.[7] The tests are where your intent lives. If you write them (or carefully review them) before the implementation, generated code has to meet your specification. If the assistant writes both, nothing independent is checking either.</p>
+<h2>Worked example: the date-range filter, test first</h2>
+<div class="worked">
+<div class="wx"><b>Generated with the code</b><div><pre>test("filters by range", () =&gt; {
+  const r = filter(items, "2026-03-01",
+                          "2026-03-31");
+  expect(r.length).toBe(30);
+});</pre></div></div>
+<div class="wx strong"><b>Written first, from the requirement</b><div><pre>// Range is inclusive of both days,
+// in the user's time zone.
+test("includes the last day", () =&gt; {
+  const r = filter([at("2026-03-31T23:30",
+    "Europe/Paris")], "2026-03-01",
+    "2026-03-31", "Europe/Paris");
+  expect(r).toHaveLength(1);
+});
+test("excludes the day after", ...);
+test("handles a DST change", ...);</pre></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>The generated test asserts 30</strong>, which is what the buggy code returns. March has 31 days.</li>
+<li><strong>The first-written tests encode decisions:</strong> inclusive end, the user's time zone, daylight-saving changes. The assistant couldn't know these.</li>
+<li><strong>Edge cases come from the domain,</strong> not from the code. That's why you write them.</li>
+<li><strong>Now let the assistant implement.</strong> If it changes a test to pass, that's a red flag in review.</li>
+</ul>
+<h2>Agree the rules in the repository</h2>
+<p>Teams increasingly keep a short instructions file in the repository that coding assistants read: how to run the tests, conventions, things never to do. A shared format, AGENTS.md, is now supported by many tools.[8] It's the code equivalent of a context pack (lesson 2): the facts the model can't guess, written once and kept up to date.</p>
+<h2>Your turn: write the tests first</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Tests for a function you'll ask AI to write</span></div><div class="activity-b">
+<p>You'll ask an assistant to write <code>calculateLateFee(invoice, paidAt)</code>. Rules: 2% of the amount per full week late, capped at 10%; no fee if paid within a 3-day grace period after the due date; amounts in cents. Write the test cases (names and expected results are enough).</p>
+<div data-w="task" data-key="eng-tests-first">
+<div class="task-model"><ul>
+<li>Paid on the due date: fee 0</li>
+<li>Paid 3 days late (end of grace): fee 0</li>
+<li>Paid 4 days late (grace over, under a full week): fee 0</li>
+<li>Paid exactly 7 days late: 2%</li>
+<li>Paid 13 days late: 2% (one full week)</li>
+<li>Paid 14 days late: 4%</li>
+<li>Paid 70 days late: capped at 10%</li>
+<li>Amount 9,999 cents, 1 week: 199.98 → decide rounding (e.g. 200) and test it</li>
+<li>Paid before the due date: fee 0</li>
+</ul><p>Two questions to settle first: does the week count start at the due date or after the grace period, and how is rounding done?</p></div>
+<ul class="task-rubric">
+<li>Covers the grace period boundary on both sides</li>
+<li>Covers full-week boundaries (6, 7, 13, 14 days)</li>
+<li>Tests the 10% cap</li>
+<li>Tests rounding with an amount that doesn't divide evenly</li>
+<li>Lists ambiguities in the requirement to settle before coding</li>
+</ul>
+</div></div></div>
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Pick a small function you need to write. Before asking for code, write five to eight input/output examples, including at least three invalid inputs. Ask for tests first, then the implementation. Break the implementation deliberately and confirm at least one test fails. Note whether the examples changed what the assistant produced.</div>
 
-<section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">Generated code passes all the tests the assistant also generated. What else should you check?</p><ul>
-<li data-fb="Tidy formatting says nothing about whether the tests are meaningful.">That the code is formatted consistently.</li>
-<li data-fb="Its reassurance is another generated claim.">Ask the assistant whether the tests are thorough.</li>
-<li data-fb="Right. Tests written alongside code can share its blind spots. Check they cover your cases, including invalid input, and that they fail when the code is broken.">That the tests cover the cases you care about, and fail when the code is wrong.</li>
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>AI makes every developer faster.</dt><dd>Results vary by task and experience. One controlled study found experienced developers were slower on their own repositories while believing they were faster.[2]</dd>
+<dt>If tests pass, generated code is correct.</dt><dd>Only if the tests encode your intent independently. Tests generated with the code often encode its bugs.</dd>
+<dt>Generated code is fine if it follows our style.</dt><dd>Style is easy for models. Logic, edge cases, security and dependencies are where problems hide.</dd>
+<dt>Reviewing AI code takes less effort than writing it.</dt><dd>Reviewing code you didn't write, carefully, is real work. Budget time for it.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Write or carefully review tests before generating code; tests carry your intent.</li>
+<li>Generated tests often confirm generated bugs; they aren't independent evidence.</li>
+<li>Debug with evidence: real logs, real errors, a reproduction.</li>
+<li>Check every new dependency exists and is the one you meant.</li>
+<li>Keep repository instructions for assistants, like any other documentation.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An assistant suggests wrapping a failing call in <code>try/catch</code> and returning an empty list on error. The error goes away. What's the concern?</p><ul>
-<li data-fb="Right. The symptom is hidden, the cause is still there, and callers now get an empty list that looks like real data.">It may hide the real cause and turn a loud failure into silently wrong data.</li>
-<li data-fb="Performance isn't the main issue here.">try/catch is slow.</li>
-<li data-fb="It's not a style issue; it changes behaviour.">Empty lists are bad style.</li>
+
+<section class="checks"><h2>Check your understanding</h2>
+<div class="check" data-a="1"><p class="q">Why write tests before asking an assistant to implement a function?</p><ul>
+<li data-fb="They don't.">Assistants refuse to write code without existing tests.</li>
+<li data-fb="Right. Then the code has to meet your specification.">So the tests encode your intent instead of the code's behaviour.</li>
+<li data-fb="Test order doesn't affect performance.">Because writing tests first makes the finished code run noticeably faster.</li>
+<li data-fb="That isn't the purpose.">To reduce the number of tokens the request uses.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">In review, you see an agent changed an assertion from 31 to 30 to make a test pass. What does that suggest?</p><ul>
+<li data-fb="Possible, but check: this is exactly how bugs get hidden.">The original test had a typo the agent sensibly fixed.</li>
+<li data-fb="Removing it hides the question.">The test was too strict for the new code and should simply be removed.</li>
+<li data-fb="Changing tests to pass is a red flag.">The agent is working well and should be trusted.</li>
+<li data-fb="Right. Check the requirement before accepting it.">The code may be wrong and the test was weakened to hide it.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">What belongs in an AGENTS.md or similar instructions file?</p><ul>
+<li data-fb="Right. The facts an assistant can't guess.">How to run tests, conventions, and things never to do.</li>
+<li data-fb="Too much; link to it instead.">A full copy of the codebase documentation.</li>
+<li data-fb="Shared conventions, not personal taste.">Personal preferences of whoever happened to set up the repository.</li>
+<li data-fb="Never put secrets in repository files.">API keys the agent needs to run integration tests.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Which edge case is an assistant least likely to know about unprompted?</p><ul>
+<li data-fb="A common edge case models usually cover.">An empty list passed to a sorting function.</li>
+<li data-fb="Widely discussed; often covered.">Division by zero when calculating an average over an empty set of values.</li>
+<li data-fb="Right. Domain rules come from you.">Your business rule that refunds can't exceed the original charge.</li>
+<li data-fb="A typical case it often handles.">A null value passed where an object is expected.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">What did the METR study find about experienced developers using AI on their own repositories?</p><ul>
+<li data-fb="Right. Perception and measurement diverged.">They took longer, while believing they were faster.</li>
+<li data-fb="The study found the opposite on average.">They were twice as fast on every task they attempted.</li>
+<li data-fb="They used it as allowed.">They refused to use AI for most of the tasks.</li>
+<li data-fb="There was a measurable slowdown.">There was no difference at all in completion times.</li>
 </ul></div>
 </section>
 
@@ -109,6 +207,9 @@ First write Jest tests for every example above, then the function.</div></div>
 <li>Pearce et al. (2021), <a href="https://arxiv.org/abs/2108.09293" target="_blank" rel="noopener">Asleep at the Keyboard? Assessing the Security of GitHub Copilot's Code Contributions</a>.</li>
 <li>Spracklen et al. (2024), <a href="https://arxiv.org/abs/2406.10279" target="_blank" rel="noopener">We Have a Package for You!</a> Package hallucinations by code-generating models.</li>
 <li>OWASP, <a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">SQL Injection Prevention Cheat Sheet</a>.</li>
+
+<li>Kent Beck (2025), <a href="https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes" target="_blank" rel="noopener">Augmented Coding: Beyond the Vibes</a>. Working with coding agents test-first, and watching for weakened tests.</li>
+<li><a href="https://agents.md/" target="_blank" rel="noopener">AGENTS.md</a>. A shared format for repository instructions read by coding agents.</li>
 </ol></section>
 `
 });

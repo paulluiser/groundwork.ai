@@ -84,6 +84,7 @@ def apply(spec_path):
     if S.get("outcomes"):
         head = re.sub(r"(outcomes: \[)([\s\S]*?)(\n  \],)", lambda mm: mm.group(1) + mm.group(2) + "," + ",".join(f'\n    "{o}"' for o in S["outcomes"]) + mm.group(3), head, count=1)
 
+    if "`" in html: raise SystemExit(f"{f.name}: backtick in lesson HTML would end the template string; use <code> instead")
     f.write_text(head + html + tail)
     print("expanded:", f.name)
 

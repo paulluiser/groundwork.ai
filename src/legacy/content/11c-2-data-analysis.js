@@ -14,14 +14,25 @@ GW.trackCfg["analysis-writeup"] = {
 };
 GW.lesson({
   id: "data-analysis",
+  reviewed: "2026-11",
   lede: "Lesson 24 covered getting the right numbers out of a database. This lesson is about what happens next: analysis, charts and conclusions. Assistants now run code on your data and produce polished write-ups in minutes. They also walk into the same statistical traps people do, and they rarely stop to warn you.",
   outcomes: [
     "Ask for analysis as code you can read and rerun, not just an answer.",
     "Recognise Simpson's paradox, multiple comparisons and p-value misreadings in an AI write-up.",
     "Spot charts that exaggerate or hide, and ask for honest defaults.",
-    "Keep the claim that an effect was caused by something tied to how the data was collected."
+    "Keep the claim that an effect was caused by something tied to how the data was collected.",
+    "Rewrite an AI analysis conclusion so its strength matches the evidence."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An assistant analyses last month's onboarding change and writes: “The new onboarding increased activation by 18%, a statistically significant improvement (p &lt; 0.05). We recommend rolling it out to all regions.” It comes with a polished chart and a confident summary.</p>
+<p>The change launched the same week as a marketing campaign that brought in a different kind of user, and the chart's y-axis starts at 40%. The analysis isn't fake; it's an answer to a weaker question than the one it claims to answer. This lesson is about matching conclusions to evidence.</p></div>
+<div class="check warmup" data-a="0"><p class="q">Activation rose after a new onboarding launched, in the same week as a big campaign. What can you conclude?</p><ul>
+<li data-fb="Right. Two changes at once make cause hard to separate.">Activation rose; the cause isn't clear yet.</li>
+<li data-fb="The campaign could explain some or all of it.">The onboarding caused the increase in activation.</li>
+<li data-fb="Equally unproven.">The campaign caused the increase in activation.</li>
+<li data-fb="The data is useful; the causal claim isn't supported.">Nothing, since the data is unusable.</li>
+</ul></div>
 <h2>Where AI helps in analysis</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -63,6 +74,38 @@ GW.lesson({
 <li><strong>Uncertainty:</strong> small groups get ranges, not just a point.</li>
 </ul>
 
+<h2>Strength of evidence, in plain words</h2>
+<p>Conclusions come in strengths. Assistants tend to write the strongest version available. Match the wording to the design of the analysis:</p>
+<div class="tbl"><table><thead><tr><th>Design</th><th>What you can say</th></tr></thead><tbody>
+<tr><td>Randomised experiment (A/B test), pre-registered metric</td><td>“The change caused an increase of about X (range Y–Z).”</td></tr>
+<tr><td>Before/after with a comparison group that didn't change</td><td>“Activation rose more where the change launched; other explanations are less likely but possible.”</td></tr>
+<tr><td>Before/after only</td><td>“Activation rose after the change. We can't separate it from other changes in the same period.”</td></tr>
+<tr><td>Correlation across users</td><td>“Users who did X also tended to do Y.” No causal claim.</td></tr>
+</tbody></table></div>
+<p>A p-value doesn't upgrade a weak design. The American Statistical Association's statement is blunt: a p-value doesn't measure the size or importance of an effect, and doesn't by itself tell you whether a hypothesis is true.[2]</p>
+<h2>Worked example: rewriting the conclusion</h2>
+<div class="worked">
+<div class="wx"><b>AI conclusion</b><div><p>“The new onboarding increased activation by 18%, a statistically significant improvement (p &lt; 0.05). We recommend rolling it out to all regions.”</p></div></div>
+<div class="wx strong"><b>Matched to the evidence</b><div><p>“Activation was 52% in the month after launch, against 44% before (an 8-point rise). A campaign started the same week and brought in more trial users from partners, who usually activate more. Among non-campaign users the rise was 3 points. Recommend an A/B test in two regions before full rollout.”</p></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>“18%” was a relative change</strong> (52/44). Stating points and the base avoids inflating it.</li>
+<li><strong>Splitting by source</strong> showed most of the rise came with the campaign.</li>
+<li><strong>The recommendation now matches the evidence:</strong> test, then decide.</li>
+</ul>
+<h2>Your turn: right-size a conclusion</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Rewrite an overstated finding</span></div><div class="activity-b">
+<p>An assistant concluded: <em>“Customers who use the mobile app spend 40% more. Pushing all customers to the app will grow revenue by 40%.”</em> The data is a comparison of app users and non-app users last year. Rewrite the conclusion and say what analysis would support a stronger claim.</p>
+<div data-w="task" data-key="data-conclusion">
+<div class="task-model"><p>“Customers who used the app spent 40% more on average than those who didn't. This is a correlation: customers who already spend more, or are more engaged, may be more likely to install the app. It doesn't show that getting someone to use the app would raise their spending.”</p>
+<p><strong>Stronger evidence:</strong> a randomised test of an app-install prompt, comparing later spending between prompted and unprompted customers; or comparing the same customers' spending before and after they installed the app, against similar customers who didn't.</p></div>
+<ul class="task-rubric">
+<li>Describes the finding as a correlation, not a cause</li>
+<li>Names at least one plausible alternative explanation</li>
+<li>Drops the unsupported revenue forecast</li>
+<li>Proposes a design that could support a causal claim</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Asking “is it significant?” until it is.</strong> Each extra test or subgroup raises the chance of a false hit.</li>
@@ -74,21 +117,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Take a headline metric from a recent report. Ask an assistant to split it by the two or three dimensions that matter most for your business, as code. Check whether any split goes in the opposite direction to the headline.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A significant p-value proves the change worked.</dt><dd>It says the data would be unusual if there were no effect, given assumptions. It doesn't measure size, importance or cause.</dd>
+<dt>A polished chart means the analysis is careful.</dt><dd>AI makes polish free. Check axes, baselines and what's being compared.</dd>
+<dt>If the assistant ran the code, the analysis is reproducible.</dt><dd>Only if you keep the code, the data version and the steps. Save them with the result.</dd>
+<dt>Overall trends hold within every group.</dt><dd>Aggregates can reverse within subgroups, as the Berkeley admissions data famously showed.[1]</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Match the strength of the claim to the design of the analysis.</li>
+<li>Report changes with the base and in points, not just percentages.</li>
+<li>Look for other changes in the same period, and split by key segments.</li>
+<li>Check charts: axes, baselines, and what's being compared.</li>
+<li>Keep the code and data version so the analysis can be rerun.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">Overall conversion went up, but it went down for both new and returning visitors. What's the most likely explanation?</p><ul>
-<li data-fb="Possible in principle, but this pattern has a well-known cause.">A calculation error in the overall figure.</li>
-<li data-fb="The pattern isn't random; it comes from the mix.">Random noise.</li>
-<li data-fb="Right. Simpson's paradox: the mix moved towards the group that converts better.">The mix of visitors shifted towards the group with higher conversion.</li>
+<div class="check" data-a="3"><p class="q">Activation went from 44% to 52%. Which statement is clearest?</p><ul>
+<li data-fb="True as a relative change, but easy to misread.">“Activation increased by 18%.”</li>
+<li data-fb="Vague, and suggests a statistical claim.">“Activation increased significantly.”</li>
+<li data-fb="Inaccurate.">“Activation roughly doubled after launch.”</li>
+<li data-fb="Right. The base and the change are both clear.">“Activation rose 8 points, from 44% to 52%.”</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An assistant tested 30 customer segments and found three with p &lt; 0.05. How should you report this?</p><ul>
-<li data-fb="Right. With 30 tests, a few hits are expected by chance. Confirm them with a planned test.">As leads to confirm with a new, planned test.</li>
-<li data-fb="Three hits in thirty is about what chance alone would give.">As three proven effects.</li>
-<li data-fb="Running more tests makes the problem worse.">Run more tests until the result is clearer.</li>
+<div class="check" data-a="1"><p class="q">App users spend 40% more than non-app users. What can you conclude?</p><ul>
+<li data-fb="That's a causal forecast the data can't support.">Getting more people to use the app will raise revenue by 40%.</li>
+<li data-fb="Right. Engaged customers may simply choose the app.">App use and spending are associated; the cause is unclear.</li>
+<li data-fb="Not shown by a comparison of self-selected groups.">The app causes customers to spend more.</li>
+<li data-fb="It's a useful signal worth testing.">The difference is meaningless and should be ignored.</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">Why ask for analysis as a notebook or script rather than an answer?</p><ul>
-<li data-fb="Code isn't automatically more accurate.">Because code is always correct.</li>
-<li data-fb="Right. Visible steps can be reviewed, rerun and repeated next month.">So every step can be read, checked and rerun.</li>
-<li data-fb="Speed isn't the main reason.">Because it's faster than reading prose.</li>
+<div class="check" data-a="0"><p class="q">What does a p-value below 0.05 tell you on its own?</p><ul>
+<li data-fb="Right. Nothing about size, importance or cause.">The data would be unusual if there were no effect, under assumptions.</li>
+<li data-fb="A common misreading.">There's a 95% chance the change worked.</li>
+<li data-fb="Size and importance aren't measured by p.">The effect is large enough to matter to the business and its customers.</li>
+<li data-fb="A weak design can still produce small p-values.">The analysis design was sound.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Which design best supports “the change caused the increase”?</p><ul>
+<li data-fb="Other changes in the period can't be ruled out.">Comparing the month before and the month after.</li>
+<li data-fb="Self-selection confounds this.">Comparing users who chose the new flow with those who didn't.</li>
+<li data-fb="Right. Randomisation separates the change from other causes.">A randomised test with a metric chosen in advance.</li>
+<li data-fb="Perceptions aren't measured outcomes.">A survey asking users whether onboarding helped.</li>
+</ul></div>
+<div class="check" data-a="3"><p class="q">A chart's y-axis starts at 40% for a rise from 44% to 52%. Why does it matter?</p><ul>
+<li data-fb="No such rule.">Percentage charts must always start their axis at exactly 50%.</li>
+<li data-fb="It exaggerates the change, rather than hiding it.">It hides the change entirely.</li>
+<li data-fb="They can.">Percentages can't be shown on a y-axis.</li>
+<li data-fb="Right. Truncated axes exaggerate differences.">It makes an 8-point change look several times bigger.</li>
 </ul></div>
 </section>
 

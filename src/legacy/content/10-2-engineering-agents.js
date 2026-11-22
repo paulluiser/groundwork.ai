@@ -39,14 +39,25 @@ GW.trackCfg["agent-calls"] = {
 };
 GW.lesson({
   id: "engineering-agents",
+  reviewed: "2026-11",
   lede: "Coding agents don't just suggest lines. They read the codebase, run commands, edit many files and report back. Used well, they take on whole tasks. Used carelessly, they make large changes nobody has really read. This lesson is about getting the first without the second.",
   outcomes: [
     "Scope tasks so an agent's output is small enough to review properly.",
     "Give agents the project context and conventions they need, once, in writing.",
     "Set permissions and sandboxes so mistakes stay cheap and reversible.",
-    "Review an agent's work from the diff and the tests, not from its summary."
+    "Review an agent's work from the diff and the tests, not from its summary.",
+    "Write a task brief for a coding agent with scope, done criteria and limits."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>You ask a coding agent to “add rate limiting to the public API”. Forty minutes later it reports success: 31 files changed, a new middleware, a Redis dependency, updated configuration in three environments, and every test green. It also, along the way, upgraded two unrelated packages and disabled a flaky test.</p>
+<p>The agent did what agents do with an open-ended task: it kept going. This lesson is about briefing agents so the work stays the size you meant, and reviewing it so nothing slips through.</p></div>
+<div class="check warmup" data-a="1"><p class="q">What's the best size for a task you give a coding agent?</p><ul>
+<li data-fb="Big tasks produce big diffs that are hard to review.">A whole feature, so the agent can make consistent decisions.</li>
+<li data-fb="Right. Small enough to check, big enough to save time.">One change you could review properly in a single sitting.</li>
+<li data-fb="Too small to be worth the overhead.">A single line, so nothing can go wrong.</li>
+<li data-fb="You decide the scope, not the agent.">Whatever the agent suggests after reading the codebase.</li>
+</ul></div>
 <h2>What changes with agents</h2>
 <p>With autocomplete, you read every line as it appears. With an <a class="term" data-t="agent">agent</a>, you read the result afterwards, often hundreds of lines at once (lesson 7 covers how agents loop). The skills shift from writing to specifying, constraining and reviewing. Experience suggests agents do best when tasks are clearly scoped, when they can check their own work by running tests, and when a person checks the result.<sup>[1]</sup><sup>[2]</sup></p>
 
@@ -89,6 +100,67 @@ GW.lesson({
 <h2>Is it actually faster?</h2>
 <p>Not always. In a 2025 randomised study, experienced open-source developers working in their own large codebases took about 19% longer with AI tools, while believing they'd been about 20% faster.<sup>[4]</sup> Other studies on smaller, self-contained tasks found large speed-ups. Measure on your own work (lesson 37 covers how), and don't trust the feeling of speed.</p>
 
+<h2>Worked example: a task brief</h2>
+<div class="worked">
+<div class="wx"><b>Open-ended request</b><div><pre>Add rate limiting to the public API.</pre></div></div>
+<div class="wx strong"><b>A task brief</b><div><pre>Goal: limit POST /v1/exports to 10
+requests per minute per API key.
+
+Scope: only the exports route. Use the
+existing RateLimiter in lib/limits.ts.
+No new dependencies.
+
+Done when:
+- 11th request in a minute gets 429
+  with a Retry-After header
+- tests in exports.test.ts cover the
+  limit and the reset
+- all existing tests still pass,
+  unchanged
+
+Don't: change other routes, upgrade
+packages, edit or skip existing tests.
+Stop and ask if the RateLimiter can't
+do this.</pre></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>Scope names one route and the existing helper,</strong> which rules out the Redis rewrite.</li>
+<li><strong>“Done when” is checkable</strong> and includes a test the agent must write.</li>
+<li><strong>“Don't” lists the usual ways agents overreach:</strong> other routes, upgrades, tests.</li>
+<li><strong>“Stop and ask”</strong> gives it a way out other than improvising.</li>
+</ul>
+<h2>Reviewing what an agent did</h2>
+<p>Review an agent's change like a pull request from a capable stranger. Start with the list of files changed: anything outside the stated scope needs a reason. Read the diff of test files first, looking for edited assertions, skipped tests or removed cases. Check any new or upgraded dependency exists and is the package you expect (lesson 8). Then read the implementation, and run it. Agent transcripts help explain decisions, but the diff is the record.</p>
+<h2>Your turn: brief an agent</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Turn a vague request into a task brief</span></div><div class="activity-b">
+<p>Rewrite this as a brief an agent can finish and you can review: <em>“Clean up the user settings page, it's a mess.”</em> Invent reasonable details about the codebase if you need to.</p>
+<div data-w="task" data-key="eng-agent-brief">
+<div class="task-model"><pre>Goal: split SettingsPage.tsx (900 lines)
+into one component per section
+(Profile, Notifications, Billing), with
+no change in behaviour.
+
+Scope: src/pages/settings/ only.
+
+Done when:
+- each section is its own component
+- the page looks and behaves the same
+  (existing Playwright test passes)
+- no file is over 300 lines
+
+Don't: change styles, rename props used
+elsewhere, add dependencies, or edit
+tests other than imports.
+Stop and ask if a section shares state
+in a way that makes splitting unclear.</pre></div>
+<ul class="task-rubric">
+<li>Replaces “clean up” with a specific, checkable goal</li>
+<li>Limits the scope to named files or folders</li>
+<li>Defines done in terms of tests or observable behaviour</li>
+<li>Lists what the agent must not change</li>
+<li>Tells the agent when to stop and ask</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Tests rewritten to pass.</strong> Check every changed test's expected values, not just that the suite is green.</li>
@@ -100,21 +172,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 45-minute exercise.</strong> Write a ten-line instructions file for your repository: build and test commands, three conventions, and folders to leave alone. Give an agent one small, tested task with and without the file. Compare the two diffs.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>A green test run means the agent's work is done.</dt><dd>Agents can make tests green by editing or skipping them. Read the test diff first.</dd>
+<dt>Agents work best with a lot of freedom.</dt><dd>Clear scope, done criteria and limits produce better, reviewable work.</dd>
+<dt>Watching the agent work replaces reviewing the diff.</dt><dd>Transcripts explain intent; the diff is what ships.</dd>
+<dt>Agents don't need access rules if they run on my machine.</dt><dd>They can read secrets, run commands and reach the network. Limit what they can touch.</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Give agents tasks you could review in one sitting.</li>
+<li>A brief has a goal, a scope, done criteria, limits and a stop-and-ask rule.</li>
+<li>Review files changed, then tests, then dependencies, then the implementation.</li>
+<li>Treat edited or skipped tests as a red flag until explained.</li>
+<li>Keep agents away from secrets and untrusted content combined with network access.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="2"><p class="q">Which task is best suited to a coding agent?</p><ul>
-<li data-fb="Too vague: expect a sprawling diff.">“Tidy up the codebase.”</li>
-<li data-fb="Too large and hard to review in one go.">“Migrate the app to the new framework.”</li>
-<li data-fb="Right. Specific, testable, and with a clear finish line.">“Make the failing test in billing/test_proration pass without changing the test.”</li>
+<div class="check" data-a="2"><p class="q">An agent's change touches 31 files for a task scoped to one route. What should you do first?</p><ul>
+<li data-fb="Out-of-scope changes need a reason first.">Merge it if all tests pass, since the agent was thorough.</li>
+<li data-fb="A summary isn't the diff.">Ask the agent to summarise what it did and accept that.</li>
+<li data-fb="Right. Scope creep is where surprises hide.">Check why each file outside the scope was changed.</li>
+<li data-fb="Possibly, but first see what's salvageable.">Revert everything and do the task by hand.</li>
 </ul></div>
-<div class="check" data-a="0"><p class="q">An agent reports that all tests pass. What should you check in the diff first?</p><ul>
-<li data-fb="Right. Weakened assertions are a common shortcut to green.">Whether any test's expected values or assertions changed.</li>
-<li data-fb="Style matters less than whether the tests still test anything.">Whether the code follows the style guide.</li>
-<li data-fb="The commit message is another claim.">Whether the commit message is clear.</li>
+<div class="check" data-a="0"><p class="q">Which line in a brief most reduces the risk of an agent hiding a bug?</p><ul>
+<li data-fb="Right. It protects the tests that check the work.">“Don't edit or skip existing tests.”</li>
+<li data-fb="Style isn't the risk.">“Write clean, idiomatic, well-commented code throughout.”</li>
+<li data-fb="Too vague to change behaviour.">“Be careful and thorough.”</li>
+<li data-fb="Useful, but unrelated to hidden bugs.">“Use TypeScript for all new files.”</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">Which setup most reduces the risk from prompt injection in an agent session?</p><ul>
-<li data-fb="Instructions help, but injected text is designed to override them.">Telling the agent to ignore instructions in files.</li>
-<li data-fb="Right. Remove the data it could leak and the path it could leak it through.">Keeping secrets out of its environment and limiting its network access.</li>
-<li data-fb="A bigger model is no guarantee against injection.">Using the most capable model available.</li>
+<div class="check" data-a="3"><p class="q">What should you review first in an agent's pull request?</p><ul>
+<li data-fb="Helpful context, but not the record.">The agent's transcript of its reasoning.</li>
+<li data-fb="Important, but check scope and tests first.">The new feature code in the main file it created or changed.</li>
+<li data-fb="Messages describe; they don't verify.">The commit messages it wrote.</li>
+<li data-fb="Right. Scope and tests tell you what to look harder at.">The list of files changed and the test changes.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Why include “stop and ask if the existing helper can't do this”?</p><ul>
+<li data-fb="They can, but they rarely stop unprompted.">Agents can't work without explicit permission to ask.</li>
+<li data-fb="Right. Otherwise it may build something new.">It gives the agent an alternative to improvising a bigger change.</li>
+<li data-fb="Speed isn't the point.">It makes the agent run faster, because it skips unnecessary exploration.</li>
+<li data-fb="It isn't a requirement.">It's required by most coding agent tools.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">An agent added a new package you haven't heard of. What's the check?</p><ul>
+<li data-fb="Agents can invent or misname packages.">Trust it, since agents only use popular packages.</li>
+<li data-fb="Its answer isn't verification.">Ask the agent whether the package is safe.</li>
+<li data-fb="Right. Hallucinated and look-alike packages are real risks.">Confirm it exists, is the one intended, and is maintained.</li>
+<li data-fb="Possibly your policy, but check first.">Remove it automatically, since new packages aren't allowed.</li>
 </ul></div>
 </section>
 

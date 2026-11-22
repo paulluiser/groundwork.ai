@@ -15,14 +15,25 @@ GW.trackCfg["data-tests"] = {
 };
 GW.lesson({
   id: "data-quality",
+  reviewed: "2026-11",
   lede: "AI can write pipeline code, data models and documentation quickly. That makes it easier to build a lot of data infrastructure that nobody fully checked. This lesson covers testing generated models, keeping shared definitions in one place, and keeping personal data where it belongs.",
   outcomes: [
     "Ask for tests with every AI-generated model, and know what the basic tests catch.",
     "Keep metric definitions in one shared place so people and AI tools use the same ones.",
     "Know why text-to-SQL accuracy drops on real enterprise data, and what to do about it.",
-    "Apply basic data-protection rules when AI tools touch personal data."
+    "Apply basic data-protection rules when AI tools touch personal data.",
+    "Write documentation for a data model that an AI tool can use to answer questions correctly."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An assistant generates a new dbt model for “active subscriptions” in ten minutes, complete with documentation. The docs say <em>“status: the status of the subscription”</em> and <em>“amount: the amount”</em>. Three weeks later, an AI analyst tool answers a revenue question from this model, treats paused subscriptions as active, and sums amounts that are in four currencies.</p>
+<p>Documentation used to be for people who'd ask a colleague when confused. Now AI tools read it literally and never ask. This lesson is about tests and documentation that hold up when machines are the main readers.</p></div>
+<div class="check warmup" data-a="2"><p class="q">Which column description helps an AI tool answer correctly?</p><ul>
+<li data-fb="Restates the name; says nothing useful.">“status: the status of the subscription.”</li>
+<li data-fb="No information an AI tool can use.">“status: important field, see the product team.”</li>
+<li data-fb="Right. Values and their meaning, including the trap.">“status: active, paused or cancelled; paused isn't billed.”</li>
+<li data-fb="The type is useful but the meaning is missing.">“status: string, not null.”</li>
+</ul></div>
 <h2>Where AI helps with pipelines and governance</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -63,6 +74,66 @@ GW.lesson({
 <li><strong>Keep access rules in the warehouse,</strong> not in the prompt. An AI tool connected to data should see only what the person using it may see.</li>
 </ul>
 
+<h2>Docs that machines can use</h2>
+<p>AI tools that answer questions from your warehouse rely on table and column descriptions to choose what to query. Good descriptions say what a row represents (the grain), what each value means, the units and currency, and the traps: values that look similar but mean different things, columns that shouldn't be summed, filters every query needs. Write them for a newcomer who will never ask a follow-up question, because that's what an AI tool is.</p>
+<h2>Worked example: documenting a model</h2>
+<div class="worked">
+<div class="wx"><b>Generated docs</b><div><pre>subscriptions:
+  description: Subscription data.
+  columns:
+    status: The status of the subscription.
+    amount: The amount.
+    started_at: When it started.</pre></div></div>
+<div class="wx strong"><b>Docs an AI tool can rely on</b><div><pre>subscriptions:
+  description: One row per subscription
+    (not per customer). Excludes test
+    accounts. Refreshed daily at 03:00 UTC.
+  columns:
+    status: active | paused | cancelled.
+      Only 'active' is billed. Use
+      'active' for MRR.
+    amount: Monthly price in minor units
+      (cents) in <code>currency</code>. Don't sum
+      across currencies; use amount_usd.
+    started_at: UTC timestamp of first
+      payment, not sign-up.</pre></div></div>
+</div>
+<ul class="wx-notes">
+<li><strong>Grain first:</strong> “one row per subscription” prevents counting customers by counting rows.</li>
+<li><strong>Values and meanings</strong> stop paused subscriptions being treated as revenue.</li>
+<li><strong>Units, currency and “don't sum”</strong> head off the most expensive mistakes.</li>
+<li><strong>Tests back the docs up:</strong> an accepted-values test on status and a not-null test on currency make the description enforceable.[1]</li>
+</ul>
+<h2>Your turn: document a model</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Write docs and tests for an orders model</span></div><div class="activity-b">
+<p>Write the description and column docs for an <code>orders</code> model with columns <code>order_id, customer_id, status, total, currency, created_at, is_test</code>, plus the tests you'd add. Invent sensible business rules where needed.</p>
+<div data-w="task" data-key="data-docs">
+<div class="task-model"><pre>orders: One row per order. Includes test
+  orders: filter is_test = false in every
+  business query. Refreshed hourly.
+  order_id: Unique order ID. (tests: unique,
+    not_null)
+  customer_id: The ordering customer.
+    (tests: not_null, relationships to
+    customers.id)
+  status: pending | paid | refunded |
+    cancelled. Revenue = paid only.
+    (test: accepted_values)
+  total: Order total incl. tax, in minor
+    units of <code>currency</code>. Don't sum across
+    currencies. (test: not_null, >= 0)
+  currency: ISO 4217 code. (test: not_null)
+  created_at: UTC time the order was
+    placed, not paid.
+  is_test: true for internal test orders.</pre></div>
+<ul class="task-rubric">
+<li>States the grain (one row per order)</li>
+<li>Explains status values and which count as revenue</li>
+<li>States units and currency, and warns against summing across currencies</li>
+<li>Flags the test-order filter every query needs</li>
+<li>Adds tests that enforce the documented rules</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Documentation that restates the code.</strong> “customer_status: the status of the customer” helps nobody. Add what each value means and who owns it.</li>
@@ -74,21 +145,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 30-minute exercise.</strong> Pick one important model in your warehouse. Ask an assistant to propose tests for it, then compare with the tests it already has. Add the two most useful missing ones and see whether either fails.</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>Generated documentation is good enough to start with.</dt><dd>It usually restates column names. Add grain, meanings, units and traps before anyone relies on it.</dd>
+<dt>Documentation is for people; AI tools read the data.</dt><dd>AI tools choose tables and filters from the docs. Vague docs produce confident wrong answers.</dd>
+<dt>Tests slow down data teams.</dt><dd>A handful of generic tests catches most silent errors and makes docs enforceable.</dd>
+<dt>Anonymised data is safe to use anywhere.</dt><dd>Pseudonymised data is still personal data under the GDPR.[2]</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Write docs for a reader who never asks questions: grain, meanings, units, traps.</li>
+<li>Back documented rules with tests so they're enforced.</li>
+<li>Define metrics once and point AI tools at the definitions.</li>
+<li>Keep personal data out of AI tools unless approved, including free-text columns.</li>
+<li>Review generated models and docs as carefully as generated code.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="0"><p class="q">An AI-generated model joins orders to payments, and total revenue jumps 30%. Which test should you add first?</p><ul>
-<li data-fb="Right. A jump like that usually means the join fanned out, duplicating orders.">unique on order_id in the output.</li>
-<li data-fb="Missing values would make totals smaller, not bigger.">not_null on amount.</li>
-<li data-fb="New categories wouldn't usually inflate totals.">accepted_values on payment method.</li>
+<div class="check" data-a="0"><p class="q">What should a model's description state first?</p><ul>
+<li data-fb="Right. Grain prevents counting the wrong thing.">Its grain: what one row represents.</li>
+<li data-fb="Ownership helps, but grain comes first.">The name of the engineer who built it.</li>
+<li data-fb="Operational detail, not meaning.">How long the model takes to build.</li>
+<li data-fb="The code is available; the meaning isn't.">The SQL used to create it.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Why do AI assistants answer more accurately from a semantic layer than from raw tables?</p><ul>
-<li data-fb="It's not about speed.">Semantic layers run queries faster.</li>
-<li data-fb="Fewer tables helps a little, but it's not the main reason.">There are fewer tables to choose from.</li>
-<li data-fb="Right. Shared definitions remove the guesswork about what terms mean.">Metric meanings are written down instead of guessed from column names.</li>
+<div class="check" data-a="3"><p class="q">An AI tool summed amounts across four currencies. Which doc line would have prevented it?</p><ul>
+<li data-fb="Restates the name.">“amount: the amount of the subscription.”</li>
+<li data-fb="Type, not meaning.">“amount: numeric, not null.”</li>
+<li data-fb="AI tools can't ask the finance team.">“amount: see the finance team for details.”</li>
+<li data-fb="Right. Units and the trap, stated plainly.">“amount: minor units of <code>currency</code>; don't sum across currencies.”</li>
 </ul></div>
-<div class="check" data-a="1"><p class="q">You replaced customer emails with random IDs, but kept a lookup table. Is the data still personal data under the GDPR?</p><ul>
-<li data-fb="Replacing identifiers alone doesn't take data out of scope.">No, it's anonymised.</li>
-<li data-fb="Right. Pseudonymised data that can be linked back is still personal data.">Yes, because it can be linked back to people.</li>
-<li data-fb="The law doesn't depend on who holds the lookup.">Only if the lookup table is shared.</li>
+<div class="check" data-a="1"><p class="q">How do you make a documented rule like “status is active, paused or cancelled” enforceable?</p><ul>
+<li data-fb="Repetition doesn't enforce it.">Repeat it in every dashboard's description.</li>
+<li data-fb="Right. A new value fails the test.">Add an accepted-values test on the column.</li>
+<li data-fb="Tools don't enforce data rules.">Ask the AI tool to remember the rule.</li>
+<li data-fb="People read it; data doesn't obey it.">Put it in the team's onboarding guide.</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Why mention “filter is_test = false” in the model description?</p><ul>
+<li data-fb="Completeness isn't the goal.">To make the documentation look complete.</li>
+<li data-fb="They're in this table; that's the issue.">Because test orders are normally stored in a separate staging table.</li>
+<li data-fb="Right. A filter everyone needs belongs in the docs.">So people and AI tools exclude test orders from business queries.</li>
+<li data-fb="It doesn't; the business does.">Because the database requires it.</li>
+</ul></div>
+<div class="check" data-a="0"><p class="q">Is pseudonymised customer data safe to paste into any AI tool?</p><ul>
+<li data-fb="Right. Pseudonymised isn't anonymous.">No: it's still personal data if it can be linked back.</li>
+<li data-fb="Other fields can re-identify people.">Yes, once names and emails are removed.</li>
+<li data-fb="Training is only one concern.">Yes, as long as the tool's terms promise not to train on it.</li>
+<li data-fb="Age doesn't change its status.">Only if the data is less than a year old.</li>
 </ul></div>
 </section>
 

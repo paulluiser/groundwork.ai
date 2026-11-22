@@ -1,14 +1,25 @@
 GW.lesson({
   id: "qa",
+  reviewed: "2026-11",
   lede: "Testers are professional sceptics, and scepticism is exactly what AI output needs. This lesson covers two jobs: using AI to test better, and testing features that are themselves built on AI.",
   outcomes: [
     "Generate test ideas with AI, then judge coverage using techniques you already know.",
     "Spot the risks an AI-generated test plan typically misses, including tests that encode a defect.",
     "Explain why AI features need evaluation sets and pass rates rather than exact-match assertions.",
     "Design a small evaluation for an AI feature.",
-    "Use a model as a grader without inheriting its biases."
+    "Use a model as a grader without inheriting its biases.",
+    "Use risk to decide which AI-generated test ideas are worth keeping."
   ],
   html: String.raw`
+<!-- expanded -->
+<div class="scenario"><p>An assistant gives you 64 test cases for a new “change email address” feature in under a minute. They're tidy, numbered and cover every field. Reading them, you notice they test the form thoroughly and the risk barely at all: nothing about the confirmation link going to the old address, nothing about someone else's session, nothing about what happens to pending invoices sent to the old email.</p>
+<p>AI produces test ideas in volume. The tester's job is deciding which ones matter, and adding the ones only someone who understands the system would think of.</p></div>
+<div class="check warmup" data-a="2"><p class="q">An assistant generates 64 test cases for a feature. What's the best first step?</p><ul>
+<li data-fb="Volume isn't coverage of risk; many may test the same thing.">Automate all 64, since more coverage is always better.</li>
+<li data-fb="Order of generation isn't order of importance.">Run the first ten and see whether they find any bugs at all.</li>
+<li data-fb="Right. Risk decides what's worth running and what's missing.">Rank them by risk and add the cases only you know to test.</li>
+<li data-fb="It doesn't know your system's risks.">Ask the assistant which of its own cases are most important.</li>
+</ul></div>
 <h2>Where AI meets testing work</h2>
 <div class="tbl"><table>
 <thead><tr><th>Task</th><th>Fit</th><th>Why, and how to check</th></tr></thead>
@@ -91,6 +102,41 @@ GW.lesson({
 </tbody></table></div>
 <p>Inputs: 60 real tickets from last month across six categories, plus 15 hard and adversarial ones. Each runs five times. The release bar: every must-pass criterion at 98% or above, and no category below 95%.</p>
 
+<h2>Risk first, then ideas</h2>
+<p>Risk-based testing asks two questions about every area: how likely is it to fail, and how bad would it be if it did? AI is good at the long tail of input variations (empty fields, long strings, special characters). It's weak at the risks specific to your system: integrations, permissions, money, data that outlives the feature. Start with a short risk list of your own, then use AI to fill in variations under each risk, rather than the other way round. Security testing guides like OWASP's are a good source of the risks that matter most for features touching accounts and identity.[5]</p>
+<h2>Worked example: sorting generated test ideas</h2>
+<div class="tbl"><table><thead><tr><th>Generated idea</th><th>Risk</th><th>Keep?</th></tr></thead><tbody>
+<tr><td>Email field rejects “user@”</td><td>Low: validation, visible</td><td>Keep one representative case</td></tr>
+<tr><td>Email field accepts 254-character address</td><td>Low</td><td>Keep, cheap to automate</td></tr>
+<tr><td>Cases 12–31: twenty other invalid formats</td><td>Low, duplicative</td><td>Collapse into one data-driven test</td></tr>
+<tr><td>(Missing) Confirmation goes to the new address, and a notice to the old one</td><td>High: account takeover</td><td>Add</td></tr>
+<tr><td>(Missing) Change requires recent password entry</td><td>High: stolen session</td><td>Add</td></tr>
+<tr><td>(Missing) Invoices already scheduled still reach the right address</td><td>Medium: billing</td><td>Add, ask product</td></tr>
+</tbody></table></div>
+<ul class="wx-notes">
+<li><strong>Twenty generated cases became one.</strong> Variations of the same risk are cheap to automate together.</li>
+<li><strong>The three most important cases weren't generated at all.</strong> They come from knowing how accounts are attacked and how billing works.</li>
+<li><strong>The billing case raises a product question</strong>, which is often what good testing does.</li>
+</ul>
+<h2>Your turn: a risk list before the test ideas</h2>
+<div class="activity"><div class="activity-h"><span class="tag">Your turn</span><span class="ttl">Risks for “delete my account”</span></div><div class="activity-b">
+<p>Before asking an assistant for test cases, write the risk list for a new “delete my account” feature in a subscription product. For each risk, say how likely and how severe, and one test that would catch it.</p>
+<div data-w="task" data-key="qa-risks">
+<div class="task-model"><ul>
+<li><strong>Someone else deletes the account</strong> (stolen session). High severity. Test: deletion requires recent re-authentication.</li>
+<li><strong>Billing continues after deletion.</strong> High. Test: active subscription is cancelled and no future invoice is scheduled.</li>
+<li><strong>Personal data remains</strong> in exports, backups or analytics. High (legal). Test: data is removed or anonymised in each store within the stated period.</li>
+<li><strong>Shared workspace loses its only admin.</strong> Medium. Test: deletion is blocked or ownership is transferred.</li>
+<li><strong>Accidental deletion.</strong> Medium. Test: confirmation step and a grace period to undo.</li>
+</ul></div>
+<ul class="task-rubric">
+<li>Includes security risks such as stolen sessions</li>
+<li>Includes money: what happens to billing</li>
+<li>Includes data protection: where personal data lives</li>
+<li>Includes effects on other users or shared data</li>
+<li>Gives a concrete test for each risk</li>
+</ul>
+</div></div></div>
 <h2>Pitfalls to watch for</h2>
 <ul>
 <li><strong>Tests that freeze bugs.</strong> Tests generated from the current behaviour assert whatever the product does now, including its defects.</li>
@@ -103,21 +149,52 @@ GW.lesson({
 <h2>Try it this week</h2>
 <div class="aside"><strong>A 40-minute exercise.</strong> Take a feature you're testing now. Ask an assistant for test cases from the requirements. Then, before reading its list, write down the three riskiest things about the feature yourself. Compare: did its list include your three? Did any of its cases encode behaviour you'd consider a defect?</div>
 
+<h2>Common misconceptions</h2>
+<dl class="myths">
+<dt>More generated test cases means better coverage.</dt><dd>Coverage of inputs isn't coverage of risk. Many generated cases test the same thing.</dd>
+<dt>AI can't help with exploratory testing.</dt><dd>It can suggest charters and unusual paths. You still do the exploring and judge what's interesting.</dd>
+<dt>A feature built on AI can be tested with exact-match assertions.</dt><dd>Outputs vary. Test against rules and pass rates over many inputs.</dd>
+<dt>LLM-as-judge removes the need for human review.</dt><dd>Judges need validating against people, and agree with them only partly.[4]</dd>
+</dl>
+<h2>Recap</h2>
+<div class="recap"><ul>
+<li>Write the risk list first; use AI to generate variations under each risk.</li>
+<li>Collapse duplicative generated cases into data-driven tests.</li>
+<li>The most important cases come from knowing the system: permissions, money, data.</li>
+<li>AI features need tests over many inputs with pass rates, not single assertions.</li>
+<li>Validate any AI judge against human judgements before trusting it.</li>
+</ul></div>
+
 <section class="checks"><h2>Check your understanding</h2>
-<div class="check" data-a="1"><p class="q">Why can't you test an AI summarisation feature with a single exact-match assertion?</p><ul>
-<li data-fb="Assertion libraries can compare strings of any length.">Summaries are too long for assertion libraries.</li>
-<li data-fb="Right. Many different outputs are acceptable, and any given run might produce an unacceptable one. You need criteria and pass rates.">The output varies between runs, and many different summaries can be correct.</li>
-<li data-fb="AI features can and should be tested; just differently.">AI features can't be tested automatically.</li>
+<div class="check" data-a="3"><p class="q">Which test is an assistant least likely to generate without being told about your system?</p><ul>
+<li data-fb="A typical validation case models usually include.">An email field that rejects a value with no domain after the @ sign.</li>
+<li data-fb="A common internationalisation case.">A name field that accepts accented characters.</li>
+<li data-fb="A widely known UI case.">A password field that masks what's typed.</li>
+<li data-fb="Right. It depends on how your billing works.">Scheduled invoices still reach the customer after an email change.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">An AI-generated test asserts that login shows “Incorrect password for this account” when the password is wrong. What should a tester ask?</p><ul>
-<li data-fb="Wording may matter, but there's a bigger issue.">Whether the wording is friendly enough.</li>
-<li data-fb="Timing isn't the main question here.">Whether the message appears quickly.</li>
-<li data-fb="Right. Confirming “this account” exists helps attackers enumerate accounts. The test may be asserting a defect.">Whether the message reveals that the account exists, which would be a security issue.</li>
+<div class="check" data-a="1"><p class="q">Twenty generated cases each test a different invalid email format. What should you do?</p><ul>
+<li data-fb="Twenty tests for one risk adds maintenance, not safety.">Automate each one separately for maximum coverage.</li>
+<li data-fb="Right. Same risk, one test, many inputs.">Collapse them into one data-driven test.</li>
+<li data-fb="Validation matters; it just doesn't need twenty tests.">Delete them all, since validation doesn't matter.</li>
+<li data-fb="More of the same doesn't add coverage.">Ask the assistant for twenty more to be safe.</li>
 </ul></div>
-<div class="check" data-a="2"><p class="q">Your model grader gives version B higher tone scores than version A. B's replies are also about 40% longer. What should you do before believing the result?</p><ul>
-<li data-fb="The grader's preference may be about length, not tone. That's what needs ruling out.">Ship B; the grader is consistent across hundreds of cases.</li>
-<li data-fb="Model graders are useful at scale; the fix is to check them, not abandon them.">Stop using model graders altogether.</li>
-<li data-fb="Right. Verbosity bias is a known pattern. Human grades on a sample tell you whether the grader is measuring tone or length.">Compare the grader with human grades on a sample, and check whether it is rewarding length.</li>
+<div class="check" data-a="0"><p class="q">What are the two questions behind risk-based testing?</p><ul>
+<li data-fb="Right. Likelihood and impact decide priority.">How likely is it to fail, and how bad would that be?</li>
+<li data-fb="Effort matters, but it isn't the risk.">How long will the tests take to write and to run?</li>
+<li data-fb="A useful split, but not the definition of risk.">Which tests can AI write, and which must people write?</li>
+<li data-fb="History informs risk, but isn't the core questions.">What did the last release break, and who reported it?</li>
+</ul></div>
+<div class="check" data-a="2"><p class="q">Why can't an AI summary feature be tested with one exact-match assertion?</p><ul>
+<li data-fb="They aren't.">Exact-match assertions are deprecated in most modern testing frameworks.</li>
+<li data-fb="Speed isn't the reason.">The feature is too slow for automated testing.</li>
+<li data-fb="Right. One run tells you little.">Its outputs vary, so you test rules and pass rates over many inputs.</li>
+<li data-fb="They can be tested automatically with the right approach.">AI features can only be tested manually by people.</li>
+</ul></div>
+<div class="check" data-a="1"><p class="q">Before using an LLM to grade outputs at scale, what should you do?</p><ul>
+<li data-fb="Cost doesn't guarantee agreement with people.">Use the most expensive model available as the judge.</li>
+<li data-fb="Right. Validate the judge before trusting it.">Check its grades agree with people's on a sample.</li>
+<li data-fb="That shares the feature's blind spots.">Give it the same prompt as the feature it's judging.</li>
+<li data-fb="Explanations don't show its grades are right.">Ask it to explain each grade in detail.</li>
 </ul></div>
 </section>
 
@@ -126,6 +203,8 @@ GW.lesson({
 <li>Anthropic, <a href="https://docs.claude.com/en/docs/test-and-evaluate/develop-tests" target="_blank" rel="noopener">Define success criteria and build evaluations</a>. Building eval sets and grading methods for AI features.</li>
 <li>OWASP, <a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">Top 10 for LLM Applications</a>. Risks to include in adversarial test cases.</li>
 <li>Zheng et al. (2023), <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</a>. Agreement between model and human graders, and position, verbosity and self-enhancement biases.</li>
+
+<li>OWASP, <a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener">Web Security Testing Guide</a>. A structured source of risks and tests for authentication, sessions and account features.</li>
 </ol></section>
 `
 });
