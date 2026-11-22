@@ -132,7 +132,7 @@ GW.families = [
 ];
 
 GW.glossary = {
-  "ai": ["Artificial intelligence (AI)", "A broad label for software that performs tasks we associate with human judgment, such as recognising images or writing text. In this course it mostly means generative AI built on large language models."],
+  "ai": ["Artificial intelligence (AI)", "A broad label for software that performs tasks we associate with human judgment, such as recognising images or writing text. In this starter kit it mostly means generative AI built on large language models."],
   "llm": ["Large language model (LLM)", "A model trained on very large amounts of text to predict the next token. Chat assistants, coding assistants and many writing tools are built on one.", "how-models-work"],
   "model": ["Model", "The trained artefact that turns input into output: billions of numbers (parameters) learned from data. The product you use wraps a model with instructions, tools and a user interface.", "how-models-work"],
   "token": ["Token", "The unit a model reads and writes: a word, part of a word, a number chunk or a punctuation mark. In English, one token averages roughly four characters. Limits and prices are counted in tokens.", "how-models-work"],

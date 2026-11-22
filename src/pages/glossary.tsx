@@ -58,7 +58,7 @@ export default function Glossary({ term }: { term: string }) {
 
   return (
     <Page>
-      <PageHeader title="Glossary" description="Every term the course relies on, in plain words, with the lesson that explains it." />
+      <PageHeader title="Glossary" description="Every term the starter kit relies on, in plain words, with the lesson that explains it." />
 
       <div className="sticky top-14 z-20 -mx-4 mb-8 grid gap-2 border-b sm:gap-3 bg-background/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

@@ -86,7 +86,7 @@ GW.lesson({
 </ul>
 
 <h2>Assess judgement, not output</h2>
-<p>When output is cheap, the differentiating skills are the ones this course keeps returning to: knowing what right looks like, checking, explaining trade-offs, and changing course when evidence says so. Interview exercises can target those directly. Ask candidates to review a flawed pull request, extend their own take-home live, explain a design choice and its alternatives, or debug from real logs. Allow AI where your team allows it, and watch how they use it.</p>
+<p>When output is cheap, the differentiating skills are the ones this starter kit keeps returning to: knowing what right looks like, checking, explaining trade-offs, and changing course when evidence says so. Interview exercises can target those directly. Ask candidates to review a flawed pull request, extend their own take-home live, explain a design choice and its alternatives, or debug from real logs. Allow AI where your team allows it, and watch how they use it.</p>
 <h2>Worked example: a review-based exercise</h2>
 <div class="tbl"><table><thead><tr><th>Part</th><th>What the candidate does</th><th>What you assess</th></tr></thead><tbody>
 <tr><td>Review (30 min)</td><td>Reviews a 150-line pull request with three planted issues: a security flaw, a missing edge case, an unclear name</td><td>Prioritisation: do they find the security flaw and rank it first?</td></tr>

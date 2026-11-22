@@ -295,7 +295,7 @@ export default function LessonPage({ id, target }: { id: string; target: string 
               <nav className="grid gap-3 sm:grid-cols-2" aria-label="Previous and next lessons">
                 {prev ? <a href={"#" + prev.id} className="rounded-xl border bg-card p-4 hover:bg-accent"><span className="flex items-center gap-1 text-xs text-muted-foreground"><ArrowLeft className="size-3.5" />Previous{onPath && " on your path"}</span><b className="mt-1 block font-medium">{prev.title}</b></a> : <span />}
                 {next ? <a href={"#" + next.id} className="rounded-xl border bg-card p-4 text-right hover:bg-accent"><span className="flex items-center justify-end gap-1 text-xs text-muted-foreground">Next{onPath && " on your path"}<ArrowRight className="size-3.5" /></span><b className="mt-1 block font-medium">{next.title}</b></a>
-                  : <a href="#home" className="rounded-xl border bg-card p-4 text-right hover:bg-accent"><span className="text-xs text-muted-foreground">{onPath ? "End of your path" : "Finished"}</span><b className="mt-1 block font-medium">Back to course home</b></a>}
+                  : <a href="#home" className="rounded-xl border bg-card p-4 text-right hover:bg-accent"><span className="text-xs text-muted-foreground">{onPath ? "End of your path" : "Finished"}</span><b className="mt-1 block font-medium">Back to lessons</b></a>}
               </nav>
             </footer>
             {prep.sources && <div className="lesson kern-lesson-body mt-10" dangerouslySetInnerHTML={{ __html: prep.sources }} />}

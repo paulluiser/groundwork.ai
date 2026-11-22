@@ -194,7 +194,7 @@ Don't recommend solutions. Don't generalise beyond the participants.
 <section class="sources"><h2>Sources and further reading</h2><ol>
 <li>Nielsen Norman Group, <a href="https://www.nngroup.com/articles/synthetic-users/" target="_blank" rel="noopener">Synthetic Users: If, When, and How to Use AI-Generated “Research”</a>.</li>
 <li>Sharma et al. (2023), <a href="https://arxiv.org/abs/2310.13548" target="_blank" rel="noopener">Towards Understanding Sycophancy in Language Models</a>. Why leading research questions get agreeable answers.</li>
-<li>Lessons <a href="#failure-modes">3: Why it gets things wrong</a> and <a href="#checking-work">5: Checking the work</a> in this course.</li>
+<li>Lessons <a href="#failure-modes">3: Why it gets things wrong</a> and <a href="#checking-work">5: Checking the work</a> in this starter kit.</li>
 
 <li>Amershi et al. (2019), <a href="https://www.microsoft.com/en-us/research/publication/guidelines-for-human-ai-interaction/" target="_blank" rel="noopener">Guidelines for Human-AI Interaction</a>. Eighteen tested guidelines, including making clear what a system can do and how well.</li>
 <li>Marty Cagan, SVPG, <a href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">The Four Big Risks</a>. Value, usability, feasibility and viability as the questions product work must answer.</li>

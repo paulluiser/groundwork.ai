@@ -95,7 +95,7 @@ What are the most likely causes? For each, tell me what I could check to confirm
 <li><strong>What you ruled out</strong>stopped it from spending the answer on the payment provider.</li>
 <li><strong>Asking for checks</strong>turned the reply into hypotheses you can test, rather than a verdict you have to trust.</li>
 </ol>
-<p>This is the pattern for almost every task in this course: the quality of the answer is bounded by the quality of the context. Lesson 5 turns it into a repeatable structure.</p>
+<p>This is the pattern for almost every task in this starter kit: the quality of the answer is bounded by the quality of the context. Lesson 5 turns it into a repeatable structure.</p>
 
 <h2>Retrieval: answering from your documents</h2>
 <p>Many workplace tools, such as an internal help bot or “ask our docs”, use <a class="term" data-t="rag">retrieval-augmented generation</a> (RAG).<sup>[2]</sup> Instead of relying on training, the system searches your documents and puts the most relevant passages into the context before the model answers. It is context engineering done automatically, on every question.</p>

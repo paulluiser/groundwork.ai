@@ -1,7 +1,7 @@
 {
   "name": "Kern: AI for software teams",
   "short_name": "Kern",
-  "description": "A free, self-paced course for software teams on understanding AI and using it thoughtfully at work.",
+  "description": "A free, self-paced AI starter kit for software teams: understanding AI and using it thoughtfully at work.",
   "start_url": "./#home",
   "scope": "./",
   "display": "standalone",

@@ -12,7 +12,7 @@ Individual members of software teams who take the course themselves, at their ow
 
 ## Product Purpose
 
-Kern is a free, self-paced course on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
+Kern is a free, self-paced AI starter kit on understanding AI and using it thoughtfully at work. A learner finishes able to explain how a model produces text, decide what it should and shouldn't see, write requests like a good brief, recognise common failure modes, check output in proportion to the risk, and set limits on tools and agents that take actions. Success is a learner who keeps the judgment theirs: they accept, edit, reject or escalate AI-assisted work, and can say why.
 
 ## Positioning
 
@@ -46,7 +46,7 @@ Role-shaped rather than generic. Everyone learns the same core lessons, then pic
 
 ## Brand Commitments
 
-- Name: Kern, with the line "AI for software teams". The landing headline: "Learn the basics of AI and its use cases for [role]".
+- Name: Kern, with the line "AI for software teams". Kern calls itself a **starter kit**, never a course (decided 22 November 2026): it is for beginners, with no enrolment or accounts. Buttons say "Get the starter kit", "Start learning" or "Continue where you left off"; the idioms "change course" and "correct course" in lesson text are unaffected. The landing headline: "Learn the basics of AI and its use cases for [role]".
 - Voice: neutral, plain English, no hype. It states what AI is good at and where it fails, without cheerleading or alarm.
 - Palette: white 60%, black 30%, cobalt accent 10%. The user set this palette and it is binding.
 

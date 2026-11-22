@@ -107,7 +107,7 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
             <CardContent className="grid gap-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={() => copy(link, "Resume link copied. Open it on your other device.")}><Copy />Copy resume link</Button>
-                <Button asChild variant="ghost"><a href={"mailto:?subject=" + encodeURIComponent("My Kern progress") + "&body=" + encodeURIComponent("Continue the course where I left off: " + link + "\n\nProgress code: " + pretty)}><Mail />Email it</a></Button>
+                <Button asChild variant="ghost"><a href={"mailto:?subject=" + encodeURIComponent("My Kern progress") + "&body=" + encodeURIComponent("Continue the Kern starter kit where I left off: " + link + "\n\nProgress code: " + pretty)}><Mail />Email it</a></Button>
               </div>
               <div className="rounded-lg border bg-muted/50 p-3">
                 <p className="text-xs text-muted-foreground">Or type this code</p>
@@ -117,7 +117,7 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
               <p className="text-sm text-brand empty:hidden" role="status" aria-live="polite">{msg}</p>
               <Collapsible>
                 <CollapsibleTrigger asChild><Button variant="outline" size="sm" className="group"><QrCode />QR code<ChevronDown className="transition-transform group-data-[state=open]:rotate-180" /></Button></CollapsibleTrigger>
-                <CollapsibleContent className="mt-4 grid gap-2"><QR link={link} /><p className="text-xs text-muted-foreground">Point your phone’s camera at it to open the course where you left off.</p></CollapsibleContent>
+                <CollapsibleContent className="mt-4 grid gap-2"><QR link={link} /><p className="text-xs text-muted-foreground">Point your phone’s camera at it to open Kern where you left off.</p></CollapsibleContent>
               </Collapsible>
             </CardContent>
           </Card>

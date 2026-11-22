@@ -117,7 +117,7 @@ export function decodeProgress(raw: string): Decoded {
   const ver = s.length === 9 ? 1 : s.length === 15 ? 2 : 3, rb = ver === 3 ? 6 : 4, slots = ver === 1 ? 21 : ver === 2 ? CODE_SLOTS : V3_SLOTS;
   const body = 4 + 3 * rb + slots;
   if (parseInt(b.slice(body, body + 8), 2) !== crc8(b.slice(0, body))) return { error: "That code doesn't check out. A character may have been mistyped." };
-  if (parseInt(b.slice(0, 4), 2) !== ver) return { error: "That code comes from a different version of the course." };
+  if (parseInt(b.slice(0, 4), 2) !== ver) return { error: "That code comes from a different version of Kern." };
   const rs: string[] = [];
   for (let k = 0; k < 3; k++) { const r = parseInt(b.slice(4 + k * rb, 4 + (k + 1) * rb), 2); if (r > 0 && CODE_ROLES[r - 1]) rs.push(CODE_ROLES[r - 1]); }
   const done: Progress = {}, lb = 4 + 3 * rb;

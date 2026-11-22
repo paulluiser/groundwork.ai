@@ -22,7 +22,7 @@ GW.lesson({
 <p>Your phone keyboard suggests the next word as you type. Type “See you” and it offers “tomorrow”, “soon” or “later”, because those words usually follow “See you” in the text it has learned from. It doesn't understand your plans. It knows what tends to come next.</p>
 <p>A <a class="term" data-t="llm">large language model</a> (LLM) does the same job: given some text, predict what comes next. The difference is scale. It has learned from a vast amount of writing and code, and it takes into account everything earlier in the conversation, not just the last two words. At that scale, “predict what comes next” turns out to be enough to draft an email, explain a stack trace, summarise a meeting or write a test.</p>
 <p>Chat assistants, coding assistants and the “summarise this” buttons appearing in your tools are almost all built on an LLM. The product adds instructions, a user interface and sometimes tools, but the core is a <a class="term" data-t="model">model</a>: a very large file of numbers, called <a class="term" data-t="parameter">parameters</a>, that turns input text into predictions.</p>
-<div class="key"><p>A language model produces a <em>plausible continuation</em> of the text it is given. Plausible is often correct. It is not the same thing as correct, and the rest of this course is about working with that gap.</p></div>
+<div class="key"><p>A language model produces a <em>plausible continuation</em> of the text it is given. Plausible is often correct. It is not the same thing as correct, and the rest of this starter kit is about working with that gap.</p></div>
 
 <h2>Text becomes tokens</h2>
 <p>Models don't read letters or whole words. They read <a class="term" data-t="token">tokens</a>: chunks of text that might be a whole common word (“the”, “deploy”), part of a longer word (“deploy” + “ment”), a number fragment or a punctuation mark. A tokenizer splits text into these chunks before the model sees it, and joins them back together afterwards.</p>
@@ -115,7 +115,7 @@ GW.lesson({
 </tbody></table></div>
 
 <h2>A working mental model</h2>
-<p>You don't need the mathematics to use these tools well. You need a picture accurate enough to predict when they will help and when they will mislead. This one works for most of the course:</p>
+<p>You don't need the mathematics to use these tools well. You need a picture accurate enough to predict when they will help and when they will mislead. This one works for most of the starter kit:</p>
 <div class="key"><p>Think of a very widely read colleague who replies instantly in any format, never tires, has never seen your systems, has no access to anything you don't show them, and almost never says “I don't know” unless you invite it.</p></div>
 <p>You would happily ask that colleague for a first draft, a list of options, an explanation of an unfamiliar concept or a second pair of eyes. You wouldn't let them ship to production, sign a contract or tell a customer something without checking. The same instincts apply here.</p>
 

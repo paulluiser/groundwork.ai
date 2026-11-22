@@ -39,12 +39,41 @@ function RotatingRole() {
   return <span className="text-brand">{text}</span>;
 }
 
+/* Scramble: random characters that resolve left to right into the real text once the row scrolls into view.
+   Monospace keeps every width steady. Screen readers get the final text; reduced motion skips the effect. */
+const GLYPHS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789";
+function useInView<T extends Element>() {
+  const ref = useRef<T>(null); const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el || seen) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }, { threshold: 0.4 });
+    io.observe(el); return () => io.disconnect();
+  }, [seen]);
+  return [ref, seen] as const;
+}
+function Scramble({ text, run, delay = 0, dur = 700, className }: { text: string; run: boolean; delay?: number; dur?: number; className?: string }) {
+  const reduced = typeof window !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [out, setOut] = useState(() => (reduced ? text : text.replace(/\S/g, " ")));
+  useEffect(() => {
+    if (!run || reduced) { if (reduced) setOut(text); return; }
+    let raf = 0; const t0 = performance.now() + delay;
+    const tick = (now: number) => {
+      const p = Math.min(1, Math.max(0, (now - t0) / dur)), done = Math.floor(p * text.length);
+      setOut(now < t0 ? text.replace(/\S/g, " ") : text.split("").map((c, i) => (i < done || c === " " ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0])).join(""));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [run, text, delay, dur, reduced]);
+  return <span className={className}><span className="sr-only">{text}</span><span aria-hidden="true" className="whitespace-pre-wrap">{out}</span></span>;
+}
+
 export default function Landing() {
   const { roles } = useStore();
   const [ex, setEx] = useState("0");
-  const ready = roles.length > 0, go = ready ? "#home" : "#role", goTxt = ready ? "Continue the course" : "Start the course";
+  const ready = roles.length > 0, go = ready ? "#home" : "#role", goTxt = ready ? "Continue where you left off" : "Get the starter kit";
   const nEx = exercises().length, nRoles = GW.roles.length, first = lessons[0];
   const c = HERO[+ex];
+  const [statsRef, statsSeen] = useInView<HTMLDivElement>();
   const nUc = (GW.useCases || []).length;
   const feats = [
     [Workflow, "How models work", "What a model does when it writes, what it can see, and why it can be fluent and wrong at once."],
@@ -66,7 +95,7 @@ export default function Landing() {
           <span className="sr-only">Learn the basics of AI and its use cases for every role on a software team</span>
           <span aria-hidden="true">Learn the basics of AI and its use cases for<br /><RotatingRole /><span className="kern-cursor" /></span>
         </h1>
-        <p className="mt-6 max-w-xl text-lg text-muted-foreground">A free starter course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
+        <p className="mt-6 max-w-xl text-lg text-muted-foreground">A free AI starter kit for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg"><a href={go}>{goTxt}<ArrowRight /></a></Button>
           <Button asChild size="lg" variant="outline"><a href="#progress">I've started before</a></Button>
@@ -77,7 +106,7 @@ export default function Landing() {
       <section className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-16 pt-8 md:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] lg:gap-16">
         <div className="max-w-md">
           <p className="text-sm text-brand">What you get</p>
-          <h2 className="mt-2 text-h1 font-semibold">One course for working with AI on a software team</h2>
+          <h2 className="mt-2 text-h1 font-semibold">One starter kit for working with AI on a software team</h2>
           <p className="mt-3 text-muted-foreground">Made for beginners. It starts from what a model is, so you need no AI or machine learning background. Eight core lessons for everyone, a track for your role, and a capstone on bringing AI into a team.</p>
         </div>
         <dl className="grid gap-x-12 gap-y-7 sm:grid-cols-2">
@@ -96,7 +125,7 @@ export default function Landing() {
           <Badge variant="secondary">See it in practice</Badge>
           <h2 className="mt-3 text-h1 font-semibold">What checking AI work looks like</h2>
           <p className="mt-3 text-muted-foreground">Every lesson works from cases like this one: an AI draft that reads well, and the human check that decides whether it ships. Switch roles to see the same habit in different work.</p>
-          <Button asChild className="mt-6"><a href={go}>{ready ? "Continue the course" : "Choose your roles"}<ArrowRight /></a></Button>
+          <Button asChild className="mt-6"><a href={go}>{ready ? "Continue where you left off" : "Choose your roles"}<ArrowRight /></a></Button>
         </div>
         <Card aria-label="An AI draft and the human check that follows it">
           <CardHeader><CardTitle>Worked example</CardTitle><CardAction><Badge variant="outline"><span className="size-1.5 rounded-full bg-brand" />Human check</Badge></CardAction></CardHeader>
@@ -110,8 +139,8 @@ export default function Landing() {
             </div>
           </CardContent>
         </Card>
-        <div className="grid gap-x-8 gap-y-6 pt-4 sm:grid-cols-3 lg:col-span-2">
-          {stats.map(([v, l]) => (<div key={l}><div className="text-h1 font-medium tabular-nums">{v}</div><div className="mt-1 text-sm text-muted-foreground">{l}</div></div>))}
+        <div ref={statsRef} className="grid gap-x-8 gap-y-6 pt-4 sm:grid-cols-3 lg:col-span-2">
+          {stats.map(([v, l], i) => (<div key={l}><Scramble text={String(v)} run={statsSeen} delay={i * 140} dur={520} className="block text-h1 font-medium tabular-nums" /><Scramble text={l} run={statsSeen} delay={i * 140 + 160} dur={760} className="mt-1 block text-sm text-muted-foreground" /></div>))}
         </div>
       </section>
 
@@ -125,8 +154,8 @@ export default function Landing() {
           </CardContent>
         </Card>
         <footer className="mt-12 grid gap-8 border-t pt-8 text-sm md:grid-cols-[1.5fr_1fr_1fr_1fr]">
-          <div><p className="flex items-center gap-2 text-lg font-semibold"><Mark />Kern</p><p className="mt-2 max-w-xs text-muted-foreground">A free course for software teams on understanding AI and using it well at work.</p></div>
-          <div className="grid content-start gap-1.5"><p className="font-medium">Course</p><a className="py-1 text-muted-foreground hover:text-foreground" href="#home">Lessons</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#exercises">Exercises</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#glossary">Glossary</a></div>
+          <div><p className="flex items-center gap-2 text-lg font-semibold"><Mark />Kern</p><p className="mt-2 max-w-xs text-muted-foreground">A free starter kit for software teams on understanding AI and using it well at work.</p></div>
+          <div className="grid content-start gap-1.5"><p className="font-medium">Starter kit</p><a className="py-1 text-muted-foreground hover:text-foreground" href="#home">Lessons</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#exercises">Exercises</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#glossary">Glossary</a></div>
           <div className="grid content-start gap-1.5"><p className="font-medium">Start</p><a className="py-1 text-muted-foreground hover:text-foreground" href="#role">Choose roles</a><a className="py-1 text-muted-foreground hover:text-foreground" href="#progress">Progress code</a></div>
           <div className="grid content-start gap-1.5"><p className="font-medium">Privacy</p><span className="text-muted-foreground">No accounts</span><span className="text-muted-foreground">Progress stays in your browser</span></div>
         </footer>

@@ -40,7 +40,7 @@ function PathMenu() {
         <DropdownMenuItem asChild><a href="#role">Change roles</a></DropdownMenuItem>
         <DropdownMenuItem asChild><a href="#progress">Your progress code</a></DropdownMenuItem>
         <DropdownMenuItem asChild><a href="#glossary">Glossary of terms</a></DropdownMenuItem>
-        <DropdownMenuItem asChild><a href="#welcome">About the course</a></DropdownMenuItem>
+        <DropdownMenuItem asChild><a href="#welcome">About Kern</a></DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={(e) => { e.preventDefault(); toggle(); }}>{theme === "dark" ? <Sun /> : <Moon />}{theme === "dark" ? "Light mode" : "Dark mode"}</DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -52,7 +52,7 @@ function PathMenu() {
 
 function SearchField({ onSearch, className }: { onSearch: () => void; className?: string }) {
   return (
-    <button type="button" onClick={onSearch} aria-label="Search the course" className={cn("flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground", className)}>
+    <button type="button" onClick={onSearch} aria-label="Search Kern" className={cn("flex h-8 items-center gap-2 rounded-md border bg-card px-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground", className)}>
       <Search className="size-4" /><span className="hidden lg:inline">Search</span><kbd className="ml-auto hidden rounded border bg-muted px-1.5 text-2xs lg:inline">/</kbd>
     </button>
   );
@@ -69,11 +69,11 @@ export function Header(props: { tab: string; bare: boolean; landing?: boolean; l
       <div className={cn("flex h-14 items-center justify-between gap-3 md:grid md:grid-cols-[1fr_auto_1fr]", FRAME)}>
         <div className="flex items-center gap-2">
           {lessonId && <LessonDrawer active={lessonId} />}
-          <a href="#welcome" className="mr-2 flex shrink-0 items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the course">
+          <a href="#welcome" className="mr-2 flex shrink-0 items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the starter kit">
             <Mark /><span className="hidden text-lg sm:inline">Kern</span>
           </a>
         </div>
-        <nav aria-label="Course sections" className="hidden rounded-lg bg-muted p-0.5 md:flex">
+        <nav aria-label="Starter kit sections" className="hidden rounded-lg bg-muted p-0.5 md:flex">
           {tabs.map((t) => (
             <a key={t.id} href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined}
               className={cn("rounded-md px-3 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground", tab === t.id && "bg-card text-foreground shadow-xs ring-1 ring-border")}>{t.label}</a>
@@ -93,11 +93,11 @@ function BareHeader({ tab, bare, landing, lessonId, onSearch }: { tab: string; b
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className={cn("flex h-14 items-center gap-2", FRAME)}>
         {lessonId && <LessonDrawer active={lessonId} />}
-        <a href="#welcome" className="mr-2 flex items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the course">
+        <a href="#welcome" className="mr-2 flex items-center gap-2 rounded-md font-semibold" aria-label="Kern, about the starter kit">
           <Mark /><span className="hidden text-lg sm:inline">Kern</span>
         </a>
         {!bare && roles.length > 0 && (
-          <nav aria-label="Course sections" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Starter kit sections" className="hidden items-center gap-1 md:flex">
             {tabs.map((t) => (
               <Button key={t.id} asChild variant="ghost" size="sm" className={cn("text-muted-foreground", tab === t.id && "bg-accent text-foreground")}>
                 <a href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined}><t.icon className="size-4" />{t.label}</a>
@@ -114,9 +114,9 @@ function BareHeader({ tab, bare, landing, lessonId, onSearch }: { tab: string; b
               </a>
             </Button>
           )}
-          {bare && (roles.length > 0 || tab !== "progress") && <Button asChild variant="outline" size="sm"><a href={roles.length ? "#home" : "#progress"}>{roles.length ? "Open course" : "I've started before"}</a></Button>}
+          {bare && (roles.length > 0 || tab !== "progress") && <Button asChild variant="outline" size="sm"><a href={roles.length ? "#home" : "#progress"}>{roles.length ? "Open the kit" : "I've started before"}</a></Button>}
           {!bare && (
-            <Button variant="outline" size="sm" onClick={onSearch} aria-label="Search the course" className="text-muted-foreground">
+            <Button variant="outline" size="sm" onClick={onSearch} aria-label="Search Kern" className="text-muted-foreground">
               <Search className="size-4" /><span className="hidden lg:inline">Search</span>
               <kbd className="ml-2 hidden rounded border bg-muted px-1.5 text-2xs lg:inline">/</kbd>
             </Button>
@@ -134,7 +134,7 @@ function BareHeader({ tab, bare, landing, lessonId, onSearch }: { tab: string; b
 export function MobileTabs({ tab }: { tab: string }) {
   const tabs = TABS.filter((t) => t.id !== "usecases" || hasUseCases);
   return (
-    <nav aria-label="Course sections" className="fixed inset-x-0 bottom-0 z-40 grid border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+    <nav aria-label="Starter kit sections" className="fixed inset-x-0 bottom-0 z-40 grid border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
       {tabs.map((t) => (
         <a key={t.id} href={"#" + t.id} aria-current={tab === t.id ? "page" : undefined} className={cn("flex flex-col items-center gap-1 py-2 text-2xs text-muted-foreground", tab === t.id && "text-brand")}>
           <t.icon className="size-5" />{t.label}
@@ -208,7 +208,7 @@ export function SearchDialog({ open, onOpenChange, onPick }: { open: boolean; on
   const groups = useMemo(() => { const g: Record<string, Hit[]> = {}; hits.forEach((h) => (g[h.g] = g[h.g] || []).push(h)); return g; }, [hits]);
   useEffect(() => { if (!open) setQ(""); }, [open]);
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange} title="Search the course" description="Lessons, sections, terms, use cases and exercises" shouldFilter={false}>
+    <CommandDialog open={open} onOpenChange={onOpenChange} title="Search Kern" description="Lessons, sections, terms, use cases and exercises" shouldFilter={false}>
       <CommandInput placeholder="Search lessons, terms, use cases…" value={q} onValueChange={setQ} />
       <CommandList>
         <CommandEmpty>Nothing matches. Try a shorter word.</CommandEmpty>
@@ -227,7 +227,7 @@ export function SearchDialog({ open, onOpenChange, onPick }: { open: boolean; on
   );
 }
 
-const KEYS = [["/", "Search the course"], ["j", "Next lesson on your path"], ["k", "Previous lesson on your path"], ["?", "Show these shortcuts"], ["Esc", "Close a dialog"]];
+const KEYS = [["/", "Search Kern"], ["j", "Next lesson on your path"], ["k", "Previous lesson on your path"], ["?", "Show these shortcuts"], ["Esc", "Close a dialog"]];
 export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

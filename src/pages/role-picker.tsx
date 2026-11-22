@@ -84,7 +84,7 @@ export default function RolePicker() {
         </>)}
         {note && <p className="text-caption text-warning" role="status">{note}</p>}
       </CardContent>
-      <CardFooter className="hidden lg:flex"><Button className="w-full" disabled={!picked.length} onClick={save_}>{first ? "Start the course" : "Save roles"}</Button></CardFooter>
+      <CardFooter className="hidden lg:flex"><Button className="w-full" disabled={!picked.length} onClick={save_}>{first ? "Start learning" : "Save roles"}</Button></CardFooter>
     </Card>
   );
 
@@ -110,7 +110,7 @@ export default function RolePicker() {
       </div>
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
         <p className="min-w-0 flex-1 text-caption" aria-live="polite">{picked.length ? <><b className="block truncate font-semibold">{pathName(picked)}</b><span className="text-muted-foreground">{plural(ids.length, "lesson")}, about {hours(ids)}</span></> : "Choose at least one role"}</p>
-        <Button disabled={!picked.length} onClick={save_}>{first ? "Start the course" : "Save roles"}</Button>
+        <Button disabled={!picked.length} onClick={save_}>{first ? "Start learning" : "Save roles"}</Button>
       </div>
     </Page>
   );

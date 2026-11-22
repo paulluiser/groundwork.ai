@@ -6,13 +6,13 @@ GW.lesson({
     "Design a small, measurable AI pilot for a team.",
     "Choose measures of outcomes rather than measures of activity.",
     "Write team agreements covering tools, data, review and disclosure.",
-    "Apply the course's method across a whole feature, from research to operations.",
+    "Apply the starter kit's method across a whole feature, from research to operations.",
     "Complete a capstone project: a pilot plan, a reviewed work sample and a team agreement, assessed against a rubric."
   ],
   html: String.raw`
 <!-- expanded -->
 <div class="scenario"><p>Your director has read about AI productivity gains and wants your team “using AI properly” by next quarter. Half the team already uses three different tools, two people avoid them entirely, and nobody knows whether anything is actually faster. There's no budget for a consultant and no shared rules.</p>
-<p>This final lesson pulls the course together into what a team needs: a pilot with evidence, agreements everyone understands, and the habits that keep expertise sharp. It ends with a capstone project you complete on your own work.</p></div>
+<p>This final lesson pulls the starter kit together into what a team needs: a pilot with evidence, agreements everyone understands, and the habits that keep expertise sharp. It ends with a capstone project you complete on your own work.</p></div>
 <div class="check warmup" data-a="3"><p class="q">A director asks the team to “use AI more”. What's the most useful first step?</p><ul>
 <li data-fb="Tools without a question to answer produce scattered use and no evidence.">Buy licences for the most popular assistant for everyone on the team straight away.</li>
 <li data-fb="An activity target, easy to game and unrelated to outcomes.">Set a target for the share of work done with AI by the end of the quarter.</li>
@@ -50,7 +50,7 @@ GW.lesson({
 </div></div>
 
 <h2>The skill that matters more, not less</h2>
-<p>Every lesson in this course has come back to the same point: checking AI output depends on knowing what right looks like. The QA engineer spotted the account-enumeration test because they know security. The analyst caught the MAU query because they knew the dashboard number. The on-call engineer discarded the invented log line because they read the real logs.</p>
+<p>Every lesson in this starter kit has come back to the same point: checking AI output depends on knowing what right looks like. The QA engineer spotted the account-enumeration test because they know security. The analyst caught the MAU query because they knew the dashboard number. The on-call engineer discarded the invented log line because they read the real logs.</p>
 <p>That has a consequence for teams. Expertise in your own discipline becomes <em>more</em> valuable, and newer colleagues need deliberate chances to build it: doing some tasks without AI, explaining AI-assisted work in their own words, pairing with experienced reviewers. A team that hands all first drafts to AI without this risks losing the ability to check them.</p>
 
 <h2>Capstone: one feature, seven roles</h2>
@@ -60,8 +60,8 @@ GW.lesson({
 </div></div>
 
 <h2>Your capstone project</h2>
-<p>The capstone applies the course to your own work. It has three parts; each takes 20 to 40 minutes. Your answers stay in this browser. Compare each with the model answer and score it against the rubric honestly. If you can, share the finished pieces with your manager or team: together they're a ready-made proposal for your next quarter.</p>
-<div class="tbl"><table><thead><tr><th>Part</th><th>What you produce</th><th>Course lessons it draws on</th></tr></thead><tbody>
+<p>The capstone applies the starter kit to your own work. It has three parts; each takes 20 to 40 minutes. Your answers stay in this browser. Compare each with the model answer and score it against the rubric honestly. If you can, share the finished pieces with your manager or team: together they're a ready-made proposal for your next quarter.</p>
+<div class="tbl"><table><thead><tr><th>Part</th><th>What you produce</th><th>Lessons it draws on</th></tr></thead><tbody>
 <tr><td>1. Pilot plan</td><td>Tasks, baseline, prediction, measures and decision rule</td><td>Checking the work (6), measuring (35), this lesson</td></tr>
 <tr><td>2. Reviewed work sample</td><td>One real AI-assisted piece of work with your check plan and what you found</td><td>Asking well (5), checking the work (6), your role track</td></tr>
 <tr><td>3. Team agreement</td><td>One page: tools, data, review, disclosure and learning</td><td>Data and security (8), tools and agents (7), this lesson</td></tr>

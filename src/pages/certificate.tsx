@@ -28,7 +28,7 @@ function drawCert(cv: HTMLCanvasElement, who: string, t: T, date: string) {
   c.fillStyle = MUTED; c.font = "400 30px " + F; c.fillText("Certificate of completion", 112, 330);
   c.fillStyle = who ? INK : "rgba(17,17,16,.25)"; c.font = "600 " + fit(c, who || "Your name", 96, W - 224, F) + "px " + F; c.fillText(who || "Your name", 112, 448);
   c.fillStyle = INK2; c.font = "400 32px " + F;
-  c.fillText("completed " + (t.k === "path" ? "their path" : t.k === "core" ? "the core lessons" : "the " + t.name) + " of Kern, a course on using AI well at work", 112, 520, W - 224);
+  c.fillText("completed " + (t.k === "path" ? "their path" : t.k === "core" ? "the core lessons" : "the " + t.name) + " of Kern, a starter kit for using AI well at work", 112, 520, W - 224);
   c.font = "400 22px " + F; c.fillStyle = MUTED;
   const cols = t.ids.length > 6 ? 2 : 1, rows = Math.ceil(t.ids.length / cols), colW = (W - 224) / cols, lh = Math.min(36, 260 / rows);
   t.ids.forEach((id, i) => { const l = byId[id], x = 112 + Math.floor(i / rows) * colW, y = 600 + (i % rows) * lh; c.fillText(String(l.num).padStart(2, "0") + "  " + clip(c, l.title, colW - 80), x, y); });
