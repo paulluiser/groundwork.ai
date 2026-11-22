@@ -65,7 +65,7 @@ export default function Landing() {
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">A free course for software teams. Core lessons for everyone, a three-lesson track for your role, and no account to create.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg"><a href={go}>{goTxt}<ArrowRight /></a></Button>
-          <Button asChild size="lg" variant="outline"><a href="#progress">I have a progress code</a></Button>
+          <Button asChild size="lg" variant="outline"><a href="#progress">I've started before</a></Button>
         </div>
         <p className="mt-6 text-sm text-muted-foreground">{lessons.length} lessons · {nRoles} roles · no account</p>
       </section>

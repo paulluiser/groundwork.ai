@@ -62,7 +62,7 @@ export default function Exercises() {
 
       <SectionHead className="mt-12" title="All exercises" meta={<span aria-live="polite">{plural(list.length, "exercise")}</span>} />
       <div className="mb-3 flex flex-wrap items-center gap-3">
-        <Tabs value={status} onValueChange={setStatus}><TabsList><TabsTrigger value="all">All</TabsTrigger><TabsTrigger value="todo">Lesson to do</TabsTrigger><TabsTrigger value="done">Lesson done</TabsTrigger></TabsList></Tabs>
+        <Tabs value={status} onValueChange={setStatus}><TabsList><TabsTrigger value="all">All</TabsTrigger><TabsTrigger value="todo" title="Exercises in lessons you haven't completed yet">To do</TabsTrigger><TabsTrigger value="done" title="Exercises in lessons you've completed">Done</TabsTrigger></TabsList></Tabs>
         <ToggleGroup type="single" spacing={1.5} value={f} onValueChange={(v) => v && setFam(v)} className="flex flex-wrap justify-start" aria-label="Filter by kind">
           <ToggleGroupItem value="all" size="sm" className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground data-[state=on]:bg-ex-band data-[state=on]:text-ex-on"><List className="size-3.5" />All kinds</ToggleGroupItem>
           {famList.map((k) => { const I = FAM_ICON[k]; return <ToggleGroupItem key={k} value={k} size="sm" className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground data-[state=on]:bg-ex-band data-[state=on]:text-ex-on"><I className="size-3.5" />{k} <span className="opacity-60">{fams[k]}</span></ToggleGroupItem>; })}

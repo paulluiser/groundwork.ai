@@ -60,9 +60,9 @@ export default function ProgressPage({ prefill }: { prefill: string }) {
   const restoreForm = (
     <form onSubmit={submit} noValidate className="grid gap-2">
       <Label htmlFor="pc-in">Progress code</Label>
-      <p className="text-xs text-muted-foreground" id="pc-help">15 or 24 letters and numbers, with or without the dashes.{has && " Restoring switches to the roles in the code and keeps every lesson you have completed here."}</p>
-      <div className="flex flex-wrap gap-2">
-        <Input id="pc-in" value={val} onChange={(e) => setVal(e.target.value)} autoComplete="off" autoCapitalize="characters" spellCheck={false} autoFocus={!has} placeholder="KN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" aria-invalid={!!err} className="min-w-0 flex-1 uppercase" />
+      <p className="text-xs text-muted-foreground" id="pc-help">It looks like <b>KN-7K2Q9-M4TAB-8C1DE</b>. Find it on the Progress page of the device you used before, or open the resume link you saved.{has && " Restoring switches to the roles in the code and keeps every lesson you have completed here."}</p>
+      <div className="grid gap-2 sm:flex">
+        <Input id="pc-in" value={val} onChange={(e) => setVal(e.target.value)} autoComplete="off" autoCapitalize="characters" spellCheck={false} autoFocus={!has} placeholder="KN-7K2Q9-M4TAB-8C1DE" aria-describedby="pc-help pc-err" aria-invalid={!!err} className="min-w-0 uppercase sm:flex-1" />
         <Button type="submit">Restore progress</Button>
       </div>
       <p id="pc-err" role="alert" className="text-sm text-destructive">{err}</p>

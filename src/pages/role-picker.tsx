@@ -60,13 +60,13 @@ export default function RolePicker() {
     <Card className="gap-4">
       <CardHeader><CardTitle id="ps-h">Your path</CardTitle></CardHeader>
       <CardContent className="grid gap-3">
-        {!picked.length ? <p className="text-sm text-muted-foreground">Pick the roles closest to your work.</p> : (
+        {!picked.length ? <p className="text-sm text-muted-foreground">Pick the roles closest to your work. Not sure? Choose General: you can add roles later.</p> : (
           <ol className="grid gap-1">
             {picked.map((id, i) => (
               <li key={id} className="flex items-center gap-2 text-sm">
                 <span className="grid size-5 place-items-center rounded-full bg-brand text-2xs text-brand-foreground">{gen ? <Check className="size-3" /> : i + 1}</span>
                 <b className="flex-1 font-medium">{roleInfo(id)!.name}</b>
-                {i > 0 && !gen && <Button variant="link" size="sm" className="h-7 px-1 text-xs text-muted-foreground" onClick={() => makeMain(id)}>Make main</Button>}
+                {i > 0 && !gen && <Button variant="link" size="sm" className="h-7 px-1 text-xs text-muted-foreground" onClick={() => makeMain(id)}>Make this my main role</Button>}
                 <Button variant="ghost" size="icon" className="size-7" aria-label={"Remove " + roleInfo(id)!.name} onClick={() => toggle(id)}><X className="size-4" /></Button>
               </li>
             ))}
@@ -90,7 +90,7 @@ export default function RolePicker() {
 
   return (
     <Page>
-      <PageHeader back={[first ? "#welcome" : "#home", "Back"]} title="Choose your roles" description="Up to three. Your first pick is your main role."
+      <PageHeader back={[first ? "#welcome" : "#home", "Back"]} title="Choose your roles" description="Pick up to three roles that match your work. Everyone gets the 8 core lessons; your first pick (your main role) adds three lessons written for that job, and any other picks add one each. Together these make your path. You can change it any time."
         actions={<div className="relative w-full sm:w-72">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a role" aria-label="Find a role" className="pl-9" />

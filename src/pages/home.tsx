@@ -76,7 +76,7 @@ export default function Home(_: { onSearch?: () => void }) {
             <Progress value={(100 * n) / path.length} className="h-1.5 [&>div]:bg-brand" aria-label="Progress on your path" />
             <dl className="grid grid-cols-2 gap-3 text-xs">
               <div><dt className="text-muted-foreground">Time left</dt><dd className="mt-0.5 text-sm font-medium">{left.length ? "About " + hours(left) : "None"}</dd></div>
-              <div><dt className="text-muted-foreground">Whole library</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{libDone} of {lessons.length}</dd></div>
+              <div><dt className="text-muted-foreground">All lessons (optional)</dt><dd className="mt-0.5 text-sm font-medium tabular-nums">{libDone} of {lessons.length}</dd></div>
             </dl>
             <a href="#progress" className="-mx-2 -mb-2 flex min-h-9 items-center justify-between rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground">Progress code and certificates<ChevronRight className="size-4" /></a>
           </CardContent>
@@ -90,7 +90,7 @@ export default function Home(_: { onSearch?: () => void }) {
 
       <div className="mb-4 mt-12 flex flex-wrap items-center justify-between gap-3">
         <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-homescope", v); }}>
-          <TabsList><TabsTrigger value="path">Your path ({path.length})</TabsTrigger><TabsTrigger value="all">Full library ({lessons.length})</TabsTrigger></TabsList>
+          <TabsList><TabsTrigger value="path">Your path ({path.length})</TabsTrigger><TabsTrigger value="all">All lessons ({lessons.length})</TabsTrigger></TabsList>
         </Tabs>
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Layers className="size-3.5" />{scope === "path" ? plural(stages.length, "stage") + ", about " + hours(path) : lessons.length + " lessons, about " + Math.round((totalMin / 60) * 2) / 2 + " hours"}</p>
       </div>

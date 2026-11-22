@@ -217,8 +217,8 @@ export default function LessonPage({ id, target }: { id: string; target: string 
   const retake = () => { const all = load<Record<string, Record<number, boolean>>>("gw-checks", {}); delete all[id]; save("gw-checks", all); setChecks({}); setBodyKey((k) => k + 1); setTimeout(() => document.getElementById("check-your-understanding")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
 
   return (
-    <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 pb-28 pt-6 md:px-8 md:pt-8 md:pb-16 xl:grid-cols-[260px_minmax(0,1fr)]">
-      <aside className="hidden xl:block"><div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pr-2"><LessonRail active={id} /></div></aside>
+    <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 pb-28 pt-6 md:px-8 md:pt-8 md:pb-16">
+      {/* one navigation column (the lesson plan); the full lesson list opens from the header's "All lessons" button */}
       <main id="view" tabIndex={-1} className="min-w-0 outline-none">
         {/* overview */}
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -226,8 +226,9 @@ export default function LessonPage({ id, target }: { id: string; target: string 
           <header className="grid content-start gap-4">
             <p className="flex flex-wrap items-center gap-2 text-caption text-muted-foreground"><Badge>Lesson {l.num}</Badge>{part.title}{l.role && <> · {trackName(l.rid!)} track, {l.step} of 3</>}{done && <Badge className="border-brand-line bg-brand-tint font-normal text-brand"><CheckCircle2 />Completed</Badge>}</p>
             <h1 className="text-h1 font-semibold">{l.title}</h1>
-            <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-muted-foreground">
-              {[l.minutes + " min", plural(H, "section"), prep.nEx > 0 && plural(prep.nEx, "exercise"), prep.nChk > 0 && plural(prep.nChk, "quiz question"), roles.length > 0 && (onPath ? "Step " + (idx + 1) + " of " + seq.length + " on your path" : "Not on your path")].filter(Boolean).map((x, i) => <span key={i} className="flex items-center gap-1.5">{i > 0 && <span aria-hidden="true">·</span>}{x}</span>)}
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-muted-foreground sm:gap-x-1.5">
+              {/* on phones only the essentials, so the line doesn't wrap into a list of dots */}
+              {([[l.minutes + " min", true], [plural(H, "section"), false], [prep.nEx > 0 && plural(prep.nEx, "exercise"), true], [prep.nChk > 0 && plural(prep.nChk, "quiz question"), false], [roles.length > 0 && (onPath ? "Step " + (idx + 1) + " of " + seq.length + " on your path" : "Not on your path"), true]] as [string | false, boolean][]).filter((x) => x[0]).map(([x, phone], i) => <span key={i} className={cn("items-center gap-1.5", phone ? "flex" : "hidden sm:flex")}>{i > 0 && <span aria-hidden="true" className="hidden sm:inline">·</span>}{x}</span>)}
             </p>
             <p className="max-w-[40em] text-base text-ink-2 md:text-lg" dangerouslySetInnerHTML={{ __html: prep.c.lede }} />
             <div className="flex flex-wrap gap-2">
@@ -241,13 +242,15 @@ export default function LessonPage({ id, target }: { id: string; target: string 
             )}
             <Card className="gap-3 py-4">
               <CardHeader className="px-5"><CardTitle className="flex items-center gap-2 text-sm"><Target className="size-4 text-brand" />You'll learn</CardTitle></CardHeader>
-              <CardContent className="px-5">
+              <CardContent className="grid gap-3 px-5">
                 <ul className="grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
                   {prep.c.outcomes.map((o: string, i: number) => {
                     const on = done || readAt + 1 >= Math.ceil(((i + 1) * H) / nOut);
-                    return (<li key={i} className="grid grid-cols-[16px_1fr] gap-2.5 text-caption text-ink-2"><span className={cn("mt-0.5 grid size-4 place-items-center rounded border", on ? "border-brand bg-brand text-brand-foreground" : "border-input")}>{on && <CheckCircle2 className="size-3" />}</span><span dangerouslySetInnerHTML={{ __html: o }} /></li>);
+                    // a tick appears as you read past the part that covers it; it's not something to click
+                    return (<li key={i} className="grid grid-cols-[16px_1fr] gap-2.5 text-caption text-ink-2">{on ? <CheckCircle2 className="mt-0.5 size-4 text-brand" aria-label="Covered" /> : <span className="mt-[7px] ml-[5px] size-1.5 rounded-full bg-muted-foreground/60" aria-hidden="true" />}<span dangerouslySetInnerHTML={{ __html: o }} /></li>);
                   })}
                 </ul>
+                <p className="text-xs text-muted-foreground">Goals tick off as you read. <span className="underline decoration-dotted underline-offset-4">Dotted words</span> show a definition when you tap or hover them.</p>
               </CardContent>
             </Card>
           </header>

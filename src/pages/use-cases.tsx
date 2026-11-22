@@ -77,6 +77,11 @@ export function UseCases() {
         <p className="text-xs text-muted-foreground sm:ml-2" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
         <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a use case" aria-label="Find a use case" className="pl-9" /></div>
       </div>
+      <p className="-mt-5 mb-8 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
+        <span><FitBadge fit="good" />: AI does this well; a light check is enough</span>
+        <span><FitBadge fit="care" />: helpful, but check the output closely</span>
+        <span><FitBadge fit="human" />: a person should decide or do this</span>
+      </p>
       {!count && <p className="text-sm text-muted-foreground">No use cases match. Try a shorter word or another fit level. <Button variant="link" className="h-auto p-0" onClick={() => { setQ(""); setFit("all"); setScope("all"); }}>Clear the filters</Button></p>}
       <div className="grid gap-12">
         {groups.map((g) => (

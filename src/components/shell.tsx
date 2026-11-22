@@ -30,8 +30,8 @@ function PathMenu() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <button type="button" aria-label={"Your path: " + pathLong(roles) + ". Open menu"} className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50">
-          <span className="grid size-7 place-items-center rounded-full bg-brand-tint text-2xs font-semibold text-brand">{ini}</span><ChevronDown className="size-3.5 text-muted-foreground" />
+        <button type="button" aria-label={"Your roles: " + pathLong(roles) + ". Open menu for roles, progress and settings"} title="Your roles, progress code and settings" className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50">
+          <span className="grid size-7 place-items-center rounded-full bg-brand-tint text-2xs font-semibold text-brand">{ini}</span><span className="hidden max-w-[9rem] truncate text-sm lg:inline">{main}</span><ChevronDown className="size-3.5 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
@@ -114,7 +114,7 @@ function BareHeader({ tab, bare, landing, lessonId, onSearch }: { tab: string; b
               </a>
             </Button>
           )}
-          {bare && <Button asChild variant="outline" size="sm"><a href={roles.length ? "#home" : "#progress"}>{roles.length ? "Open course" : "Have a code?"}</a></Button>}
+          {bare && (roles.length > 0 || tab !== "progress") && <Button asChild variant="outline" size="sm"><a href={roles.length ? "#home" : "#progress"}>{roles.length ? "Open course" : "I've started before"}</a></Button>}
           {!bare && (
             <Button variant="outline" size="sm" onClick={onSearch} aria-label="Search the course" className="text-muted-foreground">
               <Search className="size-4" /><span className="hidden lg:inline">Search</span>
@@ -186,7 +186,7 @@ function LessonDrawer({ active }: { active: string }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="xl:hidden" aria-label="Open lesson list"><Menu className="size-5" /></Button>
+        <Button variant="ghost" size="sm" aria-label="Open the list of all lessons" className="gap-1.5 px-2"><Menu className="size-5" /><span className="hidden text-sm lg:inline">All lessons</span></Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[320px] p-0">
         <SheetHeader className="px-4 pt-4"><SheetTitle>Lessons</SheetTitle></SheetHeader>
