@@ -1,2 +1,2 @@
 /* Build version: <commit number>.<YYYYMMDD>.<HHMM> (UTC+8). Written by scripts/bump-version.sh; do not edit by hand. */
-GW.version = "26.20261122.1242";
+GW.version = "27.20261122.1254";

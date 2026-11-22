@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="./brand/apple-touch-icon.png">
 <link rel="manifest" href="./manifest.webmanifest">
 <script>var t = null; try { t = localStorage.getItem("gw-theme"); document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light"); if (t === "dark") document.documentElement.classList.add("dark"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }</script>
-<script>try { if (!sessionStorage.getItem("kn-boot")) { document.documentElement.classList.add("boot-on"); sessionStorage.setItem("kn-boot", "1"); } } catch (e) { /* no storage: skip the reveal */ }</script>
+<script>document.documentElement.classList.add("boot-on"); /* the logo reveal plays on every load and refresh */</script>
 <style>
 /* Loading states, inline so they paint before style.css arrives: the logo reveal, the logo loader and skeletons. */
 :root { --ld-bg: #F5F3EE; --ld-ink: #111110; --ld-acc: #17734D; --ld-sk: #E8E4DB; --ld-sk-hi: #F4F1EA; }
