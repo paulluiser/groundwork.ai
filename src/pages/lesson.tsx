@@ -191,13 +191,9 @@ export default function LessonPage({ id, target }: { id: string; target: string 
           <header className="grid content-start gap-4">
             <p className="flex flex-wrap items-center gap-2 text-caption text-muted-foreground"><Badge>Lesson {l.num}</Badge>{part.title}{l.role && <> · {trackName(l.rid!)} track, {l.step} of 3</>}{done && <Badge className="border-brand-line bg-brand-tint font-normal text-brand"><CheckCircle2 />Completed</Badge>}</p>
             <h1 className="text-h1 font-semibold">{l.title}</h1>
-            <div className="flex flex-wrap gap-1.5">
-              <Badge variant="outline" className="font-normal"><Clock />{l.minutes} min</Badge>
-              <Badge variant="outline" className="font-normal"><ListOrdered />{H} sections</Badge>
-              {prep.nEx > 0 && <Badge variant="outline" className="font-normal"><FlaskConical />{plural(prep.nEx, "exercise")}</Badge>}
-              {prep.nChk > 0 && <Badge variant="outline" className="font-normal"><HelpCircle />{plural(prep.nChk, "quiz question")}</Badge>}
-              {roles.length > 0 && (onPath ? <Badge variant="outline" className="font-normal"><Footprints />Step {idx + 1} of {seq.length}</Badge> : <Badge variant="secondary" className="font-normal">Not on your path</Badge>)}
-            </div>
+            <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-muted-foreground">
+              {[l.minutes + " min", plural(H, "section"), prep.nEx > 0 && plural(prep.nEx, "exercise"), prep.nChk > 0 && plural(prep.nChk, "quiz question"), roles.length > 0 && (onPath ? "Step " + (idx + 1) + " of " + seq.length + " on your path" : "Not on your path")].filter(Boolean).map((x, i) => <span key={i} className="flex items-center gap-1.5">{i > 0 && <span aria-hidden="true">·</span>}{x}</span>)}
+            </p>
             <p className="max-w-[40em] text-base text-ink-2 md:text-lg" dangerouslySetInnerHTML={{ __html: prep.c.lede }} />
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => prep.plan[0] && jump(prep.plan[0].id)}><Play />{done ? "Review the lesson" : "Start the lesson"}</Button>

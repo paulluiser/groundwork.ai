@@ -18,7 +18,28 @@ export const FIT = {
   care: { label: "Use with care", icon: AlertTriangle, cls: "border-warning/40 bg-warning-soft text-warning" },
   human: { label: "Keep human", icon: User, cls: "border-border bg-muted text-ink-2" },
 };
-export function FitBadge({ fit }: { fit: UC["fit"] }) { const f = FIT[fit]; return <Badge variant="outline" className={cn("font-normal", f.cls)}><f.icon />{f.label}</Badge>; }
+const DOT = { good: "bg-brand", care: "bg-warning", human: "bg-ink-2" };
+export function FitBadge({ fit }: { fit: UC["fit"] }) { return <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><span className={cn("size-2 rounded-full", DOT[fit])} />{FIT[fit].label}</span>; }
+
+/* One use case: one target (the guide), one line of what to check with "More" to expand. */
+function UcCard({ u }: { u: UC }) {
+  const [open, setOpen] = useState(false);
+  const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l], href = gd ? "#usecase/" + slug(u.t) : l ? "#" + l.id : undefined;
+  return (
+    <li className="group relative flex flex-col gap-2 rounded-xl border bg-card p-5 transition-colors has-[a.uc-main:hover]:border-foreground/20 has-[a.uc-main:hover]:bg-accent/40">
+      <h3 className="text-sm font-semibold leading-snug">
+        {href ? <a href={href} className="uc-main rounded-sm outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50">{u.t}</a> : u.t}
+      </h3>
+      <p className="text-caption text-ink-2">{u.d}</p>
+      <p className={cn("text-xs text-muted-foreground", !open && "line-clamp-1")}><span className="font-medium text-foreground">Check:</span> {u.c}</p>
+      {u.c.length > 44 && <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="relative z-10 -my-1 self-start py-1 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">{open ? "Less" : "More"}</button>}
+      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <FitBadge fit={u.fit} />
+        {gd && <span className="flex shrink-0 items-center gap-1 text-xs font-medium">Guide<span className="font-normal text-muted-foreground">· {plural(gd.s.length, "step")}</span><ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
+      </div>
+    </li>
+  );
+}
 
 export function UseCases() {
   const { roles } = useStore();
@@ -43,42 +64,26 @@ export function UseCases() {
     <Page>
       <PageHeader title="Use cases" description="Concrete ways people in each role use AI at work, how well each fits, and a step-by-step guide for each one." />
       {star && starG && (
-        <Spotlight className="mb-8" eyebrow={"Start here · " + trackName(star.r) + " · " + FIT[star.fit].label} title={star.t}
+        <Spotlight className="mb-12" eyebrow={"Start here · " + trackName(star.r) + " · " + FIT[star.fit].label} title={star.t}
           action={<><Button asChild className={onDark}><a href={"#usecase/" + slug(star.t)}><Footprints />Open the guide<ArrowRight /></a></Button><span className="text-xs text-spot-fg/70">{plural(starG.s.length, "step")} · do's and don'ts{starG.p ? " · starter prompt" : ""}</span></>}>
           {star.d}
         </Spotlight>
       )}
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-8 flex flex-wrap items-center gap-2">
         {!gen && <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-ucscope", v); }}><TabsList><TabsTrigger value="mine">Your roles</TabsTrigger><TabsTrigger value="all">All roles</TabsTrigger></TabsList></Tabs>}
         <ToggleGroup type="single" spacing={1.5} value={fit} onValueChange={(v) => { if (!v) return; setFit(v); save("gw-ucfit", v); }} className="flex flex-wrap justify-start" aria-label="Filter by fit">
-          {([["all", "Any fit"], ["good", "Good fit"], ["care", "Use with care"], ["human", "Keep human"]] as const).map(([v, t]) => <ToggleGroupItem key={v} value={v} variant="outline" size="sm" className="rounded-full px-3 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{t}</ToggleGroupItem>)}
+          {([["all", "Any fit"], ["good", "Good fit"], ["care", "Use with care"], ["human", "Keep human"]] as const).map(([v, t]) => <ToggleGroupItem key={v} value={v} size="sm" className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{t}</ToggleGroupItem>)}
         </ToggleGroup>
         <p className="text-xs text-muted-foreground sm:ml-2" aria-live="polite">{plural(count, "use case")}{count ? " across " + plural(groups.length, "role") : ""}</p>
         <div className="relative w-full sm:ml-auto sm:w-72"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a use case" aria-label="Find a use case" className="pl-9" /></div>
       </div>
       {!count && <p className="text-sm text-muted-foreground">No use cases match. Try a shorter word or another fit level. <Button variant="link" className="h-auto p-0" onClick={() => { setQ(""); setFit("all"); setScope("all"); }}>Clear the filters</Button></p>}
-      <div className="grid gap-8">
+      <div className="grid gap-12">
         {groups.map((g) => (
           <section key={g.r} aria-labelledby={"uc-" + g.r}>
             <SectionHead id={"uc-" + g.r} title={trackName(g.r)} meta={trackSpan(g.r) + " · " + plural(g.items.length + (starPick && starPick.r === g.r ? 1 : 0), "use case")} />
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {(more[g.r] || words.length ? g.items : g.items.slice(0, CAP)).map((u) => {
-                const gd: Guide | undefined = GW.ucGuides?.[u.t], l = byId[u.l], href = gd ? "#usecase/" + slug(u.t) : l ? "#" + l.id : undefined;
-                return (
-                  <li key={u.t} className="group relative flex flex-col gap-2 rounded-xl border bg-card p-4 transition-colors has-[a.uc-main:hover]:border-foreground/20 has-[a.uc-main:hover]:bg-accent/40">
-                    <FitBadge fit={u.fit} />
-                    <h3 className="text-sm font-semibold leading-snug">
-                      {href ? <a href={href} className="uc-main rounded-sm outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50">{u.t}</a> : u.t}
-                    </h3>
-                    <p className="text-caption text-ink-2">{u.d}</p>
-                    <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Check:</span> {u.c}</p>
-                    <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3 text-xs text-muted-foreground">
-                      {l ? <a href={"#" + l.id} className="relative z-10 -my-2 flex min-h-9 min-w-0 items-center gap-1.5 hover:text-foreground" title={"Lesson " + l.num + ": " + l.title}><BookOpen className="size-3.5 shrink-0" /><span className="truncate">Lesson {l.num}</span></a> : <span />}
-                      {gd && <span className="flex shrink-0 items-center gap-1 font-medium text-foreground"><Footprints className="size-3.5 text-brand" />Guide<span className="font-normal text-muted-foreground">· {plural(gd.s.length, "step")}</span><ArrowRight className="size-3.5 transition-transform group-has-[a.uc-main:hover]:translate-x-0.5" /></span>}
-                    </div>
-                  </li>
-                );
-              })}
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {(more[g.r] || words.length ? g.items : g.items.slice(0, CAP)).map((u) => <UcCard key={u.t} u={u} />)}
             </ul>
             {!words.length && <ShowMore hidden={g.items.length - CAP} open={!!more[g.r]} onToggle={() => setMore((m) => ({ ...m, [g.r]: !m[g.r] }))} noun="use cases" />}
           </section>
@@ -104,7 +109,7 @@ export function UseCaseGuide({ slug: key }: { slug: string }) {
   return (
     <Page>
       <PageHeader back={["#usecases", "All use cases"]} eyebrow={trackName(u.r) + " · use case " + (i + 1) + " of " + same.length} title={u.t} description={u.d}>
-        <div className="flex flex-wrap gap-2"><FitBadge fit={u.fit} /><Badge variant="outline" className="font-normal"><Footprints />{plural(g.s.length, "step")}</Badge>{l && <Badge asChild variant="outline" className="min-h-6 font-normal"><a href={"#" + l.id}><BookOpen />Lesson {l.num}: {l.title}</a></Badge>}</div>
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"><FitBadge fit={u.fit} /><span>{plural(g.s.length, "step")}</span>{l && <a href={"#" + l.id} className="inline-flex min-h-6 items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"><BookOpen className="size-3.5" />Lesson {l.num}: {l.title}</a>}</p>
       </PageHeader>
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-8">

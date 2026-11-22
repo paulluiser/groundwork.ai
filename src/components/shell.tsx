@@ -193,7 +193,7 @@ export function Page({ children, className }: { children: ReactNode; className?:
 /* Page title block: optional back link, eyebrow, title, one line of description, actions on the right. */
 export function PageHeader({ back, eyebrow, title, description, actions, children }: { back?: [string, string]; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
   return (
-    <header className="mb-6 grid gap-4">
+    <header className="mb-8 grid gap-4">
       {back && <Button asChild variant="ghost" size="sm" className="-ml-2 -mb-2 justify-self-start text-muted-foreground"><a href={back[0]}><ArrowLeft />{back[1]}</a></Button>}
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="min-w-0 max-w-3xl">
@@ -225,7 +225,7 @@ export function Disclosure({ title, meta, defaultOpen, children, sub }: { title:
     <Collapsible open={open} onOpenChange={setOpen} asChild>
       <section>
         <CollapsibleTrigger className="group mb-3 flex w-full items-center justify-between gap-3 rounded-md border-b pb-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
-          <span className="min-w-0"><span className="block text-lg font-semibold">{title}</span>{sub && <span className="block text-caption text-muted-foreground">{sub}</span>}</span>
+          <span className="min-w-0"><span className="block text-lg font-semibold">{title}</span>{sub && !open && <span className="block text-caption text-muted-foreground">{sub}</span>}</span>
           <span className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground tabular-nums">{meta}<ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" /></span>
         </CollapsibleTrigger>
         <CollapsibleContent className={cn(!open && "mb-1")}>{children}</CollapsibleContent>
@@ -238,7 +238,7 @@ export function Disclosure({ title, meta, defaultOpen, children, sub }: { title:
 export function Spotlight({ eyebrow, title, children, action, className, href, tone = "spot" }: { eyebrow?: ReactNode; title: ReactNode; children?: ReactNode; action?: ReactNode; className?: string; href?: string; tone?: "spot" | "ex" }) {
   const Box = (href ? "a" : "section") as "a";
   return (
-    <Box href={href} className={cn("group flex flex-col justify-between gap-6 rounded-xl border p-6 md:p-8", tone === "ex" ? "border-ex-band bg-ex-band text-ex-on" : "border-spot-line bg-spot text-spot-fg", href && "transition-[filter] hover:brightness-110", className)}>
+    <Box href={href} className={cn("group flex flex-col justify-between gap-5 rounded-xl border p-6", tone === "ex" ? "border-ex-band bg-ex-band text-ex-on" : "border-spot-line bg-spot text-spot-fg", href && "transition-[filter] hover:brightness-110", className)}>
       <div className="min-w-0">
         {eyebrow && <p className={cn("flex items-center gap-2 text-caption", tone === "ex" ? "text-ex-on-2" : "text-spot-fg/70")}><span className={cn("size-1.5 shrink-0 rounded-full", tone === "ex" ? "bg-ex-hue" : "bg-brand")} />{eyebrow}</p>}
         <h2 className="mt-3 max-w-3xl text-h2 font-semibold">{title}</h2>
@@ -251,15 +251,18 @@ export function Spotlight({ eyebrow, title, children, action, className, href, t
 /* Light button for the dark spotlight. */
 export const onDark = "bg-spot-fg text-spot hover:bg-spot-fg/90";
 
-/* Shortcut tile: icon, label, one line of value, one line of note, chevron. Same anatomy everywhere. */
-export function Tile({ href, icon: I, label, value, note }: { href: string; icon: typeof Search; label: string; value: ReactNode; note: ReactNode }) {
+/* Shortcut row: icon, value, one note, chevron. Tiles sit together in one TileRow, split by hairlines, not boxed one by one. */
+export function Tile({ href, icon: I, value, note }: { href: string; icon: typeof Search; label?: string; value: ReactNode; note: ReactNode }) {
   return (
-    <a href={href} className="group flex min-w-0 items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60">
-      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><I className="size-4" /></span>
-      <span className="min-w-0 flex-1"><span className="block text-xs text-muted-foreground">{label}</span><b className="block truncate text-sm font-medium">{value}</b><span className="block truncate text-xs text-muted-foreground">{note}</span></span>
+    <a href={href} className="group flex min-h-16 min-w-0 items-center gap-3 px-5 py-3 transition-colors hover:bg-accent/60">
+      <I className="size-4 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 flex-1"><b className="block truncate text-sm font-medium">{value}</b><span className="block truncate text-xs text-muted-foreground">{note}</span></span>
       <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
     </a>
   );
+}
+export function TileRow({ children, cols = 3 }: { children: ReactNode; cols?: 2 | 3 }) {
+  return <nav aria-label="Related" className={cn("grid overflow-hidden rounded-xl border bg-card max-sm:divide-y sm:divide-x", cols === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2")}>{children}</nav>;
 }
 
 /* "Show N more" for long lists. */

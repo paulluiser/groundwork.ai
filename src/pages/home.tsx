@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Meter } from "@/components/brand";
-import { Disclosure, onDark, Page, PageHeader, Spotlight, Tile } from "@/components/shell";
+import { Disclosure, onDark, Page, PageHeader, Spotlight, Tile, TileRow } from "@/components/shell";
 import { byId, coreLast, exercises, GENERAL, GW, hours, lessons, load, pathLong, plural, roleInfo, routeFor, save, totalMin, trackIdOf, trackName, uniq, type Lesson } from "@/lib/kern";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils";
 function Row({ l, done, next, onPath, showRole }: { l: Lesson; done: boolean; next?: boolean; onPath?: boolean; showRole?: boolean }) {
   return (
     <li>
-      <a href={"#" + l.id} aria-current={next ? "step" : undefined} className={cn("grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-3 px-4 py-2.5 transition-colors hover:bg-accent", next && "bg-brand-tint/60 hover:bg-brand-tint")}>
-        <span className={cn("pt-px text-caption tabular-nums", next ? "font-medium text-brand" : "text-muted-foreground")}>{l.num}</span>
+      <a href={"#" + l.id} aria-current={next ? "step" : undefined} className={cn("grid min-h-12 grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 px-5 py-2.5 transition-colors hover:bg-accent", next && "bg-brand-tint/60 hover:bg-brand-tint")}>
+        <span className={cn("text-caption tabular-nums", next ? "font-medium text-brand" : "text-muted-foreground")}>{l.num}</span>
         <span className="min-w-0">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">{l.title}
             {showRole && l.role && <Badge variant="outline" className="font-normal">{l.role}</Badge>}
@@ -25,7 +25,7 @@ function Row({ l, done, next, onPath, showRole }: { l: Lesson; done: boolean; ne
           </span>
           {next && <span className="mt-0.5 block text-caption text-muted-foreground">{l.summary}</span>}
         </span>
-        <span className={cn("whitespace-nowrap pt-px text-xs tabular-nums", done ? "text-brand" : next ? "font-medium text-foreground" : "text-muted-foreground")}>
+        <span className={cn("whitespace-nowrap text-xs tabular-nums", done ? "text-brand" : next ? "font-medium text-foreground" : "text-muted-foreground")}>
           {done ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="size-3.5" />Done</span> : next ? "Up next · " + l.minutes + " min" : l.minutes + " min"}
         </span>
       </a>
@@ -68,7 +68,7 @@ export default function Home(_: { onSearch?: () => void }) {
           {nl?.summary}
         </Spotlight>
         <Card className="gap-0 py-0">
-          <CardContent className="grid content-between gap-5 p-6">
+          <CardContent className="grid content-between gap-4 p-5">
             <div className="flex items-center gap-4">
               <Meter value={n / path.length} size={44} />
               <div><p className="text-h1 font-medium leading-none tabular-nums">{n}<span className="text-lg text-muted-foreground"> / {path.length}</span></p><p className="mt-1 text-xs text-muted-foreground">lessons done on your path</p></div>
@@ -82,13 +82,13 @@ export default function Home(_: { onSearch?: () => void }) {
           </CardContent>
         </Card>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+      <div className="mt-4"><TileRow>
         <Tile href="#exercises" icon={Dumbbell} label="Exercises" value={plural(ex.length, "exercise") + " on your path"} note={exDone ? exDone + " in lessons you’ve completed" : "Hands-on practice from your lessons"} />
         {GW.useCases?.length > 0 && <Tile href="#usecases" icon={Lightbulb} label="Use cases" value={plural(uc, "use case")} note={mine.length ? "For your roles, with guides" : "With step-by-step guides"} />}
         <Tile href="#review" icon={Repeat} label="Review terms" value={terms ? plural(terms, "term") + " unlocked" : "Nothing yet"} note="A few cards a day" />
-      </div>
+      </TileRow></div>
 
-      <div className="mb-4 mt-10 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-4 mt-12 flex flex-wrap items-center justify-between gap-3">
         <Tabs value={scope} onValueChange={(v) => { setScope(v); save("gw-homescope", v); }}>
           <TabsList><TabsTrigger value="path">Your path ({path.length})</TabsTrigger><TabsTrigger value="all">Full library ({lessons.length})</TabsTrigger></TabsList>
         </Tabs>
@@ -96,7 +96,7 @@ export default function Home(_: { onSearch?: () => void }) {
       </div>
 
       {scope === "path" ? (
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {stages.map((s) => {
             const d = s.ids.filter((id) => progress[id]).length;
             return (
@@ -108,7 +108,7 @@ export default function Home(_: { onSearch?: () => void }) {
           })}
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {GW.parts.map((p: { id: string; title: string; blurb: string }) => {
             const ls = lessons.filter((l) => l.part === p.id), d = ls.filter((l) => progress[l.id]).length;
             return (

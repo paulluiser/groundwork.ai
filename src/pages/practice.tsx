@@ -40,7 +40,7 @@ export function PracticeList() {
   return (
     <Page>
       <PageHeader back={["#exercises", "Exercises"]} title="You decide" description="Each draft came from an assistant. Decide whether it can ship, write down what you would check, then compare your call with a reviewer’s." />
-      <Spotlight className="mb-8" eyebrow={(next ? (done.length ? "Next draft · " : "Start here · ") + trackName(next.p.r) + " · " : "") + done.length + " of " + list.length + " reviewed" + (done.length ? ", same call as the reviewer on " + same : "")} title={next ? next.p.t : "You’ve made a call on every draft"}
+      <Spotlight className="mb-12" eyebrow={(next ? (done.length ? "Next draft · " : "Start here · ") + trackName(next.p.r) + " · " : "") + done.length + " of " + list.length + " reviewed" + (done.length ? ", same call as the reviewer on " + same : "")} title={next ? next.p.t : "You’ve made a call on every draft"}
         action={next && <><Button asChild className={onDark}><a href={"#practice/" + next.n}>{done.length ? "Next draft" : "Start with this draft"}<ChevronRight /></a></Button><span className="text-xs text-spot-fg/70">About 3 minutes</span></>}>
         {next?.p.ctx}
       </Spotlight>
